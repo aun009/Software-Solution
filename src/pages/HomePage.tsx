@@ -110,13 +110,13 @@ export const HomePage = () => {
             <span>Accelerate Your Vision</span>
           </motion.div>
           
-          <h1 className="hero-text text-[44px] sm:text-6xl md:text-[85px] lg:text-[100px] font-['Poppins'] font-normal tracking-[-0.04em] text-[#0f172a] mb-8 md:mb-10 leading-[1] md:leading-[1.1]">
+          <h1 className="hero-text text-[44px] sm:text-6xl md:text-[85px] lg:text-[100px] font-['Plus_Jakarta_Sans'] font-extrabold tracking-[-0.05em] text-[#0f172a] mb-8 md:mb-10 leading-[1] md:leading-[1.1]">
             Smart AI and <br className="hidden md:block" />
             <span className="bg-gradient-to-r from-blue-600 to-purple-500 bg-clip-text text-transparent font-[600]">Software Solutions</span>
             <br className="hidden md:block" /> for Your Business
           </h1>
           
-          <p className="hero-text text-lg md:text-2xl text-gray-600 max-w-3xl mb-12 md:mb-16 leading-relaxed font-medium">
+          <p className="hero-text text-lg md:text-2xl text-gray-600 max-w-3xl mb-12 md:mb-16 leading-relaxed font-['Inter'] font-normal">
             Delivering trusted AI tools and smart software solutions to help you build, innovate, and grow faster.
           </p>
           
@@ -139,18 +139,14 @@ export const HomePage = () => {
       </section>
 
       {/* Partner Marquee Rows */}
-      <section className="fade-up-section py-24 overflow-hidden border-y border-white/5 bg-[#020617] relative">
+      <section className="fade-up-section py-10 md:py-12 overflow-hidden border-y border-white/5 bg-[#020617] relative">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(59,130,246,0.15)_0%,transparent_60%)]" />
-        <div className="space-y-10 relative z-10 max-w-[100vw]">
-          <div className="text-center mb-6">
-            <h3 className="text-sm font-black text-blue-500 uppercase tracking-[0.3em] mb-3">Explore Supported Softwares</h3>
-            <p className="text-xl md:text-3xl font-bold text-white tracking-tight">Seamlessly integrates with your entire stack.</p>
-          </div>
+        <div className="flex flex-col gap-3 md:gap-4 relative z-10 max-w-[100vw]">
           {/* Row 1: Moving Right */}
           <div className="flex whitespace-nowrap">
-            <div className="flex animate-marquee-right gap-[6px] md:gap-4 items-center pr-[6px] md:pr-4 hover:[animation-play-state:paused] w-max py-4 pointer-events-none">
+            <div className="flex animate-marquee-right gap-[8px] md:gap-4 items-center pr-[8px] md:pr-4 hover:[animation-play-state:paused] w-max py-4 pointer-events-none" style={{ animationDuration: '60s' }}>
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="flex gap-[6px] md:gap-4 items-center">
+                <div key={i} className="flex gap-[8px] md:gap-4 items-center">
                   {[
                     { name: "ChatGPT", url: "openai.com" },
                     { name: "Claude", url: "anthropic.com" },
@@ -167,7 +163,7 @@ export const HomePage = () => {
                   ].map((item, idx) => (
                     <div 
                       key={idx} 
-                      className="shrink-0 flex flex-col items-center gap-[6px] bg-white/5 border border-white/10 rounded-[14px] px-3.5 py-4 min-w-[90px] cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:scale-[1.10] hover:shadow-2xl hover:z-50 relative group hover:bg-white/10 pointer-events-auto"
+                      className="shrink-0 flex flex-col items-center gap-[6px] bg-white/5 border border-white/10 rounded-[14px] px-3.5 py-2 md:py-2.5 min-w-[90px] cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:scale-[1.10] hover:shadow-2xl hover:z-50 relative group hover:bg-white/10 pointer-events-auto"
                     >
                       <img 
                         src={`https://img.logo.dev/${item.url}?token=${LOGO_DEV_PUBLIC_KEY}&size=128&format=png`} 
@@ -182,12 +178,11 @@ export const HomePage = () => {
               ))}
             </div>
           </div>
-
           {/* Row 2: Moving Left */}
           <div className="flex whitespace-nowrap">
-            <div className="flex animate-marquee-left gap-[6px] md:gap-4 items-center pr-[6px] md:pr-4 hover:[animation-play-state:paused] w-max py-4 pointer-events-none">
+            <div className="flex animate-marquee-left gap-[8px] md:gap-4 items-center pr-[8px] md:pr-4 hover:[animation-play-state:paused] w-max py-4 pointer-events-none" style={{ animationDuration: '60s' }}>
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="flex gap-[6px] md:gap-4 items-center">
+                <div key={i} className="flex gap-[8px] md:gap-4 items-center">
                   {[
                     { name: "Monday", url: "monday.com" },
                     { name: "ClickUp", url: "clickup.com" },
@@ -204,7 +199,7 @@ export const HomePage = () => {
                   ].map((item, idx) => (
                     <div 
                       key={idx} 
-                      className="shrink-0 flex flex-col items-center gap-[6px] bg-white/5 border border-white/10 rounded-[14px] px-3.5 py-4 min-w-[90px] cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:scale-[1.10] hover:shadow-2xl hover:z-50 relative group hover:bg-white/10 pointer-events-auto"
+                      className="shrink-0 flex flex-col items-center gap-[6px] bg-white/5 border border-white/10 rounded-[14px] px-3.5 py-2 md:py-2.5 min-w-[90px] cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:scale-[1.10] hover:shadow-2xl hover:z-50 relative group hover:bg-white/10 pointer-events-auto"
                     >
                       <img 
                         src={`https://img.logo.dev/${item.url}?token=${LOGO_DEV_PUBLIC_KEY}&size=128&format=png`} 
@@ -222,9 +217,9 @@ export const HomePage = () => {
 
           {/* Row 3: Moving Right */}
           <div className="flex whitespace-nowrap">
-            <div className="flex animate-marquee-right gap-[6px] md:gap-4 items-center pr-[6px] md:pr-4 hover:[animation-play-state:paused] w-max py-4 pointer-events-none">
+            <div className="flex animate-marquee-right gap-[8px] md:gap-4 items-center pr-[8px] md:pr-4 hover:[animation-play-state:paused] w-max py-4 pointer-events-none" style={{ animationDuration: '60s' }}>
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="flex gap-[6px] md:gap-4 items-center">
+                <div key={i} className="flex gap-[8px] md:gap-4 items-center">
                   {[
                     { name: "Figma", url: "figma.com" },
                     { name: "Linear", url: "linear.app" },
@@ -241,7 +236,7 @@ export const HomePage = () => {
                   ].map((item, idx) => (
                     <div 
                       key={idx} 
-                      className="shrink-0 flex flex-col items-center gap-[6px] bg-white/5 border border-white/10 rounded-[14px] px-3.5 py-4 min-w-[90px] cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:scale-[1.10] hover:shadow-2xl hover:z-50 relative group hover:bg-white/10 pointer-events-auto"
+                      className="shrink-0 flex flex-col items-center gap-[6px] bg-white/5 border border-white/10 rounded-[14px] px-3.5 py-2 md:py-2.5 min-w-[90px] cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:scale-[1.10] hover:shadow-2xl hover:z-50 relative group hover:bg-white/10 pointer-events-auto"
                     >
                       <img 
                         src={`https://img.logo.dev/${item.url}?token=${LOGO_DEV_PUBLIC_KEY}&size=128&format=png`} 

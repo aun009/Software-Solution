@@ -69,6 +69,47 @@ export const ProductDetails = () => {
     return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=0&mute=0&loop=1&controls=1` : url;
   };
 
+  const VisualAssets = () => (
+    <div className="group relative aspect-video md:aspect-[4/5] bg-gray-50 border border-gray-200 rounded-[24px] md:rounded-[40px] overflow-hidden shadow-2xl flex items-center justify-center bg-black">
+      {product.videoUrl && (product.videoUrl.includes('youtube.com') || product.videoUrl.includes('youtu.be')) ? (
+        <iframe 
+          className="absolute inset-0 w-full h-full flex-1 border-0"
+          src={getYouTubeEmbedUrl(product.videoUrl)}
+          title="YouTube video player"
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        />
+      ) : (
+        <>
+          <img 
+            src={product.image} 
+            alt="Product Preview" 
+            className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-1000"
+            referrerPolicy="no-referrer"
+          />
+          <div className="absolute inset-0 bg-white/20 group-hover:bg-transparent transition-colors pointer-events-none" />
+        </>
+      )}
+      
+      {!product.videoUrl && (
+        <div className="relative z-10 text-center px-6 md:px-10 pointer-events-none">
+          <div className="w-16 h-16 md:w-24 md:h-24 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-2xl transform group-hover:scale-110 transition-transform mb-4 md:mb-8 mx-auto">
+            <Play size={24} fill="currentColor" className="ml-1.5" />
+          </div>
+          <div className="space-y-2 md:space-y-3">
+            <span className="block text-gray-900 font-black uppercase tracking-[0.3em] text-[10px] md:text-xs">
+              Product Insight
+            </span>
+            <p className="text-gray-500 text-[9px] md:text-[10px] font-medium leading-relaxed max-w-[200px] mx-auto uppercase tracking-widest hidden md:block">
+              Visual representation of architectural efficiency.
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
   const getLogoUrl = (url: string, fallbackName: string) => {
     if (!url) return `https://ui-avatars.com/api/?name=${encodeURIComponent(fallbackName)}&background=random&bold=true&size=128&font-size=0.45&format=svg&uppercase=true`;
     if (url.includes('/') || url.startsWith('http')) return url;
@@ -115,6 +156,10 @@ export const ProductDetails = () => {
               </h1>
             </div>
             
+            <div className="block lg:hidden mb-10 w-full shadow-2xl rounded-[24px]">
+               <VisualAssets />
+            </div>
+
             <p className="text-lg md:text-2xl text-gray-500 leading-relaxed mb-10 md:mb-16 font-medium">
               {product.description}
             </p>
@@ -156,62 +201,25 @@ export const ProductDetails = () => {
             <div className="flex flex-col sm:flex-row gap-4 md:gap-6">
               <button 
                 onClick={() => window.open(`https://wa.me/919552530324?text=${encodeURIComponent(`Hello, I would like to inquire about the ${product.title} software solution. Could you please provide more details regarding its features?`)}`, '_blank')} 
-                className="px-8 md:px-12 py-4 md:py-5 bg-[#25D366] text-white rounded-2xl font-black text-base md:text-lg shadow-xl shadow-[#25D366]/20 transition-all active:scale-95 flex items-center justify-center gap-3 hover:bg-[#20BE5C]"
+                className="group overflow-hidden relative px-8 md:px-12 py-4 md:py-5 bg-[#25D366] text-white rounded-2xl font-black text-base md:text-lg shadow-xl shadow-[#25D366]/30 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 hover:shadow-2xl hover:shadow-[#25D366]/50 active:scale-95 flex items-center justify-center gap-3"
               >
-                <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" className="shrink-0"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-                Contact via WhatsApp
+                <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out" />
+                <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 transition-transform duration-500 group-hover:rotate-[20deg] group-hover:scale-125 relative z-10"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                <span className="relative z-10 block transition-transform group-hover:translate-x-1">Contact via WhatsApp</span>
               </button>
             </div>
           </motion.div>
         </div>
 
-        {/* Right Column: Visuals */}
-        <div className="lg:col-span-5">
+        {/* Right Column: Visuals (Desktop Only) */}
+        <div className="hidden lg:block lg:col-span-5">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, delay: 0.2 }}
             className="sticky top-32 md:top-48"
           >
-            {/* Image/Demo Area */}
-            <div className="group relative aspect-[4/5] bg-gray-50 border border-gray-200 rounded-[32px] md:rounded-[40px] overflow-hidden shadow-2xl flex items-center justify-center bg-black">
-              {product.videoUrl && (product.videoUrl.includes('youtube.com') || product.videoUrl.includes('youtu.be')) ? (
-                <iframe 
-                  className="absolute inset-0 w-full h-full flex-1 border-0"
-                  src={getYouTubeEmbedUrl(product.videoUrl)}
-                  title="YouTube video player"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              ) : (
-                <>
-                  <img 
-                    src={product.image} 
-                    alt="Product Preview" 
-                    className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-1000"
-                    referrerPolicy="no-referrer"
-                  />
-                  <div className="absolute inset-0 bg-white/20 group-hover:bg-transparent transition-colors pointer-events-none" />
-                </>
-              )}
-              
-              {!product.videoUrl && (
-                <div className="relative z-10 text-center px-6 md:px-10 pointer-events-none">
-                  <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-2xl transform group-hover:scale-110 transition-transform mb-6 md:mb-8 mx-auto">
-                    <Play size={28} fill="currentColor" className="ml-1.5" />
-                  </div>
-                  <div className="space-y-3">
-                    <span className="block text-gray-900 font-black uppercase tracking-[0.3em] text-[10px] md:text-xs">
-                      Product Insight
-                    </span>
-                    <p className="text-gray-500 text-[10px] font-medium leading-relaxed max-w-[200px] mx-auto uppercase tracking-widest">
-                      Visual representation of architectural efficiency.
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
+            <VisualAssets />
           </motion.div>
         </div>
       </div>
