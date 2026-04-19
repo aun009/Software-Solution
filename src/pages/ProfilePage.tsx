@@ -130,46 +130,42 @@ export const ProfilePage = () => {
                 initial={{ opacity: 0, scale: 0.9, y: 40 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9, y: 40 }}
-                className="relative w-full max-w-lg bg-white border border-gray-100 rounded-[48px] p-12 shadow-2xl overflow-hidden text-center"
+                className="relative w-full max-w-sm bg-white border border-gray-100 rounded-[32px] p-8 shadow-2xl overflow-hidden text-center"
               >
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-red-500/50 to-transparent" />
                 
                 <button 
                   onClick={() => setShowLogoutConfirm(false)}
-                  className="absolute top-8 right-8 text-gray-400 hover:text-gray-900 transition-colors"
+                  className="absolute top-5 right-5 text-gray-400 hover:text-gray-900 transition-colors"
                 >
-                  <X size={24} />
+                  <X size={20} />
                 </button>
 
-                <div className="w-24 h-24 bg-red-50 rounded-[32px] flex items-center justify-center text-red-600 mx-auto mb-10 shadow-inner">
-                  <LogOut size={40} />
+                <div className="w-14 h-14 bg-red-50 rounded-2xl flex items-center justify-center text-red-600 mx-auto mb-5 shadow-inner">
+                  <LogOut size={24} />
                 </div>
 
-                <h2 className="text-4xl font-black text-gray-900 tracking-tighter mb-4 uppercase">
+                <h2 className="text-2xl font-black text-gray-900 tracking-tighter mb-2 uppercase">
                   Confirm Logout?
                 </h2>
-                <p className="text-gray-500 font-medium text-lg leading-relaxed mb-12">
-                  You are about to terminate your active administrative session. You will need to re-authenticate to access your software suite.
+                <p className="text-gray-500 font-medium text-sm leading-relaxed mb-6">
+                  You'll need to re-authenticate to access your account.
                 </p>
 
-                <div className="space-y-4">
+                <div className="space-y-3">
                   <button 
                     onClick={() => logout()}
-                    className="w-full py-6 bg-red-600 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-xs hover:bg-red-700 transition-all active:scale-95 shadow-xl shadow-red-600/20"
+                    className="w-full py-4 bg-red-600 text-white rounded-xl font-black uppercase tracking-[0.2em] text-xs hover:bg-red-700 transition-all active:scale-95 shadow-lg shadow-red-600/20"
                   >
-                    Yes, Logout Now
+                    Yes, Logout
                   </button>
                   <button 
                     onClick={() => setShowLogoutConfirm(false)}
-                    className="w-full py-6 bg-gray-50 border border-gray-100 text-gray-900 rounded-2xl font-black uppercase tracking-[0.2em] text-xs hover:bg-gray-100 transition-all active:scale-95"
+                    className="w-full py-4 bg-gray-50 border border-gray-100 text-gray-900 rounded-xl font-black uppercase tracking-[0.2em] text-xs hover:bg-gray-100 transition-all active:scale-95"
                   >
-                    Stay Authenticated
+                    Stay Logged In
                   </button>
                 </div>
-
-                <p className="mt-12 text-[9px] text-gray-300 font-mono uppercase tracking-[0.5em]">
-                  Security Protocol 72-A • Session Management
-                </p>
               </motion.div>
             </div>
           )}

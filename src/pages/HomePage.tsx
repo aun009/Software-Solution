@@ -104,10 +104,10 @@ export const HomePage = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="hero-text inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-[10px] font-black uppercase tracking-[0.4em] mb-8 md:mb-10 backdrop-blur-xl"
+            className="hero-text inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-[9px] md:text-[10px] font-black uppercase tracking-widest md:tracking-[0.4em] mb-6 md:mb-10 max-w-[90vw]"
           >
-            <Sparkles size={14} />
-            <span>Accelerate Your Vision</span>
+            <Sparkles size={12} />
+            <span className="truncate">Accelerate Your Vision</span>
           </motion.div>
           
           <h1 className="hero-text text-[44px] sm:text-6xl md:text-[85px] lg:text-[100px] font-['Plus_Jakarta_Sans'] font-extrabold tracking-[-0.05em] text-[#0f172a] mb-8 md:mb-10 leading-[1] md:leading-[1.1]">

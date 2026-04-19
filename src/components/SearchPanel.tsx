@@ -65,7 +65,7 @@ export const SearchPanel = ({
             type="text"
             placeholder={placeholderText || "Search..."}
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => { setSearchTerm(e.target.value); if (e.target.value) setSelectedCategory('All' as Category); }}
             className="flex-1 w-full bg-transparent text-gray-900 pl-4 pr-6 py-3.5 text-lg font-sans font-medium placeholder:text-gray-400 focus:outline-none"
           />
           <button className="px-8 py-3.5 bg-blue-600 text-white font-black rounded-full text-sm uppercase tracking-wider hover:bg-blue-700 shadow-[0_4px_14px_rgba(37,99,235,0.2)] transition-all shrink-0 active:scale-95">

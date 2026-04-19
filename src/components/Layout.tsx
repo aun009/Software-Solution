@@ -95,10 +95,10 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
       </div>
 
       {/* Header - Pill Design */}
-      <header className="fixed top-0 md:top-6 z-[110] w-full md:w-auto md:left-1/2 md:-translate-x-1/2 px-4 md:px-0 pointer-events-none mt-4 md:mt-0">
+      <header className="fixed top-0 z-[110] w-full md:w-auto md:top-6 md:left-1/2 md:-translate-x-1/2 px-3 md:px-0 pointer-events-none mt-3 md:mt-0">
         <nav 
           ref={navRef}
-          className="pointer-events-auto w-full md:w-auto mx-auto bg-white/90 backdrop-blur-xl border border-gray-200/60 shadow-sm rounded-2xl md:rounded-full px-3 py-2.5 flex items-center justify-between gap-4 md:gap-12 transition-all"
+          className="pointer-events-auto w-full md:w-auto mx-auto bg-white border border-gray-200 shadow-sm rounded-2xl md:rounded-full px-2 md:px-3 py-2 md:py-2.5 flex items-center justify-between gap-1 md:gap-12 transition-all"
         >
           <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center gap-2 pl-2 group shrink-0">
             <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center group-hover:scale-105 transition-transform shadow-md shadow-blue-600/20">
@@ -113,15 +113,15 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
           </Link>
 
           {/* Navigation Links */}
-          <div className="flex items-center gap-1 md:gap-2">
-            <div className="flex items-center p-1 bg-gray-100 rounded-full">
+          <div className="flex items-center gap-0.5 md:gap-2">
+            <div className="flex items-center p-1 bg-gray-100 rounded-full gap-0.5">
               <NavLink to="/" icon={Home} label="Home" active={location.pathname === '/' && !location.hash} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} />
               <NavLink to="/about" icon={Info} label="About" active={location.pathname === '/about'} />
               <Link 
-                to="/#store" 
+                to="/store" 
                 className={cn(
                   "flex items-center gap-1.5 md:gap-2 px-3 md:px-5 py-2 md:py-2.5 rounded-full transition-all duration-300",
-                  location.hash === '#store'
+                  location.pathname === '/store'
                     ? "bg-blue-600 text-white shadow-md shadow-blue-500/20" 
                     : "text-gray-600 hover:text-gray-900 hover:bg-gray-100/80"
                 )}
