@@ -85,14 +85,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
     >
       <div 
         ref={cardRef}
-        className="relative h-full bg-white dark:bg-[#0d0d0d] border border-gray-100 dark:border-white/5 rounded-[32px] overflow-hidden flex flex-col hover:border-blue-500/30 transition-all duration-300 shadow-xl dark:shadow-2xl group"
+        className="relative h-full bg-white border border-gray-100 rounded-[32px] overflow-hidden flex flex-col hover:border-blue-500/30 transition-all duration-300 shadow-xl group"
       >
         {/* Dynamic Glow Overlay */}
         <div 
           ref={glowRef}
           className="pointer-events-none absolute -inset-px opacity-0 transition-opacity duration-300 z-10"
           style={{
-            background: 'radial-gradient(300px circle at center, rgba(59, 130, 246, 0.15), transparent 80%)',
+            background: 'radial-gradient(300px circle at center, rgba(59, 130, 246, 0.12), transparent 80%)',
           }}
         />
 
@@ -104,10 +104,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
             referrerPolicy="no-referrer"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d0d] dark:from-[#0d0d0d] light:from-white via-transparent to-transparent opacity-80" />
+          <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent opacity-80" />
           
           <div className="absolute top-6 left-6">
-            <span className="px-3 py-1 bg-black/60 backdrop-blur-md rounded-full text-[10px] font-black uppercase tracking-widest text-blue-400 border border-blue-500/20">
+            <span className="px-3 py-1 bg-white/60 backdrop-blur-md rounded-full text-[10px] font-black uppercase tracking-widest text-blue-600 border border-blue-500/10">
               {product.category}
             </span>
           </div>
@@ -122,21 +122,21 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
              <Star size={12} fill="currentColor" />
              <Star size={12} fill="currentColor" />
           </div>
-          <h3 className="text-2xl font-black dark:text-white text-gray-900 mb-3 tracking-tighter group-hover:text-blue-500 transition-colors">
+          <h3 className="text-2xl font-black text-gray-900 mb-3 tracking-tighter group-hover:text-blue-500 transition-colors">
             {product.title}
           </h3>
-          <p className="text-sm text-gray-500 line-clamp-3 mb-8 leading-relaxed font-medium">
+          <p className="text-sm text-gray-600 line-clamp-3 mb-8 leading-relaxed font-medium">
             {product.description}
           </p>
           
-          <div className="mt-auto pt-6 flex items-center justify-between border-t border-gray-100 dark:border-white/5">
+          <div className="mt-auto pt-6 flex items-center justify-between border-t border-gray-100">
             <div className="flex flex-col">
-              <span className="text-[9px] font-black text-gray-500 dark:text-gray-600 uppercase tracking-widest mb-1">Projected Cost</span>
-              <span className="text-xl font-black text-gray-900 dark:text-white italic tracking-tighter">${product.price || '999'}</span>
+              <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-1">Projected Cost</span>
+              <span className="text-xl font-black text-gray-900 italic tracking-tighter">${product.price || '999'}</span>
             </div>
             <Link 
               to={`/product/${product.id}`}
-              className="px-6 py-3 bg-gray-900 text-white dark:bg-white dark:text-black rounded-xl text-[10px] font-black uppercase tracking-[0.2em] shadow-lg hover:bg-blue-600 hover:text-white transition-all transform active:scale-95 flex items-center gap-2"
+              className="px-6 py-3 bg-gray-900 text-white rounded-xl text-[10px] font-black uppercase tracking-[0.2em] shadow-lg hover:bg-blue-600 hover:text-white transition-all transform active:scale-95 flex items-center gap-2"
             >
               Analyze
               <ArrowRight size={14} />

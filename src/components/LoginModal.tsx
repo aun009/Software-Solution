@@ -149,39 +149,39 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="absolute inset-0 bg-black/90 backdrop-blur-xl"
+        className="absolute inset-0 bg-gray-900/40 backdrop-blur-md"
       />
       
       <motion.div
         initial={{ opacity: 0, scale: 0.9, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="relative w-full max-w-lg bg-[#0a0a0a] border border-white/10 rounded-[40px] p-10 shadow-2xl overflow-hidden"
+        className="relative w-full max-w-lg bg-white border border-gray-100 rounded-[40px] p-10 shadow-2xl overflow-hidden"
       >
         <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-blue-500/50 to-transparent" />
         
         <button 
           onClick={onClose}
-          className="absolute top-8 right-8 text-gray-600 hover:text-white transition-colors"
+          className="absolute top-8 right-8 text-gray-400 hover:text-gray-900 transition-colors"
         >
           <X size={24} />
         </button>
 
         <div className="mb-12">
-          <div className="flex gap-8 mb-4 border-b border-white/5">
+          <div className="flex gap-8 mb-4 border-b border-gray-100">
              <button 
                onClick={() => { setMode('signin'); reset(); }}
-               className={`pb-4 text-[10px] font-black uppercase tracking-[0.3em] transition-all ${mode === 'signin' ? 'text-white border-b-2 border-white' : 'text-gray-600 hover:text-white'}`}
+               className={`pb-4 text-[10px] font-black uppercase tracking-[0.3em] transition-all ${mode === 'signin' ? 'text-gray-900 border-b-2 border-gray-900' : 'text-gray-400 hover:text-gray-900'}`}
              >
                Sign In
              </button>
              <button 
                onClick={() => { setMode('signup'); reset(); }}
-               className={`pb-4 text-[10px] font-black uppercase tracking-[0.3em] transition-all ${mode === 'signup' ? 'text-white border-b-2 border-white' : 'text-gray-600 hover:text-white'}`}
+               className={`pb-4 text-[10px] font-black uppercase tracking-[0.3em] transition-all ${mode === 'signup' ? 'text-gray-900 border-b-2 border-gray-900' : 'text-gray-400 hover:text-gray-900'}`}
              >
                Sign Up
              </button>
           </div>
-          <h2 className="text-4xl font-black text-white tracking-tighter mb-3">
+          <h2 className="text-4xl font-black text-gray-900 tracking-tighter mb-3">
              {mode === 'signin' ? 'Welcome Back' : 'Create Account'}
           </h2>
           <p className="text-gray-500 font-medium">
@@ -200,26 +200,26 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
               className="space-y-8"
             >
               <div className="space-y-3">
-                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Email Address</label>
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Email Address</label>
                 <div className="relative">
-                  <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-600" size={20} />
+                  <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
                   <input
                     type="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@company.com"
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 pl-14 pr-4 text-white placeholder:text-gray-700 focus:outline-none focus:border-white/20 transition-all font-bold"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-5 pl-14 pr-4 text-gray-900 placeholder:text-gray-300 focus:outline-none focus:border-blue-500/30 transition-all font-bold"
                   />
                 </div>
               </div>
 
-              {error && <p className="text-red-500 text-xs font-bold bg-red-500/10 p-4 rounded-2xl border border-red-500/20">{error}</p>}
+              {error && <p className="text-red-500 text-xs font-bold bg-red-50 p-4 rounded-2xl border border-red-100">{error}</p>}
 
               <button 
                 type="submit"
                 disabled={loading}
-                className="w-full py-5 bg-white text-black rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-gray-200 transition-all disabled:opacity-50 shadow-xl shadow-white/5"
+                className="w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-blue-700 transition-all disabled:opacity-50 shadow-xl shadow-blue-500/20"
               >
                 {loading ? <Loader2 className="animate-spin" size={18} /> : (
                   <>Continue <ArrowRight size={18} /></>
@@ -227,15 +227,15 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
               </button>
 
               <div className="relative py-4">
-                <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/5"></div></div>
-                <div className="relative flex justify-center text-[9px] uppercase tracking-[0.4em] font-black"><span className="bg-[#0a0a0a] px-5 text-gray-700">Enterprise Auth</span></div>
+                <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-100"></div></div>
+                <div className="relative flex justify-center text-[9px] uppercase tracking-[0.4em] font-black"><span className="bg-white px-5 text-gray-400">Enterprise Auth</span></div>
               </div>
 
               <button 
                 type="button"
                 onClick={handleGoogleLogin}
                 disabled={loading}
-                className="w-full py-5 bg-white/5 border border-white/10 rounded-2xl text-white font-bold flex items-center justify-center gap-4 hover:bg-white/10 transition-all disabled:opacity-50"
+                className="w-full py-5 bg-white border border-gray-200 rounded-2xl text-gray-900 font-bold flex items-center justify-center gap-4 hover:bg-gray-50 transition-all disabled:opacity-50"
               >
                 <Chrome size={20} className="text-blue-500" />
                 Google Authentication
@@ -251,37 +251,37 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
               exit={{ opacity: 0, x: -20 }}
               className="space-y-5"
             >
-              <p className="text-gray-500 text-sm mb-8 font-medium italic">Identification confirmed for <span className="text-white font-bold">{email}</span>. How shall we proceed?</p>
+              <p className="text-gray-500 text-sm mb-8 font-medium italic">Identification confirmed for <span className="text-gray-900 font-bold">{email}</span>. How shall we proceed?</p>
               
               <button 
                 onClick={() => setStep('password')}
-                className="w-full p-8 bg-white/5 border border-white/10 rounded-3xl flex items-center gap-6 hover:border-white/30 hover:bg-white/[0.07] transition-all group"
+                className="w-full p-8 bg-gray-50 border border-gray-100 rounded-3xl flex items-center gap-6 hover:border-blue-500/30 hover:bg-white transition-all group"
               >
-                <div className="w-14 h-14 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-400 group-hover:scale-110 transition-transform shadow-inner">
+                <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform shadow-sm">
                   <Lock size={24} />
                 </div>
                 <div className="text-left">
-                  <div className="text-white font-black uppercase tracking-tight text-lg">Use Password</div>
-                  <div className="text-gray-600 text-xs font-medium">Standard cryptographic verification</div>
+                  <div className="text-gray-900 font-black uppercase tracking-tight text-lg">Use Password</div>
+                  <div className="text-gray-400 text-xs font-medium">Standard cryptographic verification</div>
                 </div>
               </button>
 
               <button 
                 onClick={handleOTPLogin}
-                className="w-full p-8 bg-white/5 border border-white/10 rounded-3xl flex items-center gap-6 hover:border-white/30 hover:bg-white/[0.07] transition-all group"
+                className="w-full p-8 bg-gray-50 border border-gray-100 rounded-3xl flex items-center gap-6 hover:border-purple-500/30 hover:bg-white transition-all group"
               >
-                <div className="w-14 h-14 rounded-2xl bg-purple-500/10 flex items-center justify-center text-purple-400 group-hover:scale-110 transition-transform shadow-inner">
+                <div className="w-14 h-14 rounded-2xl bg-purple-50 flex items-center justify-center text-purple-600 group-hover:scale-110 transition-transform shadow-sm">
                   <Smartphone size={24} />
                 </div>
                 <div className="text-left">
-                  <div className="text-white font-black uppercase tracking-tight text-lg">Magic Link</div>
-                  <div className="text-gray-600 text-xs font-medium">Passwordless direct-to-inbox entry</div>
+                  <div className="text-gray-900 font-black uppercase tracking-tight text-lg">Magic Link</div>
+                  <div className="text-gray-400 text-xs font-medium">Passwordless direct-to-inbox entry</div>
                 </div>
               </button>
 
               <button 
                 onClick={() => setStep('email')}
-                className="w-full py-6 text-gray-700 hover:text-white text-[10px] font-black uppercase tracking-[0.4em] transition-colors"
+                className="w-full py-6 text-gray-400 hover:text-gray-900 text-[10px] font-black uppercase tracking-[0.4em] transition-colors"
               >
                 Return to previous step
               </button>
@@ -298,9 +298,9 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
               className="space-y-8"
             >
               <div className="space-y-3">
-                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Password</label>
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Password</label>
                 <div className="relative">
-                  <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-600" size={20} />
+                  <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
                   <input
                     type="password"
                     required
@@ -308,17 +308,17 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
                     autoFocus
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 pl-14 pr-4 text-white placeholder:text-gray-700 focus:outline-none focus:border-white/20 transition-all font-bold"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-5 pl-14 pr-4 text-gray-900 placeholder:text-gray-300 focus:outline-none focus:border-blue-500/30 transition-all font-bold"
                   />
                 </div>
               </div>
 
-              {error && <p className="text-red-500 text-xs font-bold bg-red-500/10 p-4 rounded-2xl border border-red-500/20">{error}</p>}
+              {error && <p className="text-red-500 text-xs font-bold bg-red-50 p-4 rounded-2xl border border-red-100">{error}</p>}
 
               <button 
                 type="submit"
                 disabled={loading}
-                className="w-full py-5 bg-white text-black rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-gray-200 transition-all disabled:opacity-50"
+                className="w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-blue-700 transition-all disabled:opacity-50"
               >
                 {loading ? <Loader2 className="animate-spin" size={18} /> : <><LogIn size={18} /> Authorize Session</>}
               </button>
@@ -326,7 +326,7 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
               <button 
                 type="button"
                 onClick={() => setStep('choice')}
-                className="w-full py-6 text-gray-700 hover:text-white text-[10px] font-black uppercase tracking-[0.4em] transition-colors"
+                className="w-full py-6 text-gray-400 hover:text-gray-900 text-[10px] font-black uppercase tracking-[0.4em] transition-colors"
               >
                 Difficulty logging in?
               </button>
@@ -343,34 +343,34 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
               className="space-y-6"
             >
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Full Name</label>
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Full Name</label>
                 <input
                   type="text"
                   required
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
                   placeholder="John Doe"
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-5 text-white placeholder:text-gray-700 focus:outline-none focus:border-white/20 transition-all font-bold"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-4 px-5 text-gray-900 placeholder:text-gray-300 focus:outline-none focus:border-blue-500/30 transition-all font-bold"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Choose Password</label>
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Choose Password</label>
                 <input
                   type="password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-5 text-white placeholder:text-gray-700 focus:outline-none focus:border-white/20 transition-all font-bold"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-4 px-5 text-gray-900 placeholder:text-gray-300 focus:outline-none focus:border-blue-500/30 transition-all font-bold"
                 />
               </div>
 
-              {error && <p className="text-red-500 text-xs font-bold bg-red-500/10 p-4 rounded-2xl border border-red-500/20">{error}</p>}
+              {error && <p className="text-red-500 text-xs font-bold bg-red-50 p-4 rounded-2xl border border-red-100">{error}</p>}
 
               <button 
                 type="submit"
                 disabled={loading}
-                className="w-full py-5 bg-white text-black rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-gray-200 transition-all disabled:opacity-50"
+                className="w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-blue-700 transition-all disabled:opacity-50 shadow-xl shadow-blue-500/20"
               >
                 {loading ? <Loader2 className="animate-spin" size={18} /> : <><UserPlus size={18} /> Establish Identity</>}
               </button>
@@ -378,7 +378,7 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
           )}
         </AnimatePresence>
 
-        <p className="mt-12 text-center text-[9px] text-gray-800 font-mono uppercase tracking-[0.5em]">
+        <p className="mt-12 text-center text-[9px] text-gray-400 font-mono uppercase tracking-[0.5em]">
           End-to-End Cryptographic Security • Software Store PBC
         </p>
       </motion.div>

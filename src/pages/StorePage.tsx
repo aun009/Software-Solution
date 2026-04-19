@@ -80,8 +80,8 @@ export const StorePage = () => {
           <div className="inline-block px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 mb-6 backdrop-blur-md">
             The Digital Exchange
           </div>
-          <h1 className="text-4xl md:text-7xl font-black dark:text-white text-gray-900 tracking-tighter mb-6 leading-tight">
-            Software <span className="text-gray-600">Store</span>
+          <h1 className="text-4xl md:text-7xl font-black text-gray-900 tracking-tighter mb-6 leading-tight">
+            Software <span className="text-gray-500">Store</span>
           </h1>
           <p className="text-gray-500 text-sm md:text-lg max-w-2xl mx-auto font-medium px-4">
             A curated ecosystem of industry-leading AI research tools and high-performance software architectures.
@@ -94,7 +94,7 @@ export const StorePage = () => {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-            className="flex flex-wrap md:flex-nowrap items-center justify-center gap-8 md:gap-0 p-8 md:p-12 rounded-[48px] bg-white dark:bg-[#0c1a1e] border border-gray-200 dark:border-white/5 relative overflow-hidden shadow-xl dark:shadow-2xl dot-grid"
+            className="flex flex-wrap md:flex-nowrap items-center justify-center gap-8 md:gap-0 p-8 md:p-12 rounded-[48px] bg-white border border-gray-200 relative overflow-hidden shadow-xl dot-grid"
             onMouseMove={(e) => {
               const card = e.currentTarget;
               const { left, top, width, height } = card.getBoundingClientRect();
@@ -123,14 +123,14 @@ export const StorePage = () => {
                     initial={{ scale: 0.5, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ delay: stat.delay, type: "spring", stiffness: 200 }}
-                    className="text-5xl md:text-6xl font-serif text-gray-900 dark:text-white italic mb-2 tracking-tighter group-hover:text-blue-500 transition-colors flex items-baseline gap-1"
+                    className="text-5xl md:text-6xl font-serif text-gray-900 italic mb-2 tracking-tighter group-hover:text-blue-600 transition-colors flex items-baseline gap-1"
                   >
                     {stat.value}
-                    {stat.suffix && <span className="text-xl md:text-2xl text-blue-600 dark:text-blue-500 not-italic font-sans">{stat.suffix}</span>}
+                    {stat.suffix && <span className="text-xl md:text-2xl text-blue-600 not-italic font-sans">{stat.suffix}</span>}
                   </motion.div>
                   <TypewriterLabel text={stat.label} delay={stat.delay + 0.5} />
                 </div>
-                {i < 3 && <div className="hidden md:block w-px h-16 bg-gray-200 dark:bg-white/10" />}
+                {i < 3 && <div className="hidden md:block w-px h-16 bg-gray-200" />}
               </React.Fragment>
             ))}
           </motion.div>
@@ -151,7 +151,7 @@ export const StorePage = () => {
             <div className="w-12 h-12 rounded-2xl bg-blue-600/10 flex items-center justify-center text-blue-500">
               <TrendingUp size={24} />
             </div>
-            <h2 className="text-3xl font-black dark:text-white text-gray-900 tracking-tight uppercase">Trending Softwares</h2>
+            <h2 className="text-3xl font-black text-gray-900 tracking-tight uppercase">Trending Softwares</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {allProducts.slice(0, 3).map((product, idx) => (
@@ -166,8 +166,8 @@ export const StorePage = () => {
       )}
 
       {/* Grid Section */}
-      <section className="max-w-7xl mx-auto px-4 md:px-6 pt-12 border-t border-white/5 dark:border-white/5 light:border-gray-100 relative">
-        <div className="absolute top-0 right-4 md:right-6 -translate-y-1/2 flex items-center gap-2 px-4 py-1.5 bg-gray-900 dark:bg-[#050505] light:bg-white border border-white/5 dark:border-white/5 light:border-gray-100 rounded-full">
+      <section className="max-w-7xl mx-auto px-4 md:px-6 pt-12 border-t border-gray-100 relative">
+        <div className="absolute top-0 right-4 md:right-6 -translate-y-1/2 flex items-center gap-2 px-4 py-1.5 bg-white border border-gray-100 rounded-full">
            <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
            <span className="text-[10px] font-mono text-gray-600 uppercase tracking-widest">Live Sync Enabled</span>
         </div>
@@ -178,16 +178,16 @@ export const StorePage = () => {
           viewport={{ once: true }}
           className="flex flex-col md:flex-row items-baseline justify-between mb-12 md:mb-16 gap-4"
         >
-          <h2 className="text-3xl md:text-4xl font-black dark:text-white text-gray-900 tracking-tight flex items-center gap-4">
+          <h2 className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight flex items-center gap-4">
             Software Hub
             {filteredProducts.length > 0 && (
-              <span className="text-sm font-mono text-gray-700 dark:bg-white/5 light:bg-gray-100 px-4 py-1.5 rounded-full border border-white/5 dark:border-white/5 light:border-gray-100">
+              <span className="text-sm font-mono text-gray-700 bg-gray-100 px-4 py-1.5 rounded-full border border-gray-100">
                 {filteredProducts.length}
               </span>
             )}
           </h2>
           <div className="flex items-center gap-6">
-            <p className="text-gray-500 font-bold uppercase text-[10px] tracking-[0.3em] bg-white/5 px-4 py-1.5 rounded-lg border border-white/5">
+            <p className="text-gray-500 font-bold uppercase text-[10px] tracking-[0.3em] bg-gray-50 px-4 py-1.5 rounded-lg border border-gray-100">
               Verified Deployments
             </p>
           </div>
@@ -195,7 +195,7 @@ export const StorePage = () => {
 
         {loading ? (
            <div className="py-48 flex flex-col items-center justify-center gap-4">
-             <Loader2 className="animate-spin dark:text-white text-gray-900" size={40} />
+             <Loader2 className="animate-spin text-gray-900" size={40} />
              <p className="text-gray-500 font-mono text-xs uppercase tracking-widest">Querying Global Matrix...</p>
            </div>
         ) : filteredProducts.length > 0 ? (

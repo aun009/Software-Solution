@@ -27,11 +27,11 @@ export const AboutPage = () => {
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="inline-block px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-[10px] font-black uppercase tracking-[0.4em] text-blue-500 mb-8 backdrop-blur-md"
+            className="inline-block px-4 py-1.5 rounded-full bg-blue-50 border border-blue-100 text-[10px] font-black uppercase tracking-[0.4em] text-blue-600 mb-8 backdrop-blur-md"
           >
             The Vanguard of Innovation
           </motion.div>
-          <h1 className="fade-in text-5xl md:text-[100px] font-black tracking-tighter text-white dark:text-white mb-10 leading-[0.9] text-gray-900 light:text-gray-900">
+          <h1 className="fade-in text-5xl md:text-[100px] font-black tracking-tighter text-gray-900 mb-10 leading-[0.9] text-center">
             Pioneering the <br /> <span className="text-blue-600">AI Frontier</span>
           </h1>
           <p className="fade-in text-xl md:text-3xl text-gray-500 max-w-4xl mx-auto font-medium leading-relaxed">
@@ -42,16 +42,16 @@ export const AboutPage = () => {
         {/* Story Grid */}
         <div className="grid lg:grid-cols-2 gap-20 items-center mb-48">
           <div className="space-y-10">
-            <h2 className="fade-in text-4xl md:text-6xl font-black tracking-tight dark:text-white text-gray-900 uppercase">Our Legacy</h2>
+            <h2 className="fade-in text-4xl md:text-6xl font-black tracking-tight text-gray-900 uppercase">Our Legacy</h2>
             <p className="fade-in text-lg text-gray-500 leading-relaxed font-medium">
               Founded in 2024, Software Store began with a singular vision: to make the world's most advanced AI architectures accessible to every business, regardless of size. 
             </p>
             <div className="fade-in grid grid-cols-2 gap-8">
-              <div className="p-8 rounded-[32px] bg-white/[0.02] border border-white/5 light:bg-gray-50 light:border-gray-200">
+              <div className="p-8 rounded-[32px] bg-white border border-gray-100 shadow-sm">
                 <div className="text-4xl font-black text-blue-600 mb-2">500+</div>
                 <div className="text-xs font-black uppercase tracking-widest text-gray-500">Global Partners</div>
               </div>
-              <div className="p-8 rounded-[32px] bg-white/[0.02] border border-white/5 light:bg-gray-50 light:border-gray-200">
+              <div className="p-8 rounded-[32px] bg-white border border-gray-100 shadow-sm">
                 <div className="text-4xl font-black text-blue-600 mb-2">99.9%</div>
                 <div className="text-xs font-black uppercase tracking-widest text-gray-500">Reliability Rate</div>
               </div>
@@ -59,10 +59,10 @@ export const AboutPage = () => {
           </div>
           <div className="relative fade-in">
             <div className="absolute inset-0 bg-blue-600/10 blur-[100px] rounded-full" />
-            <div className="relative aspect-square rounded-[64px] bg-[#0d0d0d] border border-white/5 overflow-hidden flex items-center justify-center light:bg-white light:border-gray-100 shadow-2xl">
-              <Globe size={200} className="text-white/5 animate-pulse light:text-blue-500/5 shadow-inner" />
+            <div className="relative aspect-square rounded-[64px] bg-white border border-gray-100 overflow-hidden flex items-center justify-center shadow-2xl">
+              <Globe size={200} className="text-blue-600/5 animate-pulse" />
               <div className="absolute inset-0 flex items-center justify-center">
-                <Target size={60} className="text-blue-500 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]" />
+                <Target size={60} className="text-blue-600 drop-shadow-[0_0_15px_rgba(59,130,246,0.3)]" />
               </div>
             </div>
           </div>
@@ -71,7 +71,7 @@ export const AboutPage = () => {
         {/* Core Values */}
         <section className="mb-48">
           <div className="text-center mb-20">
-            <h2 className="fade-in text-4xl md:text-6xl font-black tracking-tighter dark:text-white text-gray-900 uppercase">Core Principles</h2>
+            <h2 className="fade-in text-4xl md:text-6xl font-black tracking-tighter text-gray-900 uppercase">Core Principles</h2>
           </div>
           <div className="grid md:grid-cols-3 gap-10">
             {[
@@ -79,11 +79,11 @@ export const AboutPage = () => {
               { icon: Cpu, title: "Compute Optimized", desc: "Our tools are engineered to provide maximum results with minimal resource overhead." },
               { icon: MessageSquare, title: "Human Centric", desc: "AI should amplify human creativity, not replace it. We build with this empathy." }
             ].map((item, i) => (
-              <div key={i} className="fade-in p-10 bg-white/[0.02] border border-white/5 rounded-[40px] light:bg-gray-50 light:border-gray-200 hover:border-blue-500/30 transition-all group">
+              <div key={i} className="fade-in p-10 bg-white border border-gray-100 rounded-[40px] hover:border-blue-500/30 transition-all group shadow-sm">
                 <div className="w-16 h-16 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-500 mb-8 group-hover:bg-blue-600 group-hover:text-white transition-all">
                   <item.icon size={28} />
                 </div>
-                <h3 className="text-2xl font-black dark:text-white text-gray-900 mb-4 uppercase tracking-tighter">{item.title}</h3>
+                <h3 className="text-2xl font-black text-gray-900 mb-4 uppercase tracking-tighter">{item.title}</h3>
                 <p className="text-gray-500 leading-relaxed font-medium">{item.desc}</p>
               </div>
             ))}

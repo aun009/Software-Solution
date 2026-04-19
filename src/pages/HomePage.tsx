@@ -46,7 +46,7 @@ export const HomePage = () => {
   return (
     <div ref={containerRef} className="w-full relative z-10 overflow-hidden selection:bg-blue-500/30">
       {/* Background Decorative Mesh */}
-      <div className="absolute top-0 left-0 w-full h-[100vh] pointer-events-none opacity-20 dark:opacity-20 light:opacity-5 overflow-hidden -z-10">
+      <div className="absolute top-0 left-0 w-full h-[100vh] pointer-events-none opacity-5 overflow-hidden -z-10">
         <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-blue-600/30 blur-[180px] rounded-full" />
         <div className="absolute bottom-[10%] right-[-10%] w-[50%] h-[50%] bg-purple-600/20 blur-[180px] rounded-full" />
       </div>
@@ -75,31 +75,31 @@ export const HomePage = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="hero-text inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-blue-400 text-[10px] font-black uppercase tracking-[0.4em] mb-10 md:mb-12 backdrop-blur-xl"
+            className="hero-text inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-[10px] font-black uppercase tracking-[0.4em] mb-10 md:mb-12 backdrop-blur-xl"
           >
             <Sparkles size={14} />
             <span>Accelerate Your Vision</span>
           </motion.div>
           
-          <h1 className="hero-text text-5xl md:text-[90px] font-black tracking-tighter dark:text-white text-gray-900 mb-8 leading-[0.95] max-w-5xl mx-auto">
-             Smart <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500">AI</span> and <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500">Software</span> Solutions for Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-blue-500 to-indigo-600 dark:from-white dark:via-white dark:to-gray-600">Business Growth</span>
+          <h1 className="hero-text text-5xl md:text-[90px] font-black tracking-tighter text-gray-900 mb-8 leading-[0.95] max-w-5xl mx-auto">
+             Smart <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500">AI</span> and <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500">Software</span> Solutions for Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-blue-500 to-indigo-600">Business Growth</span>
           </h1>
           
-          <p className="hero-text text-lg md:text-2xl dark:text-gray-500 text-gray-600 max-w-3xl mx-auto mb-14 md:mb-16 leading-relaxed font-medium">
+          <p className="hero-text text-lg md:text-2xl text-gray-600 max-w-3xl mx-auto mb-14 md:mb-16 leading-relaxed font-medium">
             Delivering Trusted AI Tools and Smart Software Solutions to Help You Build, Innovate, and Grow Faster.
           </p>
           
           <div className="hero-text flex flex-col sm:flex-row gap-5 justify-center items-center">
              <Link 
               to="/store" 
-              className="px-10 py-5 bg-white text-black dark:bg-white dark:text-black light:bg-blue-600 light:text-white rounded-2xl font-black text-sm uppercase tracking-widest flex items-center gap-3 hover:bg-gray-200 light:hover:bg-blue-700 transition-all hover:scale-105 active:scale-95 shadow-[0_20px_50px_rgba(59,130,246,0.3)] dark:shadow-blue-500/10"
+              className="px-10 py-5 bg-blue-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest flex items-center gap-3 hover:bg-blue-700 transition-all hover:scale-105 active:scale-95 shadow-xl"
              >
                Explore Our Software
                <ArrowRight size={18} />
              </Link>
              <Link 
               to="/store"
-              className="px-10 py-5 border border-white/10 text-white dark:text-white dark:border-white/10 light:text-gray-900 light:border-gray-900/10 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-white/5 light:hover:bg-gray-100 transition-all backdrop-blur-sm"
+              className="px-10 py-5 border border-gray-200 text-gray-900 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-gray-100 transition-all backdrop-blur-sm"
              >
                View Catalog
              </Link>
@@ -108,7 +108,7 @@ export const HomePage = () => {
       </section>
 
       {/* Partner Marquee Rows */}
-      <section className="fade-up-section py-20 overflow-hidden border-y border-gray-900/5 dark:border-white/5 bg-white/[0.01]">
+      <section className="fade-up-section py-20 overflow-hidden border-y border-gray-100 bg-gray-50/30">
         <div className="space-y-12">
           {/* Row 1: Moving Right */}
           <div className="flex whitespace-nowrap overflow-hidden group">
@@ -130,10 +130,10 @@ export const HomePage = () => {
                     <div 
                       key={idx} 
                       style={{ backgroundColor: item.bg }}
-                      className="flex items-center gap-3 px-6 py-3 rounded-2xl border border-white/5 dark:border-white/5 light:border-gray-200 text-gray-300 dark:text-gray-700 hover:text-blue-500 dark:hover:text-white transition-all duration-300 cursor-default grayscale hover:grayscale-0 shadow-lg"
+                      className="flex items-center gap-3 px-6 py-3 rounded-2xl border border-gray-200 text-gray-500 transition-all duration-300 cursor-default grayscale hover:grayscale-0 shadow-lg"
                     >
                       <item.Icon size={24} strokeWidth={1.5} className={`text-${item.color}-500`} />
-                      <span className="font-black uppercase tracking-[0.3em] text-[10px] md:text-xs">{item.name}</span>
+                      <span className="font-black uppercase tracking-[0.3em] text-[10px] md:text-xs text-gray-900">{item.name}</span>
                     </div>
                   ))}
                 </div>
@@ -161,10 +161,10 @@ export const HomePage = () => {
                     <div 
                       key={idx} 
                       style={{ backgroundColor: item.bg }}
-                      className="flex items-center gap-3 px-6 py-3 rounded-2xl border border-white/5 dark:border-white/5 light:border-gray-200 text-gray-300 dark:text-gray-700 hover:text-purple-500 dark:hover:text-white transition-all duration-300 cursor-default grayscale hover:grayscale-0 shadow-lg"
+                      className="flex items-center gap-3 px-6 py-3 rounded-2xl border border-gray-200 text-gray-500 transition-all duration-300 cursor-default grayscale hover:grayscale-0 shadow-lg"
                     >
                       <item.Icon size={24} strokeWidth={1.5} className={`text-${item.color}-500`} />
-                      <span className="font-black uppercase tracking-[0.3em] text-[10px] md:text-xs">{item.name}</span>
+                      <span className="font-black uppercase tracking-[0.3em] text-[10px] md:text-xs text-gray-900">{item.name}</span>
                     </div>
                   ))}
                 </div>
@@ -175,7 +175,7 @@ export const HomePage = () => {
       </section>
 
       {/* Value Pillars - Simplified */}
-      <section className="fade-up-section py-32 px-6 bg-[#09090b] dark:bg-[#09090b] light:bg-white border-y border-white/5">
+      <section className="fade-up-section py-32 px-6 bg-white border-y border-gray-100">
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-3 gap-10">
              {[
@@ -186,13 +186,13 @@ export const HomePage = () => {
                <motion.div 
                  key={i} 
                  whileHover={{ y: -15 }}
-                 className="p-10 bg-white/[0.02] dark:bg-white/[0.02] light:bg-gray-50 border border-white/5 dark:border-white/5 light:border-gray-200 rounded-[40px] hover:border-blue-500/20 transition-all group relative overflow-hidden"
+                 className="p-10 bg-gray-50 border border-gray-100 rounded-[40px] hover:border-blue-500/20 transition-all group relative overflow-hidden shadow-sm"
                >
-                  <div className={`absolute top-0 right-0 w-32 h-32 bg-${item.color}-500/5 blur-[50px] rounded-full group-hover:bg-${item.color}-500/15 transition-all duration-700`} />
-                  <div className="w-16 h-16 rounded-2xl bg-white/5 dark:bg-white/5 light:bg-gray-200/50 flex items-center justify-center dark:text-white text-gray-900 mb-8 group-hover:bg-blue-600 group-hover:text-white transition-all group-hover:scale-110 shadow-2xl">
+                  <div className={`absolute top-0 right-0 w-32 h-32 bg-${item.color}-500/5 blur-[50px] rounded-full group-hover:bg-${item.color}-500/10 transition-all duration-700`} />
+                  <div className="w-16 h-16 rounded-2xl bg-white flex items-center justify-center text-gray-900 mb-8 group-hover:bg-blue-600 group-hover:text-white transition-all group-hover:scale-110 shadow-lg">
                      <item.icon size={28} />
                   </div>
-                  <h3 className="text-2xl font-black dark:text-white text-gray-900 mb-4 uppercase tracking-tighter">{item.title}</h3>
+                  <h3 className="text-2xl font-black text-gray-900 mb-4 uppercase tracking-tighter">{item.title}</h3>
                   <p className="text-gray-500 leading-relaxed font-medium text-base">{item.desc}</p>
                   <div className="mt-8 overflow-hidden h-1 w-0 group-hover:w-full bg-gradient-to-r from-transparent via-blue-500/20 to-transparent transition-all duration-700" />
                </motion.div>
@@ -202,38 +202,38 @@ export const HomePage = () => {
       </section>
 
       {/* Modern Split Feature - Simplified */}
-      <section className="fade-up-section py-32 md:py-48 px-6 bg-[#0c0c0e] dark:bg-[#0c0c0e] light:bg-white border-y border-white/5 dark:border-white/5 light:border-gray-100">
+      <section className="fade-up-section py-32 md:py-48 px-6 bg-white border-y border-gray-100">
         <div className="max-w-7xl mx-auto">
            <div className="grid lg:grid-cols-2 gap-20 items-center">
               <div className="space-y-8">
                 <div className="inline-block px-3 py-1 rounded-md bg-blue-500/10 text-[10px] font-black text-blue-500 uppercase tracking-widest">
                    The Digital Edge
                 </div>
-                <h2 className="text-4xl md:text-7xl font-black dark:text-white text-gray-900 tracking-tighter leading-none">
+                <h2 className="text-4xl md:text-7xl font-black text-gray-900 tracking-tighter leading-none">
                   Build the <br /> Future Today.
                 </h2>
                 <p className="text-lg md:text-xl text-gray-500 font-medium leading-relaxed">
                   We don't just provide software; we provide the competitive advantage. Our tools are designed to integrate seamlessly into your workflow and amplify your results.
                 </p>
                 <div className="pt-6">
-                   <Link to="/store" className="inline-flex items-center gap-4 text-xs font-black uppercase tracking-[0.3em] dark:text-white text-gray-900 duration-300 hover:text-blue-500 transition-colors">
-                      Enter the Catalog <div className="w-8 h-8 rounded-full border border-gray-900/20 dark:border-white/10 flex items-center justify-center group-hover:border-blue-500"><ArrowRight size={14} /></div>
+                   <Link to="/store" className="inline-flex items-center gap-4 text-xs font-black uppercase tracking-[0.3em] text-gray-900 duration-300 hover:text-blue-500 transition-colors">
+                      Enter the Catalog <div className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center group-hover:border-blue-500"><ArrowRight size={14} /></div>
                    </Link>
                 </div>
               </div>
               <div className="relative">
                  <div className="absolute inset-0 bg-blue-500/10 blur-[100px] rounded-full" />
-                 <div className="relative aspect-video rounded-[40px] bg-gray-900 dark:bg-[#111] light:bg-[#f5f5f5] border border-white/5 dark:border-white/5 light:border-gray-200 overflow-hidden flex items-center justify-center p-12 shadow-2xl">
-                   <Globe size={180} className="dark:text-white/5 text-gray-900/5 animate-pulse" />
-                   <div className="absolute bottom-8 left-8 right-8">
-                      <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+                 <div className="relative aspect-video rounded-[40px] bg-white border border-gray-200 overflow-hidden flex items-center justify-center p-12 shadow-2xl">
+                    <Globe size={180} className="text-gray-900/5 animate-pulse" />
+                    <div className="absolute bottom-8 left-8 right-8">
+                      <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
                         <motion.div 
-                          className="h-full bg-blue-500" 
+                          className="h-full bg-blue-600" 
                           animate={{ width: ["0%", "100%", "0%"] }}
                           transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                         />
                       </div>
-                   </div>
+                    </div>
                  </div>
               </div>
            </div>
@@ -241,7 +241,7 @@ export const HomePage = () => {
       </section>
 
       {/* About Us Section */}
-      <section id="about" className="fade-up-section py-48 px-6 bg-[#050508] dark:bg-[#050510] light:bg-[#f9fafb] border-t border-white/5 dark:border-white/5 light:border-gray-100 relative overflow-hidden">
+      <section id="about" className="fade-up-section py-48 px-6 bg-gray-50 border-t border-gray-100 relative overflow-hidden">
         <div className="absolute top-1/4 -right-20 w-96 h-96 bg-blue-600/5 blur-[150px] rounded-full pointer-events-none" />
         <div className="absolute bottom-1/4 -left-20 w-96 h-96 bg-purple-600/5 blur-[150px] rounded-full pointer-events-none" />
         
@@ -254,13 +254,13 @@ export const HomePage = () => {
             >
               🔮
             </motion.div>
-            <h2 className="text-5xl md:text-8xl font-black dark:text-white text-gray-900 tracking-tighter mb-8 uppercase">Our <span className="text-gray-800 dark:text-gray-800 light:text-gray-300">Mission</span></h2>
+            <h2 className="text-5xl md:text-8xl font-black text-gray-900 tracking-tighter mb-8 uppercase">Our <span className="text-gray-400">Mission</span></h2>
             <div className="w-32 h-1.5 bg-gradient-to-r from-blue-600 to-purple-600 mx-auto rounded-full" />
-            <p className="text-gray-400 text-xl md:text-3xl mt-12 font-medium leading-[1.4]">
+            <p className="text-gray-600 text-xl md:text-3xl mt-12 font-medium leading-[1.4]">
               We empower visionaries with the tools of tomorrow. Our mission is to democratize high-entropy AI systems, making industrial-grade software accessible to every innovator.
             </p>
             <div className="mt-12">
-              <Link to="/about" className="text-blue-500 font-black uppercase tracking-widest text-xs hover:text-blue-400 transition-colors flex items-center justify-center gap-2">
+              <Link to="/about" className="text-blue-600 font-black uppercase tracking-widest text-xs hover:text-blue-700 transition-colors flex items-center justify-center gap-2">
                 Learn our full story <ArrowRight size={14} />
               </Link>
             </div>
@@ -293,25 +293,25 @@ export const HomePage = () => {
                 detail: "Zero downtime migrations."
               }
             ].map((feature, i) => (
-              <div key={i} className="p-10 rounded-[48px] bg-white/[0.01] dark:bg-white/[0.01] light:bg-gray-50 border border-white/5 dark:border-white/5 light:border-gray-200 hover:bg-white/[0.03] light:hover:bg-gray-100 transition-all group text-center">
-                <div className="w-16 h-16 rounded-3xl bg-blue-600/10 flex items-center justify-center text-blue-500 mx-auto mb-10 group-hover:scale-110 transition-transform">
+              <div key={i} className="p-10 rounded-[48px] bg-white border border-gray-100 hover:bg-gray-50 transition-all group text-center shadow-sm">
+                <div className="w-16 h-16 rounded-3xl bg-blue-600/10 flex items-center justify-center text-blue-600 mx-auto mb-10 group-hover:scale-110 transition-transform">
                   <feature.icon size={28} />
                 </div>
-                <h3 className="text-xl font-black dark:text-white text-gray-900 mb-4 uppercase tracking-tight">{feature.title}</h3>
+                <h3 className="text-xl font-black text-gray-900 mb-4 uppercase tracking-tight">{feature.title}</h3>
                 <p className="text-gray-500 text-sm leading-relaxed mb-6">{feature.desc}</p>
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-500/50">{feature.detail}</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-600/50">{feature.detail}</span>
               </div>
             ))}
           </div>
 
           {/* Join Our Mission Box - Static per request */}
           <div className="mt-48 w-full flex justify-center">
-            <div className="join-mission-box w-full h-80 rounded-[48px] bg-gradient-to-br from-blue-600/10 via-white/5 to-purple-600/10 dark:from-blue-600/20 dark:via-white/5 dark:to-purple-600/20 light:from-blue-50 light:to-purple-50 border border-white/10 dark:border-white/10 light:border-gray-200 flex items-center justify-center relative overflow-hidden group shadow-[0_40px_100px_rgba(59,130,246,0.15)] backdrop-blur-3xl">
-               <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/10 to-purple-500/10 opacity-30 group-hover:opacity-100 transition-opacity duration-1000" />
+            <div className="join-mission-box w-full h-80 rounded-[48px] bg-white border border-gray-200 flex items-center justify-center relative overflow-hidden group shadow-2xl backdrop-blur-3xl">
+               <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/5 to-purple-500/5 opacity-30 group-hover:opacity-100 transition-opacity duration-1000" />
                <div className="relative z-10 text-center px-12">
-                  <h3 className="text-3xl md:text-5xl font-black dark:text-white text-gray-900 uppercase tracking-tighter mb-6">Join Our Mission</h3>
-                  <p className="text-gray-400 dark:text-gray-400 light:text-gray-600 font-medium max-w-xl mx-auto text-lg leading-relaxed">Help us shape the future of artificial intelligence and enterprise software solutions. We're building tools that change the world.</p>
-                  <button className="mt-10 px-12 py-5 bg-white text-black dark:bg-white dark:text-black light:bg-blue-600 light:text-white font-black uppercase tracking-widest text-sm rounded-2xl hover:scale-105 transition-all shadow-2xl active:scale-95">
+                  <h3 className="text-3xl md:text-5xl font-black text-gray-900 uppercase tracking-tighter mb-6">Join Our Mission</h3>
+                  <p className="text-gray-600 font-medium max-w-xl mx-auto text-lg leading-relaxed">Help us shape the future of artificial intelligence and enterprise software solutions. We're building tools that change the world.</p>
+                  <button className="mt-10 px-12 py-5 bg-blue-600 text-white font-black uppercase tracking-widest text-sm rounded-2xl hover:scale-105 transition-all shadow-xl active:scale-95">
                     Get Involved
                   </button>
                </div>
@@ -321,25 +321,25 @@ export const HomePage = () => {
           {/* New Narrative Block */}
           <div className="mt-48 grid lg:grid-cols-2 gap-24 items-center">
              <div className="space-y-12">
-                <h3 className="text-4xl md:text-6xl font-black dark:text-white text-gray-900 tracking-tighter leading-none uppercase">
+                <h3 className="text-4xl md:text-6xl font-black text-gray-900 tracking-tighter leading-none uppercase">
                   Innovation Through <br /> <span className="text-blue-600 underline underline-offset-8">Disruption</span>
                 </h3>
                 <div className="space-y-8">
                    <div className="flex gap-6">
-                      <div className="w-12 h-12 rounded-full border border-gray-900/10 dark:border-white/10 flex items-center justify-center dark:text-white text-gray-900 shrink-0 font-black">01</div>
-                      <p className="text-gray-400 font-medium text-lg leading-snug">Rigorously vetting every solution for security and ethical alignment before it hits the exchange.</p>
+                      <div className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center text-gray-900 shrink-0 font-black">01</div>
+                      <p className="text-gray-600 font-medium text-lg leading-snug">Rigorously vetting every solution for security and ethical alignment before it hits the exchange.</p>
                    </div>
                    <div className="flex gap-6">
-                      <div className="w-12 h-12 rounded-full border border-gray-900/10 dark:border-white/10 flex items-center justify-center dark:text-white text-gray-900 shrink-0 font-black">02</div>
-                      <p className="text-gray-400 font-medium text-lg leading-snug">Bridging the gap between raw research and production-ready enterprise environments.</p>
+                      <div className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center text-gray-900 shrink-0 font-black">02</div>
+                      <p className="text-gray-600 font-medium text-lg leading-snug">Bridging the gap between raw research and production-ready enterprise environments.</p>
                    </div>
                 </div>
              </div>
-             <div className="aspect-square rounded-[64px] bg-gradient-to-br from-blue-600/20 to-purple-600/20 border border-white/10 dark:border-white/10 light:border-gray-200 p-1 bg-white/[0.02] flex items-center justify-center group overflow-hidden shadow-2xl">
-                <div className="relative w-full h-full rounded-[60px] bg-[#050505] dark:bg-[#050505] light:bg-[#f8fafc] overflow-hidden flex items-center justify-center">
-                   <Target size={120} className="dark:text-white/5 text-gray-900/5 group-hover:text-blue-500/20 transition-colors duration-1000 group-hover:scale-150 transition-transform" />
+             <div className="aspect-square rounded-[64px] bg-gradient-to-br from-blue-600/10 to-purple-600/10 border border-gray-200 p-1 bg-white flex items-center justify-center group overflow-hidden shadow-2xl">
+                <div className="relative w-full h-full rounded-[60px] bg-white overflow-hidden flex items-center justify-center">
+                   <Target size={120} className="text-gray-900/5 group-hover:text-blue-600/10 transition-colors duration-1000 group-hover:scale-150 transition-transform" />
                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Sparkles size={40} className="dark:text-white text-gray-900 animate-pulse" />
+                      <Sparkles size={40} className="text-blue-600 animate-pulse" />
                    </div>
                 </div>
              </div>
@@ -350,12 +350,12 @@ export const HomePage = () => {
       {/* Simple CTA */}
       <section className="fade-up-section py-48 px-6 text-center">
          <div className="max-w-4xl mx-auto">
-            <h2 className="text-5xl md:text-[100px] font-black dark:text-white text-gray-900 tracking-tighter mb-12 uppercase leading-none">
-              Ready to <span className="text-gray-700 dark:text-gray-700 light:text-gray-300">Innovate?</span>
+            <h2 className="text-5xl md:text-[100px] font-black text-gray-900 tracking-tighter mb-12 uppercase leading-none">
+              Ready to <span className="text-gray-300">Innovate?</span>
             </h2>
             <Link 
               to="/store"
-              className="inline-flex items-center gap-4 px-12 py-6 bg-white text-black dark:bg-white dark:text-black light:bg-blue-600 light:text-white rounded-[24px] font-black text-lg hover:bg-gray-200 light:hover:bg-blue-700 transition-all hover:scale-105 active:scale-95 shadow-2xl"
+              className="inline-flex items-center gap-4 px-12 py-6 bg-blue-600 text-white rounded-[24px] font-black text-lg hover:bg-blue-700 transition-all hover:scale-105 active:scale-95 shadow-xl"
             >
               Get Started Now
             </Link>
