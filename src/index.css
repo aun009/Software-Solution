@@ -1,0 +1,72 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,900;1,900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-serif: "Playfair Display", serif;
+}
+
+@layer base {
+  body {
+    @apply antialiased transition-colors duration-500 bg-[#050505] text-gray-100;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    background: 
+      radial-gradient(circle at 0% 0%, rgba(30, 58, 138, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 100% 100%, rgba(88, 28, 135, 0.1) 0%, transparent 50%),
+      #050505;
+    background-attachment: fixed;
+    animation: backgroundShift 20s infinite alternate ease-in-out;
+  }
+
+  /* Sophisticated Light Theme Translation */
+  .light body {
+    @apply bg-[#F8FAFC] text-[#111827];
+    background: 
+      radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 40%),
+      radial-gradient(circle at 80% 80%, rgba(168, 85, 147, 0.06) 0%, transparent 40%),
+      #F8FAFC;
+    background-attachment: fixed;
+    animation: backgroundShiftLight 15s infinite alternate ease-in-out;
+  }
+
+  .dot-grid {
+    background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  .light .dot-grid {
+    background-image: radial-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+  }
+}
+
+@keyframes backgroundShift {
+  0% { background-color: #050505; }
+  33% { background-color: #080512; }
+  66% { background-color: #050a12; }
+  100% { background-color: #050505; }
+}
+
+@keyframes backgroundShiftLight {
+  0% { background-color: #F8FAFC; }
+  33% { background-color: #F1F5F9; }
+  66% { background-color: #EFF6FF; }
+  100% { background-color: #F8FAFC; }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent dark:bg-[#050505];
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 dark:bg-[#222] rounded-full border-4 border-transparent bg-clip-padding;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400 dark:bg-[#333];
+}

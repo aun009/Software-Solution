@@ -1,0 +1,46 @@
+{
+  "entities": {
+    "product": {
+      "title": "Product Entity",
+      "description": "Represents a software product or AI tool in the catalog.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "category": { "type": "string", "enum": ["All", "AI Writing", "Generative Art", "Development", "Data Science", "Productivity"] },
+        "image": { "type": "string", "format": "uri" },
+        "features": { "type": "array", "items": { "type": "string" } },
+        "benefits": { "type": "array", "items": { "type": "string" } },
+        "ctaText": { "type": "string" },
+        "price": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "description", "category", "image"]
+    },
+    "user": {
+      "title": "User Profile",
+      "description": "Stores user preferences and roles.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "role": { "type": "string", "enum": ["user", "admin"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email"]
+    }
+  },
+  "firestore": {
+    "/products/{productId}": {
+      "schema": "product",
+      "description": "The main collection of software products."
+    },
+    "/users/{userId}": {
+      "schema": "user",
+      "description": "User profiles and administrative roles."
+    }
+  }
+}
