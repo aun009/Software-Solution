@@ -2,9 +2,9 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { SearchPanel } from '../components/SearchPanel';
 import { ProductCard } from '../components/ProductCard';
 import { products as staticProducts } from '../data/products';
-import { db } from '../lib/firebase';
-import { collection, getDocs } from 'firebase/firestore';
+import { supabase } from '../lib/supabase';
 import { Category } from '../types';
+import { useProductStore } from '../store/useProductStore';
 import { motion, AnimatePresence } from 'motion/react';
 import { Loader2, PackageSearch, TrendingUp } from 'lucide-react';
 import gsap from 'gsap';
@@ -16,7 +16,8 @@ const TypewriterLabel = ({ text, delay }: { text: string, delay: number }) => {
         <motion.span
           key={i}
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
           transition={{
             delay: delay + (i * 0.05),
             duration: 0.1
@@ -32,32 +33,14 @@ const TypewriterLabel = ({ text, delay }: { text: string, delay: number }) => {
 
 export const StorePage = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<Category>('All');
-  const [dbProducts, setDbProducts] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState<Category | 'All'>('All');
+  
+  const { products: allProducts, fetchProducts, loading } = useProductStore();
 
   useEffect(() => {
-    const fetchDbProducts = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, 'products'));
-        const items = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setDbProducts(items);
-      } catch (err) {
-        console.error("Error fetching Firestore products:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchDbProducts();
-  }, []);
-
-  const allProducts = useMemo(() => {
-    // Merge static and DB products
-    const combined = [...staticProducts, ...dbProducts];
-    // Remove duplicates by ID (if any)
-    const unique = Array.from(new Map(combined.map(p => [p.id, p])).values());
-    return unique;
-  }, [dbProducts]);
+    window.scrollTo(0, 0);
+    fetchProducts();
+  }, [fetchProducts]);
 
   const filteredProducts = useMemo(() => {
     return allProducts.filter(product => {
@@ -74,7 +57,8 @@ export const StorePage = () => {
       <section className="max-w-7xl mx-auto px-4 md:px-6 mb-16 md:mb-24">
         <motion.div
            initial={{ opacity: 0, y: 20 }}
-           animate={{ opacity: 1, y: 0 }}
+           whileInView={{ opacity: 1, y: 0 }}
+           viewport={{ once: true, margin: "-50px" }}
            className="text-center mb-12 md:mb-16"
         >
           <div className="inline-block px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 mb-6 backdrop-blur-md">
@@ -89,10 +73,11 @@ export const StorePage = () => {
         </motion.div>
 
         {/* Redesigned Stats Bar */}
-        <div className="flex justify-center mb-16 md:mb-24 px-4">
+        <div className="hidden md:flex justify-center mb-16 md:mb-24 px-4">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, margin: "-50px" }}
             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
             className="flex flex-wrap md:flex-nowrap items-center justify-center gap-8 md:gap-0 p-8 md:p-12 rounded-[48px] bg-white border border-gray-200 relative overflow-hidden shadow-xl dot-grid"
             onMouseMove={(e) => {
@@ -121,12 +106,13 @@ export const StorePage = () => {
                 <div className="flex flex-col items-center px-12 md:px-16 min-w-[200px] text-center group">
                   <motion.div
                     initial={{ scale: 0.5, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
+                    whileInView={{ scale: 1, opacity: 1 }}
+                    viewport={{ once: true }}
                     transition={{ delay: stat.delay, type: "spring", stiffness: 200 }}
-                    className="text-5xl md:text-6xl font-serif text-gray-900 italic mb-2 tracking-tighter group-hover:text-blue-600 transition-colors flex items-baseline gap-1"
+                    className="text-5xl md:text-6xl font-black font-sans text-gray-900 mb-2 tracking-tighter group-hover:text-blue-600 transition-colors flex items-baseline gap-1"
                   >
                     {stat.value}
-                    {stat.suffix && <span className="text-xl md:text-2xl text-blue-600 not-italic font-sans">{stat.suffix}</span>}
+                    {stat.suffix && <span className="text-xl md:text-2xl text-blue-600 font-sans">{stat.suffix}</span>}
                   </motion.div>
                   <TypewriterLabel text={stat.label} delay={stat.delay + 0.5} />
                 </div>
@@ -154,7 +140,7 @@ export const StorePage = () => {
             <h2 className="text-3xl font-black text-gray-900 tracking-tight uppercase">Trending Softwares</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {allProducts.slice(0, 3).map((product, idx) => (
+            {(allProducts.some(p => p.is_trending) ? allProducts.filter(p => p.is_trending) : allProducts).slice(0, 3).map((product, idx) => (
               <ProductCard 
                 key={`trending-${product.id}`} 
                 product={product as any} 
@@ -200,7 +186,7 @@ export const StorePage = () => {
            </div>
         ) : filteredProducts.length > 0 ? (
           <div 
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-10"
           >
             <AnimatePresence mode="popLayout">
               {filteredProducts.map((product, idx) => (

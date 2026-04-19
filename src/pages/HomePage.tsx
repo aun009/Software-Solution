@@ -1,15 +1,31 @@
-import React, { useEffect, useRef } from 'react';
-import { motion } from 'motion/react';
-import { ArrowRight, Zap, Target, TrendingUp, Sparkles, Globe, MessageSquare, Users, Award, Rocket, Cpu, Layers, Fingerprint, Shield, Infinity as InfinityIcon } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { 
+  ArrowRight, Zap, Target, TrendingUp, Sparkles, Globe, MessageSquare, 
+  Users, Award, Rocket, Cpu, Layers, Fingerprint, Shield, Infinity as InfinityIcon,
+  Image as ImageIcon, Book, Leaf, Smile, Search, Play, Video, LayoutDashboard, 
+  CheckCircle, Network, MessageCircle, HelpCircle, Edit3, Feather, User, Hash, Film, 
+  PenTool, Hexagon, X 
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { StorePage } from './StorePage';
+
+const LOGO_DEV_PUBLIC_KEY = import.meta.env.VITE_LOGO_DEV_PUBLIC_KEY;
 
 gsap.registerPlugin(ScrollTrigger);
 
 export const HomePage = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
+  const [showChatBubble, setShowChatBubble] = useState(true);
+
+  useEffect(() => {
+    // Auto-hide chat bubble after 8 seconds so it doesn't annoy users
+    const timer = setTimeout(() => setShowChatBubble(false), 8000);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -37,7 +53,7 @@ export const HomePage = () => {
           }
         });
       });
-      // Join Our Mission Width Scroll Animation - REMOVED PER REQUEST
+
     }, containerRef);
 
     return () => ctx.revert();
@@ -46,9 +62,22 @@ export const HomePage = () => {
   return (
     <div ref={containerRef} className="w-full relative z-10 overflow-hidden selection:bg-blue-500/30">
       {/* Background Decorative Mesh */}
-      <div className="absolute top-0 left-0 w-full h-[100vh] pointer-events-none opacity-5 overflow-hidden -z-10">
-        <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-blue-600/30 blur-[180px] rounded-full" />
-        <div className="absolute bottom-[10%] right-[-10%] w-[50%] h-[50%] bg-purple-600/20 blur-[180px] rounded-full" />
+      <div className="absolute top-0 left-0 w-full h-[100vh] pointer-events-none opacity-30 overflow-hidden -z-10 mix-blend-multiply">
+        <motion.div 
+          animate={{ x: [0, 80, 0], y: [0, 40, 0], scale: [1, 1.2, 1] }} 
+          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }} 
+          className="absolute top-[-20%] left-[-10%] w-[70%] h-[70%] bg-blue-300/40 blur-[180px] rounded-full" 
+        />
+        <motion.div 
+          animate={{ x: [0, -60, 0], y: [0, -70, 0], scale: [1, 1.3, 1] }} 
+          transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 2 }} 
+          className="absolute bottom-[10%] right-[-10%] w-[60%] h-[60%] bg-purple-300/40 blur-[180px] rounded-full" 
+        />
+        <motion.div 
+          animate={{ x: [0, 90, 0], y: [0, -60, 0], scale: [1, 0.8, 1] }} 
+          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut", delay: 4 }} 
+          className="absolute top-[40%] left-[40%] w-[40%] h-[40%] bg-pink-300/30 blur-[180px] rounded-full" 
+        />
       </div>
 
       {/* Hero Section */}
@@ -71,35 +100,37 @@ export const HomePage = () => {
           />
         </div>
 
-        <div className="max-w-6xl mx-auto text-center relative z-10">
+        <div className="max-w-6xl mx-auto w-full relative z-10 flex flex-col items-center text-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="hero-text inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-[10px] font-black uppercase tracking-[0.4em] mb-10 md:mb-12 backdrop-blur-xl"
+            className="hero-text inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-[10px] font-black uppercase tracking-[0.4em] mb-8 md:mb-10 backdrop-blur-xl"
           >
             <Sparkles size={14} />
             <span>Accelerate Your Vision</span>
           </motion.div>
           
-          <h1 className="hero-text text-5xl md:text-[90px] font-black tracking-tighter text-gray-900 mb-8 leading-[0.95] max-w-5xl mx-auto">
-             Smart <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500">AI</span> and <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500">Software</span> Solutions for Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-blue-500 to-indigo-600">Business Growth</span>
+          <h1 className="hero-text text-[44px] sm:text-6xl md:text-[85px] lg:text-[100px] font-['Poppins'] font-normal tracking-[-0.04em] text-[#0f172a] mb-8 md:mb-10 leading-[1] md:leading-[1.1]">
+            Smart AI and <br className="hidden md:block" />
+            <span className="bg-gradient-to-r from-blue-600 to-purple-500 bg-clip-text text-transparent font-[600]">Software Solutions</span>
+            <br className="hidden md:block" /> for Your Business
           </h1>
           
-          <p className="hero-text text-lg md:text-2xl text-gray-600 max-w-3xl mx-auto mb-14 md:mb-16 leading-relaxed font-medium">
-            Delivering Trusted AI Tools and Smart Software Solutions to Help You Build, Innovate, and Grow Faster.
+          <p className="hero-text text-lg md:text-2xl text-gray-600 max-w-3xl mb-12 md:mb-16 leading-relaxed font-medium">
+            Delivering trusted AI tools and smart software solutions to help you build, innovate, and grow faster.
           </p>
           
-          <div className="hero-text flex flex-col sm:flex-row gap-5 justify-center items-center">
+          <div className="hero-text flex flex-col sm:flex-row gap-4 justify-center items-center w-full">
              <Link 
               to="/store" 
-              className="px-10 py-5 bg-blue-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest flex items-center gap-3 hover:bg-blue-700 transition-all hover:scale-105 active:scale-95 shadow-xl"
+              className="px-8 py-4 md:px-10 md:py-5 bg-blue-600 text-white rounded-xl md:rounded-2xl font-black text-xs md:text-sm uppercase tracking-widest flex items-center gap-3 hover:bg-blue-700 transition-all hover:scale-105 active:scale-95 shadow-xl shadow-blue-600/20"
              >
-               Explore Our Software
+               Explore Our Softwares
                <ArrowRight size={18} />
              </Link>
              <Link 
               to="/store"
-              className="px-10 py-5 border border-gray-200 text-gray-900 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-gray-100 transition-all backdrop-blur-sm"
+              className="px-8 py-4 md:px-10 md:py-5 border-2 border-gray-200 text-gray-900 rounded-xl md:rounded-2xl font-black text-xs md:text-sm uppercase tracking-widest hover:border-gray-900 hover:bg-gray-50 transition-all"
              >
                View Catalog
              </Link>
@@ -108,32 +139,43 @@ export const HomePage = () => {
       </section>
 
       {/* Partner Marquee Rows */}
-      <section className="fade-up-section py-20 overflow-hidden border-y border-gray-100 bg-gray-50/30">
-        <div className="space-y-12">
+      <section className="fade-up-section py-24 overflow-hidden border-y border-white/5 bg-[#020617] relative">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(59,130,246,0.15)_0%,transparent_60%)]" />
+        <div className="space-y-10 relative z-10 max-w-[100vw]">
+          <div className="text-center mb-6">
+            <h3 className="text-sm font-black text-blue-500 uppercase tracking-[0.3em] mb-3">Explore Supported Softwares</h3>
+            <p className="text-xl md:text-3xl font-bold text-white tracking-tight">Seamlessly integrates with your entire stack.</p>
+          </div>
           {/* Row 1: Moving Right */}
-          <div className="flex whitespace-nowrap overflow-hidden group">
-            <div className="flex animate-marquee-right gap-12 md:gap-24 items-center pr-12 md:pr-24">
-              {[...Array(2)].map((_, i) => (
-                <div key={i} className="flex gap-12 md:gap-24 items-center">
+          <div className="flex whitespace-nowrap">
+            <div className="flex animate-marquee-right gap-[6px] md:gap-4 items-center pr-[6px] md:pr-4 hover:[animation-play-state:paused] w-max py-4 pointer-events-none">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="flex gap-[6px] md:gap-4 items-center">
                   {[
-                    { Icon: Globe, name: "Stellar Tech", color: "blue", bg: "rgba(59, 130, 246, 0.05)" },
-                    { Icon: Cpu, name: "Neural Grid", color: "purple", bg: "rgba(139, 92, 246, 0.05)" },
-                    { Icon: Zap, name: "Velocity AI", color: "cyan", bg: "rgba(6, 182, 212, 0.05)" },
-                    { Icon: Target, name: "Quantum Logic", color: "indigo", bg: "rgba(79, 70, 229, 0.05)" },
-                    { Icon: Shield, name: "Cyber Flow", color: "blue", bg: "rgba(37, 99, 235, 0.05)" },
-                    { Icon: Rocket, name: "Orbital Systems", color: "violet", bg: "rgba(124, 58, 237, 0.05)" },
-                    { Icon: Layers, name: "Data Labs", color: "pink", bg: "rgba(236, 72, 153, 0.05)" },
-                    { Icon: Fingerprint, name: "Future Mind", color: "rose", bg: "rgba(225, 29, 72, 0.05)" },
-                    { Icon: InfinityIcon, name: "Infinite Dev", color: "blue", bg: "rgba(59, 130, 246, 0.05)" },
-                    { Icon: Award, name: "Elite AI", color: "emerald", bg: "rgba(16, 185, 129, 0.05)" }
+                    { name: "ChatGPT", url: "openai.com" },
+                    { name: "Claude", url: "anthropic.com" },
+                    { name: "Midjourney", url: "midjourney.com" },
+                    { name: "Gemini", url: "google.com" },
+                    { name: "Notion AI", url: "notion.so" },
+                    { name: "Cohere", url: "cohere.com" },
+                    { name: "Hugging Face", url: "huggingface.co" },
+                    { name: "Meta AI", url: "meta.com" },
+                    { name: "Grok", url: "x.com" },
+                    { name: "Perplexity", url: "perplexity.ai" },
+                    { name: "Runway", url: "runwayml.com" },
+                    { name: "Pika", url: "pika.art" }
                   ].map((item, idx) => (
                     <div 
                       key={idx} 
-                      style={{ backgroundColor: item.bg }}
-                      className="flex items-center gap-3 px-6 py-3 rounded-2xl border border-gray-200 text-gray-500 transition-all duration-300 cursor-default grayscale hover:grayscale-0 shadow-lg"
+                      className="shrink-0 flex flex-col items-center gap-[6px] bg-white/5 border border-white/10 rounded-[14px] px-3.5 py-4 min-w-[90px] cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:scale-[1.10] hover:shadow-2xl hover:z-50 relative group hover:bg-white/10 pointer-events-auto"
                     >
-                      <item.Icon size={24} strokeWidth={1.5} className={`text-${item.color}-500`} />
-                      <span className="font-black uppercase tracking-[0.3em] text-[10px] md:text-xs text-gray-900">{item.name}</span>
+                      <img 
+                        src={`https://img.logo.dev/${item.url}?token=${LOGO_DEV_PUBLIC_KEY}&size=128&format=png`} 
+                        alt={item.name} 
+                        className="w-10 h-10 object-contain rounded-[10px] bg-white p-1" 
+                        onError={(e) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&size=64&background=2ec4b6&color=fff&bold=true` }}
+                      />
+                      <span className="font-bold tracking-tight text-[11px] text-gray-300 truncate w-full text-center group-hover:text-white transition-colors">{item.name}</span>
                     </div>
                   ))}
                 </div>
@@ -142,29 +184,72 @@ export const HomePage = () => {
           </div>
 
           {/* Row 2: Moving Left */}
-          <div className="flex whitespace-nowrap overflow-hidden group">
-            <div className="flex animate-marquee-left gap-12 md:gap-24 items-center pr-12 md:pr-24">
-              {[...Array(2)].map((_, i) => (
-                <div key={i} className="flex gap-12 md:gap-24 items-center">
+          <div className="flex whitespace-nowrap">
+            <div className="flex animate-marquee-left gap-[6px] md:gap-4 items-center pr-[6px] md:pr-4 hover:[animation-play-state:paused] w-max py-4 pointer-events-none">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="flex gap-[6px] md:gap-4 items-center">
                   {[
-                    { Icon: Sparkles, name: "Zenith Software", color: "amber", bg: "rgba(245, 158, 11, 0.05)" },
-                    { Icon: MessageSquare, name: "Chat Flow", color: "teal", bg: "rgba(20, 184, 166, 0.05)" },
-                    { Icon: Users, name: "Global Sync", color: "blue", bg: "rgba(59, 130, 246, 0.05)" },
-                    { Icon: Target, name: "Precision AI", color: "red", bg: "rgba(239, 68, 68, 0.05)" },
-                    { Icon: Shield, name: "Safe Guard", color: "green", bg: "rgba(34, 197, 94, 0.05)" },
-                    { Icon: Rocket, name: "Launch Pad", color: "orange", bg: "rgba(249, 115, 22, 0.05)" },
-                    { Icon: Cpu, name: "Core Logic", color: "indigo", bg: "rgba(99, 102, 241, 0.05)" },
-                    { Icon: Globe, name: "World Wide", color: "blue", bg: "rgba(59, 130, 246, 0.05)" },
-                    { Icon: Layers, name: "Stack Labs", color: "purple", bg: "rgba(168, 85, 247, 0.05)" },
-                    { Icon: Zap, name: "Spark AI", color: "yellow", bg: "rgba(234, 179, 8, 0.05)" }
+                    { name: "Monday", url: "monday.com" },
+                    { name: "ClickUp", url: "clickup.com" },
+                    { name: "Asana", url: "asana.com" },
+                    { name: "HubSpot", url: "hubspot.com" },
+                    { name: "Intercom", url: "intercom.com" },
+                    { name: "Zendesk", url: "zendesk.com" },
+                    { name: "Grammarly", url: "grammarly.com" },
+                    { name: "QuillBot", url: "quillbot.com" },
+                    { name: "GitHub", url: "github.com" },
+                    { name: "Vercel", url: "vercel.com" },
+                    { name: "Stripe", url: "stripe.com" },
+                    { name: "Canva", url: "canva.com" }
                   ].map((item, idx) => (
                     <div 
                       key={idx} 
-                      style={{ backgroundColor: item.bg }}
-                      className="flex items-center gap-3 px-6 py-3 rounded-2xl border border-gray-200 text-gray-500 transition-all duration-300 cursor-default grayscale hover:grayscale-0 shadow-lg"
+                      className="shrink-0 flex flex-col items-center gap-[6px] bg-white/5 border border-white/10 rounded-[14px] px-3.5 py-4 min-w-[90px] cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:scale-[1.10] hover:shadow-2xl hover:z-50 relative group hover:bg-white/10 pointer-events-auto"
                     >
-                      <item.Icon size={24} strokeWidth={1.5} className={`text-${item.color}-500`} />
-                      <span className="font-black uppercase tracking-[0.3em] text-[10px] md:text-xs text-gray-900">{item.name}</span>
+                      <img 
+                        src={`https://img.logo.dev/${item.url}?token=${LOGO_DEV_PUBLIC_KEY}&size=128&format=png`} 
+                        alt={item.name} 
+                        className="w-10 h-10 object-contain rounded-[10px] bg-white p-1" 
+                        onError={(e) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&size=64&background=2ec4b6&color=fff&bold=true` }}
+                      />
+                      <span className="font-bold tracking-tight text-[11px] text-gray-300 truncate w-full text-center group-hover:text-white transition-colors">{item.name}</span>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Row 3: Moving Right */}
+          <div className="flex whitespace-nowrap">
+            <div className="flex animate-marquee-right gap-[6px] md:gap-4 items-center pr-[6px] md:pr-4 hover:[animation-play-state:paused] w-max py-4 pointer-events-none">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="flex gap-[6px] md:gap-4 items-center">
+                  {[
+                    { name: "Figma", url: "figma.com" },
+                    { name: "Linear", url: "linear.app" },
+                    { name: "Slack", url: "slack.com" },
+                    { name: "Zoom", url: "zoom.us" },
+                    { name: "Supabase", url: "supabase.com" },
+                    { name: "Shopify", url: "shopify.com" },
+                    { name: "Salesforce", url: "salesforce.com" },
+                    { name: "Adobe", url: "adobe.com" },
+                    { name: "Discord", url: "discord.com" },
+                    { name: "Vimeo", url: "vimeo.com" },
+                    { name: "Typeform", url: "typeform.com" },
+                    { name: "Loom", url: "loom.com" }
+                  ].map((item, idx) => (
+                    <div 
+                      key={idx} 
+                      className="shrink-0 flex flex-col items-center gap-[6px] bg-white/5 border border-white/10 rounded-[14px] px-3.5 py-4 min-w-[90px] cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:scale-[1.10] hover:shadow-2xl hover:z-50 relative group hover:bg-white/10 pointer-events-auto"
+                    >
+                      <img 
+                        src={`https://img.logo.dev/${item.url}?token=${LOGO_DEV_PUBLIC_KEY}&size=128&format=png`} 
+                        alt={item.name} 
+                        className="w-10 h-10 object-contain rounded-[10px] bg-white p-1" 
+                        onError={(e) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&size=64&background=2ec4b6&color=fff&bold=true` }}
+                      />
+                      <span className="font-bold tracking-tight text-[11px] text-gray-300 truncate w-full text-center group-hover:text-white transition-colors">{item.name}</span>
                     </div>
                   ))}
                 </div>
@@ -174,206 +259,57 @@ export const HomePage = () => {
         </div>
       </section>
 
-      {/* Value Pillars - Simplified */}
-      <section className="fade-up-section py-32 px-6 bg-white border-y border-gray-100">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-3 gap-10">
-             {[
-               { icon: Target, title: "Precision Driven", desc: "Our elite software architectures are built for accuracy and high-performance scaling.", color: "blue" },
-               { icon: Zap, title: "Rapid Innovation", desc: "Deploy AI solutions in hours, not months. Our toolkit is optimized for speed.", color: "purple" },
-               { icon: TrendingUp, title: "Growth Mindset", desc: "Every tool in our catalog is selected specifically to drive business revenue and reach.", color: "pink" }
-             ].map((item, i) => (
-               <motion.div 
-                 key={i} 
-                 whileHover={{ y: -15 }}
-                 className="p-10 bg-gray-50 border border-gray-100 rounded-[40px] hover:border-blue-500/20 transition-all group relative overflow-hidden shadow-sm"
-               >
-                  <div className={`absolute top-0 right-0 w-32 h-32 bg-${item.color}-500/5 blur-[50px] rounded-full group-hover:bg-${item.color}-500/10 transition-all duration-700`} />
-                  <div className="w-16 h-16 rounded-2xl bg-white flex items-center justify-center text-gray-900 mb-8 group-hover:bg-blue-600 group-hover:text-white transition-all group-hover:scale-110 shadow-lg">
-                     <item.icon size={28} />
-                  </div>
-                  <h3 className="text-2xl font-black text-gray-900 mb-4 uppercase tracking-tighter">{item.title}</h3>
-                  <p className="text-gray-500 leading-relaxed font-medium text-base">{item.desc}</p>
-                  <div className="mt-8 overflow-hidden h-1 w-0 group-hover:w-full bg-gradient-to-r from-transparent via-blue-500/20 to-transparent transition-all duration-700" />
-               </motion.div>
-             ))}
-          </div>
-        </div>
-      </section>
+      {/* Embedded Store Panel */}
+      <div id="store" className="-mt-16 sm:-mt-24 md:-mt-32 scroll-mt-24">
+        <StorePage />
+      </div>
 
-      {/* Modern Split Feature - Simplified */}
-      <section className="fade-up-section py-32 md:py-48 px-6 bg-white border-y border-gray-100">
-        <div className="max-w-7xl mx-auto">
-           <div className="grid lg:grid-cols-2 gap-20 items-center">
-              <div className="space-y-8">
-                <div className="inline-block px-3 py-1 rounded-md bg-blue-500/10 text-[10px] font-black text-blue-500 uppercase tracking-widest">
-                   The Digital Edge
-                </div>
-                <h2 className="text-4xl md:text-7xl font-black text-gray-900 tracking-tighter leading-none">
-                  Build the <br /> Future Today.
-                </h2>
-                <p className="text-lg md:text-xl text-gray-500 font-medium leading-relaxed">
-                  We don't just provide software; we provide the competitive advantage. Our tools are designed to integrate seamlessly into your workflow and amplify your results.
-                </p>
-                <div className="pt-6">
-                   <Link to="/store" className="inline-flex items-center gap-4 text-xs font-black uppercase tracking-[0.3em] text-gray-900 duration-300 hover:text-blue-500 transition-colors">
-                      Enter the Catalog <div className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center group-hover:border-blue-500"><ArrowRight size={14} /></div>
-                   </Link>
-                </div>
-              </div>
-              <div className="relative">
-                 <div className="absolute inset-0 bg-blue-500/10 blur-[100px] rounded-full" />
-                 <div className="relative aspect-video rounded-[40px] bg-white border border-gray-200 overflow-hidden flex items-center justify-center p-12 shadow-2xl">
-                    <Globe size={180} className="text-gray-900/5 animate-pulse" />
-                    <div className="absolute bottom-8 left-8 right-8">
-                      <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
-                        <motion.div 
-                          className="h-full bg-blue-600" 
-                          animate={{ width: ["0%", "100%", "0%"] }}
-                          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                        />
-                      </div>
-                    </div>
-                 </div>
-              </div>
-           </div>
-        </div>
-      </section>
-
-      {/* About Us Section */}
-      <section id="about" className="fade-up-section py-48 px-6 bg-gray-50 border-t border-gray-100 relative overflow-hidden">
-        <div className="absolute top-1/4 -right-20 w-96 h-96 bg-blue-600/5 blur-[150px] rounded-full pointer-events-none" />
-        <div className="absolute bottom-1/4 -left-20 w-96 h-96 bg-purple-600/5 blur-[150px] rounded-full pointer-events-none" />
+      {/* Persistent WhatsApp Floating Widget */}
+      <div className="fixed bottom-8 right-8 z-[150] flex flex-col items-end gap-4 pointer-events-none">
         
-        <div className="max-w-7xl mx-auto relative z-10 flex flex-col items-center">
-          <div className="text-center mb-32 max-w-4xl">
+        {/* Animated Help Bubble */}
+        <AnimatePresence>
+          {showChatBubble && (
             <motion.div 
-               animate={{ y: [0, -20, 0] }}
-               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-               className="inline-block mb-8 text-6xl"
+              initial={{ opacity: 0, y: 10, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+              className="relative bg-white pl-5 pr-10 py-3 rounded-2xl shadow-xl shadow-black/10 border border-black/5 animate-bounce pointer-events-auto"
             >
-              🔮
-            </motion.div>
-            <h2 className="text-5xl md:text-8xl font-black text-gray-900 tracking-tighter mb-8 uppercase">Our <span className="text-gray-400">Mission</span></h2>
-            <div className="w-32 h-1.5 bg-gradient-to-r from-blue-600 to-purple-600 mx-auto rounded-full" />
-            <p className="text-gray-600 text-xl md:text-3xl mt-12 font-medium leading-[1.4]">
-              We empower visionaries with the tools of tomorrow. Our mission is to democratize high-entropy AI systems, making industrial-grade software accessible to every innovator.
-            </p>
-            <div className="mt-12">
-              <Link to="/about" className="text-blue-600 font-black uppercase tracking-widest text-xs hover:text-blue-700 transition-colors flex items-center justify-center gap-2">
-                Learn our full story <ArrowRight size={14} />
-              </Link>
-            </div>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 w-full">
-            {[
-              { 
-                icon: Users, 
-                title: "Expert Team", 
-                desc: "Founded by industry veterans with deep roots in Silicon Valley's most innovative organizations.",
-                detail: "50+ years of collective experience."
-              },
-              { 
-                icon: Award, 
-                title: "Proven Results", 
-                desc: "Optimizing software deployments for over 500+ global enterprises with measurable growth.",
-                detail: "Average 40% efficiency gain."
-              },
-              { 
-                icon: Rocket, 
-                title: "Future Ready", 
-                desc: "Constantly evolving our catalog with next-generation tools as soon as they emerge.",
-                detail: "Weekly platform updates."
-              },
-              { 
-                icon: InfinityIcon, 
-                title: "Infinite Scale", 
-                desc: "Systems designed to grow from MVP to Enterprise without architectural friction.",
-                detail: "Zero downtime migrations."
-              }
-            ].map((feature, i) => (
-              <div key={i} className="p-10 rounded-[48px] bg-white border border-gray-100 hover:bg-gray-50 transition-all group text-center shadow-sm">
-                <div className="w-16 h-16 rounded-3xl bg-blue-600/10 flex items-center justify-center text-blue-600 mx-auto mb-10 group-hover:scale-110 transition-transform">
-                  <feature.icon size={28} />
-                </div>
-                <h3 className="text-xl font-black text-gray-900 mb-4 uppercase tracking-tight">{feature.title}</h3>
-                <p className="text-gray-500 text-sm leading-relaxed mb-6">{feature.desc}</p>
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-600/50">{feature.detail}</span>
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-2.5 w-2.5 relative">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#25D366] opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#25D366]"></span>
+                </span>
+                <span className="text-[10px] font-black text-gray-800 uppercase tracking-[0.15em]">Need Help? Let's Chat</span>
               </div>
-            ))}
-          </div>
+              
+              {/* Close Button */}
+              <button 
+                onClick={() => setShowChatBubble(false)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-gray-900 rounded-full hover:bg-gray-100 transition-colors"
+                aria-label="Close"
+              >
+                <X size={14} />
+              </button>
 
-          {/* Join Our Mission Box - Static per request */}
-          <div className="mt-48 w-full flex justify-center">
-            <div className="join-mission-box w-full h-80 rounded-[48px] bg-white border border-gray-200 flex items-center justify-center relative overflow-hidden group shadow-2xl backdrop-blur-3xl">
-               <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/5 to-purple-500/5 opacity-30 group-hover:opacity-100 transition-opacity duration-1000" />
-               <div className="relative z-10 text-center px-12">
-                  <h3 className="text-3xl md:text-5xl font-black text-gray-900 uppercase tracking-tighter mb-6">Join Our Mission</h3>
-                  <p className="text-gray-600 font-medium max-w-xl mx-auto text-lg leading-relaxed">Help us shape the future of artificial intelligence and enterprise software solutions. We're building tools that change the world.</p>
-                  <button className="mt-10 px-12 py-5 bg-blue-600 text-white font-black uppercase tracking-widest text-sm rounded-2xl hover:scale-105 transition-all shadow-xl active:scale-95">
-                    Get Involved
-                  </button>
-               </div>
-            </div>
-          </div>
+              {/* Subtle triangle tail pointing to button */}
+              <div className="absolute -bottom-2 right-6 w-4 h-4 bg-white border-b border-r border-black/5 rotate-45 transform origin-center border-t-transparent border-l-transparent" />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-          {/* New Narrative Block */}
-          <div className="mt-48 grid lg:grid-cols-2 gap-24 items-center">
-             <div className="space-y-12">
-                <h3 className="text-4xl md:text-6xl font-black text-gray-900 tracking-tighter leading-none uppercase">
-                  Innovation Through <br /> <span className="text-blue-600 underline underline-offset-8">Disruption</span>
-                </h3>
-                <div className="space-y-8">
-                   <div className="flex gap-6">
-                      <div className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center text-gray-900 shrink-0 font-black">01</div>
-                      <p className="text-gray-600 font-medium text-lg leading-snug">Rigorously vetting every solution for security and ethical alignment before it hits the exchange.</p>
-                   </div>
-                   <div className="flex gap-6">
-                      <div className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center text-gray-900 shrink-0 font-black">02</div>
-                      <p className="text-gray-600 font-medium text-lg leading-snug">Bridging the gap between raw research and production-ready enterprise environments.</p>
-                   </div>
-                </div>
-             </div>
-             <div className="aspect-square rounded-[64px] bg-gradient-to-br from-blue-600/10 to-purple-600/10 border border-gray-200 p-1 bg-white flex items-center justify-center group overflow-hidden shadow-2xl">
-                <div className="relative w-full h-full rounded-[60px] bg-white overflow-hidden flex items-center justify-center">
-                   <Target size={120} className="text-gray-900/5 group-hover:text-blue-600/10 transition-colors duration-1000 group-hover:scale-150 transition-transform" />
-                   <div className="absolute inset-0 flex items-center justify-center">
-                      <Sparkles size={40} className="text-blue-600 animate-pulse" />
-                   </div>
-                </div>
-             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Simple CTA */}
-      <section className="fade-up-section py-48 px-6 text-center">
-         <div className="max-w-4xl mx-auto">
-            <h2 className="text-5xl md:text-[100px] font-black text-gray-900 tracking-tighter mb-12 uppercase leading-none">
-              Ready to <span className="text-gray-300">Innovate?</span>
-            </h2>
-            <Link 
-              to="/store"
-              className="inline-flex items-center gap-4 px-12 py-6 bg-blue-600 text-white rounded-[24px] font-black text-lg hover:bg-blue-700 transition-all hover:scale-105 active:scale-95 shadow-xl"
-            >
-              Get Started Now
-            </Link>
-         </div>
-      </section>
-      {/* Floating WhatsApp Button */}
-      <a 
-        href="https://wa.me/1234567890" 
-        target="_blank" 
-        rel="noopener noreferrer"
-        className="fixed bottom-8 right-8 z-[150] w-16 h-16 bg-green-500 rounded-full flex items-center justify-center text-white shadow-2xl hover:scale-110 transition-transform active:scale-95 group"
-        title="Chat with Us on WhatsApp"
-      >
-        <MessageSquare size={32} className="group-hover:animate-bounce" />
-        <div className="absolute right-full mr-4 px-4 py-2 bg-white text-black text-[10px] font-black uppercase tracking-widest rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none shadow-xl border border-black/5">
-          Connect with Founder
-        </div>
-      </a>
+        <a 
+          href="https://wa.me/919552530324" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="relative w-16 h-16 bg-[#25D366] rounded-full flex items-center justify-center text-white shadow-[0_8px_30px_rgba(37,211,102,0.4)] hover:scale-110 transition-transform duration-300 active:scale-95 group pointer-events-auto"
+          title="Chat with Us on WhatsApp"
+        >
+          <div className="absolute inset-0 bg-[#25D366] rounded-full animate-ping opacity-20 group-hover:opacity-40 transition-opacity" />
+          <svg viewBox="0 0 24 24" width="30" height="30" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" className="relative z-10 -ml-0.5 mt-0.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+        </a>
+      </div>
 
       <style>{`
         @keyframes marquee-right {
@@ -385,10 +321,10 @@ export const HomePage = () => {
           100% { transform: translateX(-50%); }
         }
         .animate-marquee-right {
-          animation: marquee-right 60s linear infinite;
+          animation: marquee-right 30s linear infinite;
         }
         .animate-marquee-left {
-          animation: marquee-left 60s linear infinite;
+          animation: marquee-left 30s linear infinite;
         }
       `}</style>
     </div>

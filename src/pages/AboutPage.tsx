@@ -39,34 +39,7 @@ export const AboutPage = () => {
           </p>
         </section>
 
-        {/* Story Grid */}
-        <div className="grid lg:grid-cols-2 gap-20 items-center mb-48">
-          <div className="space-y-10">
-            <h2 className="fade-in text-4xl md:text-6xl font-black tracking-tight text-gray-900 uppercase">Our Legacy</h2>
-            <p className="fade-in text-lg text-gray-500 leading-relaxed font-medium">
-              Founded in 2024, Software Store began with a singular vision: to make the world's most advanced AI architectures accessible to every business, regardless of size. 
-            </p>
-            <div className="fade-in grid grid-cols-2 gap-8">
-              <div className="p-8 rounded-[32px] bg-white border border-gray-100 shadow-sm">
-                <div className="text-4xl font-black text-blue-600 mb-2">500+</div>
-                <div className="text-xs font-black uppercase tracking-widest text-gray-500">Global Partners</div>
-              </div>
-              <div className="p-8 rounded-[32px] bg-white border border-gray-100 shadow-sm">
-                <div className="text-4xl font-black text-blue-600 mb-2">99.9%</div>
-                <div className="text-xs font-black uppercase tracking-widest text-gray-500">Reliability Rate</div>
-              </div>
-            </div>
-          </div>
-          <div className="relative fade-in">
-            <div className="absolute inset-0 bg-blue-600/10 blur-[100px] rounded-full" />
-            <div className="relative aspect-square rounded-[64px] bg-white border border-gray-100 overflow-hidden flex items-center justify-center shadow-2xl">
-              <Globe size={200} className="text-blue-600/5 animate-pulse" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Target size={60} className="text-blue-600 drop-shadow-[0_0_15px_rgba(59,130,246,0.3)]" />
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Story Grid Removed for Simplicity */}
 
         {/* Core Values */}
         <section className="mb-48">

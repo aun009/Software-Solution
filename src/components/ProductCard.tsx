@@ -114,7 +114,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
         </div>
 
         {/* Content */}
-        <div className="p-8 flex flex-col flex-grow relative z-20">
+        <div className="p-6 md:p-8 flex flex-col flex-grow relative z-20">
           <div className="flex items-center gap-1 text-yellow-500/30 mb-4">
              <Star size={12} fill="currentColor" />
              <Star size={12} fill="currentColor" />
@@ -129,10 +129,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
             {product.description}
           </p>
           
-          <div className="mt-auto pt-6 flex items-center justify-between border-t border-gray-100">
+          <div className="mt-8 pt-8 flex items-center justify-between border-t border-gray-100 flex-wrap gap-6">
             <div className="flex flex-col">
               <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-1">Projected Cost</span>
-              <span className="text-xl font-black text-gray-900 italic tracking-tighter">${product.price || '999'}</span>
+              <span className="text-xl font-bold text-gray-900 tracking-tight font-sans">
+                 ₹{Number(product.price || 82917).toLocaleString('en-IN')}
+              </span>
             </div>
             <Link 
               to={`/product/${product.id}`}

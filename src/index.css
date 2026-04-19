@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,900;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,900;1,900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -9,27 +9,27 @@
 
 @layer base {
   body {
-    @apply antialiased transition-colors duration-500 bg-[#F8FAFC] text-[#111827];
+    @apply antialiased transition-colors duration-500 bg-[#FAFAFC] text-[#111827];
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     background: 
-      radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 40%),
-      radial-gradient(circle at 80% 80%, rgba(168, 85, 147, 0.06) 0%, transparent 40%),
-      #F8FAFC;
+      radial-gradient(circle at 10% 0%, rgba(200, 220, 255, 0.4) 0%, transparent 50%),
+      radial-gradient(circle at 90% 100%, rgba(240, 210, 255, 0.3) 0%, transparent 50%),
+      #FAFAFC;
     background-attachment: fixed;
     animation: backgroundShiftLight 15s infinite alternate ease-in-out;
   }
 
   .dot-grid {
-    background-image: radial-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+    background-image: radial-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px);
     background-size: 24px 24px;
   }
 }
 
 @keyframes backgroundShiftLight {
-  0% { background-color: #F8FAFC; }
-  33% { background-color: #F1F5F9; }
-  66% { background-color: #EFF6FF; }
-  100% { background-color: #F8FAFC; }
+  0% { background-color: #FAFAFC; }
+  33% { background-color: #F8F9FF; }
+  66% { background-color: #FCF8FF; }
+  100% { background-color: #FAFAFC; }
 }
 
 /* Custom scrollbar */

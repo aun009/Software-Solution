@@ -1,13 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { 
-  User, 
-  onAuthStateChanged, 
-  signInWithPopup, 
-  GoogleAuthProvider,
-  signOut
-} from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { auth, db } from '../lib/firebase';
+import { User, Session } from '@supabase/supabase-js';
+import { supabase } from '../lib/supabase';
 
 interface AuthContextType {
   user: User | null;
@@ -33,38 +26,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setUser(user);
-      if (user) {
-        // Fetch or create profile
-        const profileRef = doc(db, 'users', user.uid);
-        const profileSnap = await getDoc(profileRef);
-        
-        if (profileSnap.exists()) {
-          setProfile(profileSnap.data() as UserProfile);
-        } else {
-          const newProfile: UserProfile = {
-            uid: user.uid,
-            email: user.email || '',
-            role: user.email === 'arunmahajan9240@gmail.com' ? 'admin' : 'user',
-            displayName: user.displayName || '',
-          };
-          await setDoc(profileRef, newProfile);
-          setProfile(newProfile);
-        }
-      } else {
-        setProfile(null);
-      }
-      setLoading(false);
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      handleUserSession(session);
     });
 
-    return unsubscribe;
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      handleUserSession(session);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
+  const handleUserSession = (session: Session | null) => {
+    if (session?.user) {
+      setUser(session.user);
+      const userProfile: UserProfile = {
+        uid: session.user.id,
+        email: session.user.email || '',
+        role: session.user.email === 'arunmahajan9240@gmail.com' ? 'admin' : 'user',
+        displayName: session.user.user_metadata?.full_name || session.user.email || 'User'
+      };
+      setProfile(userProfile);
+    } else {
+      setUser(null);
+      setProfile(null);
+    }
+    setLoading(false);
+  };
+
   const loginWithGoogle = async () => {
-    const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(auth, provider);
+      await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin,
+        }
+      });
     } catch (error) {
       console.error("Google Login Error:", error);
       throw error;
@@ -72,7 +69,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = async () => {
-    await signOut(auth);
+    await supabase.auth.signOut();
   };
 
   return (

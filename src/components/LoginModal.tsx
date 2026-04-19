@@ -1,15 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Mail, Lock, Smartphone, Chrome, ArrowRight, Loader2, UserPlus, LogIn } from 'lucide-react';
+import { X, Mail, Lock, Chrome, ArrowRight, Loader2, UserPlus, LogIn, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { auth, db } from '../lib/firebase';
-import { 
-  fetchSignInMethodsForEmail, 
-  signInWithEmailAndPassword, 
-  sendSignInLinkToEmail,
-  createUserWithEmailAndPassword,
-} from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import { supabase } from '../lib/supabase';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -19,83 +12,48 @@ interface LoginModalProps {
 export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
   const { loginWithGoogle } = useAuth();
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
-  const [step, setStep] = useState<'email' | 'choice' | 'password' | 'signup-details'>('email');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   const reset = () => {
-    setStep('email');
     setError('');
+    setSuccess('');
     setEmail('');
     setPassword('');
     setDisplayName('');
   };
 
-  const formatError = (err: any) => {
-    if (err.code === 'auth/operation-not-allowed') {
-      return 'Email/Password sign-in is not enabled in your Firebase Project. Please enable it in the Firebase Console (Authentication > Sign-in method).';
-    }
-    return err.message;
-  };
-
-  const handleEmailNext = async (e: React.FormEvent) => {
+  const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
     setLoading(true);
     setError('');
+    setSuccess('');
+
     try {
       if (mode === 'signin') {
-        const methods = await fetchSignInMethodsForEmail(auth, email);
-        if (methods.length > 0) {
-          setStep('choice');
-        } else {
-          setError('No account found with this email. Would you like to create one? Please switch to the "Sign Up" tab above.');
-        }
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (error) throw error;
+        onClose();
       } else {
-        // Sign up flow
-        setStep('signup-details');
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: { full_name: displayName }
+          }
+        });
+        if (error) throw error;
+        setSuccess('Secure registration broadcasted. Check your email inbox to verify your secure token.');
       }
     } catch (err: any) {
-      setError(formatError(err));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handlePasswordLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      onClose();
-    } catch (err: any) {
-      setError(formatError(err));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSignup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    try {
-      const { user } = await createUserWithEmailAndPassword(auth, email, password);
-      // Create profile
-      await setDoc(doc(db, 'users', user.uid), {
-        uid: user.uid,
-        email: user.email,
-        displayName: displayName,
-        role: user.email === 'arunmahajan9240@gmail.com' ? 'admin' : 'user',
-        createdAt: new Date().toISOString()
-      });
-      onClose();
-    } catch (err: any) {
-      setError(formatError(err));
+      setError(err.message || 'Authentication error occurred.');
     } finally {
       setLoading(false);
     }
@@ -106,35 +64,29 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
     setError('');
     try {
       await loginWithGoogle();
-      onClose();
+      // Notice: onClose is effectively handled by redirect flow
     } catch (err: any) {
-      console.error(err);
-      if (err.code === 'auth/popup-closed-by-user') {
-        setError('Login cancelled. Please complete the sign-in process in the popup window.');
-      } else if (err.code === 'auth/blocked-at-runtime') {
-        setError('Popup blocked. Please allow popups for this site.');
-      } else {
-        setError(formatError(err));
-      }
-    } finally {
+      setError(err.message || 'Google OAuth negotiation failed.');
       setLoading(false);
     }
   };
 
-  const handleOTPLogin = async () => {
+  const magicLinkAuth = async () => {
+    if (!email) {
+      setError("Provide an email address to dispatch a magic link.");
+      return;
+    }
     setLoading(true);
     setError('');
-    const actionCodeSettings = {
-      url: window.location.origin,
-      handleCodeInApp: true,
-    };
     try {
-      await sendSignInLinkToEmail(auth, email, actionCodeSettings);
-      window.localStorage.setItem('emailForSignIn', email);
-      alert('A magic link has been sent to your inbox! Check your email to sign in.');
-      onClose();
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: { emailRedirectTo: window.location.origin }
+      });
+      if (error) throw error;
+      setSuccess("Magic Link dispatched exactly to your inbox. Awaiting your touch.");
     } catch (err: any) {
-      setError(formatError(err));
+      setError(err.message || "Failed to dispatch magic link.");
     } finally {
       setLoading(false);
     }
@@ -149,15 +101,15 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="absolute inset-0 bg-gray-900/40 backdrop-blur-md"
+        className="absolute inset-0 bg-[#0B0F19]/80 backdrop-blur-md"
       />
       
       <motion.div
-        initial={{ opacity: 0, scale: 0.9, y: 30 }}
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         className="relative w-full max-w-lg bg-white border border-gray-100 rounded-[40px] p-10 shadow-2xl overflow-hidden"
       >
-        <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-blue-500/50 to-transparent" />
+        <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-blue-500 to-transparent" />
         
         <button 
           onClick={onClose}
@@ -166,220 +118,122 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
           <X size={24} />
         </button>
 
-        <div className="mb-12">
-          <div className="flex gap-8 mb-4 border-b border-gray-100">
+        <div className="mb-10">
+          <div className="flex gap-8 mb-6 border-b border-gray-100">
              <button 
                onClick={() => { setMode('signin'); reset(); }}
-               className={`pb-4 text-[10px] font-black uppercase tracking-[0.3em] transition-all ${mode === 'signin' ? 'text-gray-900 border-b-2 border-gray-900' : 'text-gray-400 hover:text-gray-900'}`}
+               className={`pb-4 text-[10px] font-black uppercase tracking-[0.3em] transition-all ${mode === 'signin' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-400 hover:text-gray-900'}`}
              >
                Sign In
              </button>
              <button 
                onClick={() => { setMode('signup'); reset(); }}
-               className={`pb-4 text-[10px] font-black uppercase tracking-[0.3em] transition-all ${mode === 'signup' ? 'text-gray-900 border-b-2 border-gray-900' : 'text-gray-400 hover:text-gray-900'}`}
+               className={`pb-4 text-[10px] font-black uppercase tracking-[0.3em] transition-all ${mode === 'signup' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-400 hover:text-gray-900'}`}
              >
                Sign Up
              </button>
           </div>
-          <h2 className="text-4xl font-black text-gray-900 tracking-tighter mb-3">
-             {mode === 'signin' ? 'Welcome Back' : 'Create Account'}
+          <h2 className="text-4xl font-black text-gray-900 tracking-tighter mb-2">
+             {mode === 'signin' ? 'Session Sync' : 'Initialize Node'}
           </h2>
-          <p className="text-gray-500 font-medium">
-             {mode === 'signin' ? 'Unlock your administrative and user suite.' : 'Join the elite software exchange today.'}
+          <p className="text-gray-500 font-medium text-sm">
+             {mode === 'signin' ? 'Authenticate your credentials against the master DB.' : 'Create your isolated user node in our Supabase instance.'}
           </p>
         </div>
 
-        <AnimatePresence mode="wait">
-          {step === 'email' && (
-            <motion.form 
-              key="email"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              onSubmit={handleEmailNext}
-              className="space-y-8"
-            >
-              <div className="space-y-3">
-                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Email Address</label>
+        <form onSubmit={handleAuth} className="space-y-6">
+          <AnimatePresence mode="popLayout">
+            {mode === 'signup' && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="space-y-3 overflow-hidden"
+              >
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Identity Tag</label>
                 <div className="relative">
-                  <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                  <UserPlus className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                   <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="name@company.com"
-                    className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-5 pl-14 pr-4 text-gray-900 placeholder:text-gray-300 focus:outline-none focus:border-blue-500/30 transition-all font-bold"
+                    type="text"
+                    required={mode === 'signup'}
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                    placeholder="Operator Name"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-4 pl-14 pr-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-blue-500/50 transition-all font-bold text-sm"
                   />
                 </div>
-              </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-              {error && <p className="text-red-500 text-xs font-bold bg-red-50 p-4 rounded-2xl border border-red-100">{error}</p>}
+          <div className="space-y-3">
+            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Secure Email</label>
+            <div className="relative">
+              <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="commander@matrix.net"
+                className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-4 pl-14 pr-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-blue-500/50 transition-all font-bold text-sm"
+              />
+            </div>
+          </div>
 
-              <button 
-                type="submit"
-                disabled={loading}
-                className="w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-blue-700 transition-all disabled:opacity-50 shadow-xl shadow-blue-500/20"
-              >
-                {loading ? <Loader2 className="animate-spin" size={18} /> : (
-                  <>Continue <ArrowRight size={18} /></>
-                )}
-              </button>
+          <div className="space-y-3">
+            <div className="flex justify-between items-center ml-1">
+               <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Cryptographic Key</label>
+               {mode === 'signin' && (
+                 <button type="button" onClick={magicLinkAuth} disabled={loading} className="text-[9px] font-black text-blue-600 uppercase tracking-widest hover:text-blue-800 transition-colors">
+                   Send Magic Link Instead
+                 </button>
+               )}
+            </div>
+            <div className="relative">
+              <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••••••"
+                className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-4 pl-14 pr-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-blue-500/50 transition-all font-bold text-sm"
+              />
+            </div>
+          </div>
 
-              <div className="relative py-4">
-                <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-100"></div></div>
-                <div className="relative flex justify-center text-[9px] uppercase tracking-[0.4em] font-black"><span className="bg-white px-5 text-gray-400">Enterprise Auth</span></div>
-              </div>
+          {error && <p className="text-red-500 text-xs font-bold bg-red-50 p-4 rounded-xl border border-red-100">{error}</p>}
+          {success && <p className="text-emerald-600 text-xs font-bold bg-emerald-50 p-4 rounded-xl border border-emerald-100">{success}</p>}
 
-              <button 
-                type="button"
-                onClick={handleGoogleLogin}
-                disabled={loading}
-                className="w-full py-5 bg-white border border-gray-200 rounded-2xl text-gray-900 font-bold flex items-center justify-center gap-4 hover:bg-gray-50 transition-all disabled:opacity-50"
-              >
-                <Chrome size={20} className="text-blue-500" />
-                Google Authentication
-              </button>
-            </motion.form>
-          )}
+          <button 
+            type="submit"
+            disabled={loading}
+            className="w-full py-5 bg-[#0B0F19] text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-blue-600 transition-all disabled:opacity-50 shadow-xl shadow-black/10 active:scale-95"
+          >
+            {loading ? <Loader2 className="animate-spin" size={18} /> : (
+              mode === 'signin' ? <><LogIn size={18} /> Authenticate</> : <><Sparkles size={18} /> Initialize</>
+            )}
+          </button>
 
-          {step === 'choice' && (
-            <motion.div
-              key="choice"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-5"
-            >
-              <p className="text-gray-500 text-sm mb-8 font-medium italic">Identification confirmed for <span className="text-gray-900 font-bold">{email}</span>. How shall we proceed?</p>
-              
-              <button 
-                onClick={() => setStep('password')}
-                className="w-full p-8 bg-gray-50 border border-gray-100 rounded-3xl flex items-center gap-6 hover:border-blue-500/30 hover:bg-white transition-all group"
-              >
-                <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform shadow-sm">
-                  <Lock size={24} />
-                </div>
-                <div className="text-left">
-                  <div className="text-gray-900 font-black uppercase tracking-tight text-lg">Use Password</div>
-                  <div className="text-gray-400 text-xs font-medium">Standard cryptographic verification</div>
-                </div>
-              </button>
+          <div className="relative py-4">
+            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-100"></div></div>
+            <div className="relative flex justify-center text-[9px] uppercase tracking-[0.4em] font-black"><span className="bg-white px-5 text-gray-400">OAuth Provider</span></div>
+          </div>
 
-              <button 
-                onClick={handleOTPLogin}
-                className="w-full p-8 bg-gray-50 border border-gray-100 rounded-3xl flex items-center gap-6 hover:border-purple-500/30 hover:bg-white transition-all group"
-              >
-                <div className="w-14 h-14 rounded-2xl bg-purple-50 flex items-center justify-center text-purple-600 group-hover:scale-110 transition-transform shadow-sm">
-                  <Smartphone size={24} />
-                </div>
-                <div className="text-left">
-                  <div className="text-gray-900 font-black uppercase tracking-tight text-lg">Magic Link</div>
-                  <div className="text-gray-400 text-xs font-medium">Passwordless direct-to-inbox entry</div>
-                </div>
-              </button>
+          <button 
+            type="button"
+            onClick={handleGoogleLogin}
+            disabled={loading}
+            className="w-full py-5 bg-white border border-gray-200 rounded-2xl text-gray-900 font-bold flex items-center justify-center gap-4 hover:border-blue-500/30 hover:bg-gray-50 transition-all disabled:opacity-50 active:scale-95 text-sm"
+          >
+            <Chrome size={20} className="text-blue-500" />
+            Connect via Google
+          </button>
+        </form>
 
-              <button 
-                onClick={() => setStep('email')}
-                className="w-full py-6 text-gray-400 hover:text-gray-900 text-[10px] font-black uppercase tracking-[0.4em] transition-colors"
-              >
-                Return to previous step
-              </button>
-            </motion.div>
-          )}
-
-          {step === 'password' && (
-            <motion.form 
-              key="password"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              onSubmit={handlePasswordLogin}
-              className="space-y-8"
-            >
-              <div className="space-y-3">
-                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Password</label>
-                <div className="relative">
-                  <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                  <input
-                    type="password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    autoFocus
-                    className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-5 pl-14 pr-4 text-gray-900 placeholder:text-gray-300 focus:outline-none focus:border-blue-500/30 transition-all font-bold"
-                  />
-                </div>
-              </div>
-
-              {error && <p className="text-red-500 text-xs font-bold bg-red-50 p-4 rounded-2xl border border-red-100">{error}</p>}
-
-              <button 
-                type="submit"
-                disabled={loading}
-                className="w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-blue-700 transition-all disabled:opacity-50"
-              >
-                {loading ? <Loader2 className="animate-spin" size={18} /> : <><LogIn size={18} /> Authorize Session</>}
-              </button>
-
-              <button 
-                type="button"
-                onClick={() => setStep('choice')}
-                className="w-full py-6 text-gray-400 hover:text-gray-900 text-[10px] font-black uppercase tracking-[0.4em] transition-colors"
-              >
-                Difficulty logging in?
-              </button>
-            </motion.form>
-          )}
-
-          {step === 'signup-details' && (
-            <motion.form 
-              key="signup-details"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              onSubmit={handleSignup}
-              className="space-y-6"
-            >
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Full Name</label>
-                <input
-                  type="text"
-                  required
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
-                  placeholder="John Doe"
-                  className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-4 px-5 text-gray-900 placeholder:text-gray-300 focus:outline-none focus:border-blue-500/30 transition-all font-bold"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Choose Password</label>
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-4 px-5 text-gray-900 placeholder:text-gray-300 focus:outline-none focus:border-blue-500/30 transition-all font-bold"
-                />
-              </div>
-
-              {error && <p className="text-red-500 text-xs font-bold bg-red-50 p-4 rounded-2xl border border-red-100">{error}</p>}
-
-              <button 
-                type="submit"
-                disabled={loading}
-                className="w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-blue-700 transition-all disabled:opacity-50 shadow-xl shadow-blue-500/20"
-              >
-                {loading ? <Loader2 className="animate-spin" size={18} /> : <><UserPlus size={18} /> Establish Identity</>}
-              </button>
-            </motion.form>
-          )}
-        </AnimatePresence>
-
-        <p className="mt-12 text-center text-[9px] text-gray-400 font-mono uppercase tracking-[0.5em]">
-          End-to-End Cryptographic Security • Software Store PBC
+        <p className="mt-10 text-center text-[9px] text-gray-400 font-mono uppercase tracking-[0.5em]">
+          Powered by Supabase Edge Network
         </p>
       </motion.div>
     </div>

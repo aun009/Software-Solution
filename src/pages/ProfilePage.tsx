@@ -30,7 +30,7 @@ export const ProfilePage = () => {
           <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
             <div className="relative">
               <div className="w-32 h-32 rounded-[40px] bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white text-5xl font-black shadow-2xl">
-                {user.displayName?.[0] || user.email?.[0]?.toUpperCase()}
+                {profile?.displayName?.[0] || user.email?.[0]?.toUpperCase()}
               </div>
               <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-white border border-gray-200 rounded-2xl flex items-center justify-center text-blue-600 shadow-lg">
                 <Shield size={20} />
@@ -40,7 +40,7 @@ export const ProfilePage = () => {
             <div className="text-center md:text-left space-y-3">
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
                 <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tighter uppercase">
-                  {user.displayName || 'System User'}
+                  {profile?.displayName || 'System User'}
                 </h1>
                 <span className={`px-4 py-1 rounded-xl text-[10px] font-black uppercase tracking-widest ${profile?.role === 'admin' ? 'bg-blue-50 text-blue-600 border border-blue-100' : 'bg-gray-50 text-gray-500 border border-gray-200'}`}>
                   {profile?.role || 'User'}
@@ -64,7 +64,7 @@ export const ProfilePage = () => {
                 <Calendar size={18} className="text-blue-600" />
                 <span>Joined</span>
               </div>
-              <span className="text-gray-900 font-bold">{new Date(user.metadata.creationTime || '').toLocaleDateString()}</span>
+              <span className="text-gray-900 font-bold">{new Date(user.created_at || '').toLocaleDateString()}</span>
             </div>
 
             <div className="flex items-center justify-between">
@@ -101,24 +101,7 @@ export const ProfilePage = () => {
           </div>
         </div>
 
-        {/* My Software Section (Placeholder) */}
-        <div className="mb-16">
-          <h2 className="text-2xl font-black text-gray-900 uppercase tracking-widest mb-10 flex items-center gap-4">
-            <Package className="text-blue-600" />
-            Active Software Suite
-          </h2>
-          <div className="p-12 text-center border border-dashed border-gray-200 rounded-[48px] bg-white">
-            <p className="text-gray-400 font-black uppercase tracking-[0.3em] italic text-sm mb-8">
-              No deployments detected in your registry
-            </p>
-            <Link 
-              to="/store"
-              className="inline-flex items-center gap-3 px-8 py-4 bg-blue-600 text-white font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-blue-700 transition-all active:scale-95 shadow-lg"
-            >
-              Examine Catalog <ArrowRight size={16} />
-            </Link>
-          </div>
-        </div>
+        {/* Removed Mock Active Licenses Section */}
 
         {/* Actions */}
         <div className="pt-10 border-t border-gray-100 flex flex-col items-center">

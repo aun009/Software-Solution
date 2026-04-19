@@ -16,20 +16,22 @@ interface NavLinkProps {
   icon: LucideIcon;
   label: string;
   active: boolean;
+  onClick?: () => void;
 }
 
-const NavLink = ({ to, icon: Icon, label, active }: NavLinkProps) => (
+const NavLink = ({ to, icon: Icon, label, active, onClick }: NavLinkProps) => (
   <Link
     to={to}
+    onClick={onClick}
     className={cn(
-      "flex items-center gap-2 px-3 md:px-6 py-2 rounded-full transition-all duration-300",
+      "flex items-center gap-1.5 md:gap-2 px-3 md:px-5 py-2 md:py-2.5 rounded-full transition-all duration-300",
       active 
-        ? "bg-blue-600/10 text-blue-600 border border-blue-600/20 shadow-[0_0_15px_rgba(37,99,235,0.1)]" 
-        : "text-gray-500 hover:text-gray-900 hover:bg-gray-900/5"
+        ? "bg-blue-600 text-white shadow-md shadow-blue-500/20" 
+        : "text-gray-600 hover:text-gray-900 hover:bg-gray-100/80"
     )}
   >
-    <Icon size={14} className="md:size-4" />
-    <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest">{label}</span>
+    <Icon size={14} className="md:size-[15px]" />
+    <span className="text-[11px] md:text-[13px] font-bold tracking-tight">{label}</span>
   </Link>
 );
 
@@ -48,10 +50,6 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
   });
 
   useEffect(() => {
-    const isMobile = window.innerWidth < 768;
-    const bgColor = '255, 255, 255';
-    const borderColor = '0, 0, 0';
-    
     const trigger = ScrollTrigger.create({
       start: "top -20",
       end: 200,
@@ -59,28 +57,28 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
         const progress = self.progress;
         
         gsap.to(navRef.current, {
-          backgroundColor: `rgba(255, 255, 255, ${progress * 0.95})`,
-          backdropFilter: `blur(${progress * 24}px)`,
-          height: isMobile ? (80 - progress * 16) : (96 - progress * 24),
-          borderBottom: `1px solid rgba(0, 0, 0, ${progress * 0.05})`,
+          boxShadow: `0 ${4 + progress * 10}px ${6 + progress * 20}px -1px rgba(0, 0, 0, ${0.05 + progress * 0.05})`,
+          y: progress * 5,
           duration: 0.1,
           overwrite: 'auto'
         });
-
-        if (!isMobile) {
-          gsap.to(brandTextRef.current, {
-            opacity: 1 - progress,
-            x: -progress * 20,
-            width: `${(1 - progress) * 100}%`,
-            duration: 0.1,
-            overwrite: 'auto'
-          });
-        }
       }
     });
 
     return () => trigger.kill();
-  }, [location.pathname]);
+  }, []);
+
+  useEffect(() => {
+    if (location.hash) {
+      setTimeout(() => {
+        const id = location.hash.replace('#', '');
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    } else {
+      window.scrollTo(0, 0);
+    }
+  }, [location.pathname, location.hash]);
 
   return (
     <div className="min-h-screen transition-colors duration-500 flex flex-col font-sans selection:bg-blue-500/20 antialiased overflow-x-hidden">
@@ -96,54 +94,65 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
         <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-purple-600/10 blur-[150px] rounded-full animate-pulse" style={{ animationDelay: '2s' }} />
       </div>
 
-      {/* Header */}
-      <header 
-        ref={navRef}
-        className="fixed top-0 z-[110] w-full h-20 md:h-24 flex items-center transition-all duration-300 bg-transparent"
-      >
-        <nav className="max-w-7xl mx-auto px-4 md:px-6 w-full flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 md:gap-3 group shrink-0">
-            <div className="w-8 h-8 md:w-9 md:h-9 border-2 border-gray-900 flex items-center justify-center group-hover:bg-gray-900 group-hover:text-white transition-all">
-              <span className="font-black text-sm md:text-lg text-gray-900 group-hover:text-white">S</span>
+      {/* Header - Pill Design */}
+      <header className="fixed top-0 md:top-6 z-[110] w-full md:w-auto md:left-1/2 md:-translate-x-1/2 px-4 md:px-0 pointer-events-none mt-4 md:mt-0">
+        <nav 
+          ref={navRef}
+          className="pointer-events-auto w-full md:w-auto mx-auto bg-white/90 backdrop-blur-xl border border-gray-200/60 shadow-sm rounded-2xl md:rounded-full px-3 py-2.5 flex items-center justify-between gap-4 md:gap-12 transition-all"
+        >
+          <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center gap-2 pl-2 group shrink-0">
+            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center group-hover:scale-105 transition-transform shadow-md shadow-blue-600/20">
+              <span className="font-black text-sm text-white">S</span>
             </div>
             <span 
               ref={brandTextRef}
-              className="text-base md:text-xl font-black tracking-tighter text-gray-900 whitespace-nowrap overflow-hidden"
+              className="text-base md:text-lg font-black tracking-tight text-gray-900 hidden sm:block"
             >
               Software Store
             </span>
           </Link>
 
           {/* Navigation Links */}
-          <div className="flex items-center gap-2 md:gap-6">
-            <div className="flex items-center gap-1 md:gap-3">
-              <NavLink to="/" icon={Home} label="Home" active={location.pathname === '/' && !location.hash} />
+          <div className="flex items-center gap-1 md:gap-2">
+            <div className="flex items-center p-1 bg-gray-100 rounded-full">
+              <NavLink to="/" icon={Home} label="Home" active={location.pathname === '/' && !location.hash} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} />
               <NavLink to="/about" icon={Info} label="About" active={location.pathname === '/about'} />
-              <NavLink to="/store" icon={Store} label="Products" active={location.pathname === '/store'} />
+              <Link 
+                to="/#store" 
+                className={cn(
+                  "flex items-center gap-1.5 md:gap-2 px-3 md:px-5 py-2 md:py-2.5 rounded-full transition-all duration-300",
+                  location.hash === '#store'
+                    ? "bg-blue-600 text-white shadow-md shadow-blue-500/20" 
+                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-100/80"
+                )}
+              >
+                <Store size={14} className="md:size-[15px]" />
+                <span className="text-[11px] md:text-[13px] font-bold tracking-tight">Store</span>
+              </Link>
               {isAdmin && (
                 <NavLink to="/admin" icon={Settings} label="Admin" active={location.pathname === '/admin'} />
               )}
             </div>
 
-            <div className="w-px h-6 bg-gray-200" />
+            <div className="w-px h-8 bg-gray-200 mx-2 hidden md:block" />
             
-            <div className="flex items-center gap-2 md:gap-4 ml-1 md:ml-4">
+            <div className="flex items-center pr-1">
               {user ? (
                 <Link 
                   to="/profile"
-                  className="flex items-center gap-2 md:gap-3 pl-2 pr-3 md:pl-3 md:pr-4 py-1.5 md:py-2 bg-blue-600/10 border border-blue-500/20 rounded-2xl hover:bg-blue-600/20 transition-all group"
+                  className="flex items-center gap-2 pl-2 pr-4 py-1.5 bg-white border border-gray-200 rounded-full hover:border-gray-300 hover:bg-gray-50 transition-all group shadow-sm"
                 >
-                  <div className="w-7 h-7 md:w-8 md:h-8 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-[10px] md:text-xs font-black text-white shadow-lg">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-[11px] font-black text-white shadow-inner">
                     {user.displayName?.[0] || user.email?.[0]?.toUpperCase()}
                   </div>
-                  <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-blue-500 hidden sm:inline">
+                  <span className="text-[12px] font-bold text-gray-800 hidden sm:inline">
                     {user.displayName?.split(' ')[0] || 'Profile'}
                   </span>
                 </Link>
               ) : (
                 <button 
                   onClick={() => setIsLoginOpen(true)}
-                  className="px-3 md:px-6 py-2 md:py-2.5 bg-gray-900 text-white text-[9px] md:text-xs font-black uppercase tracking-[0.2em] hover:bg-gray-800 transition-colors flex items-center gap-2 shrink-0 rounded-xl"
+                  className="px-5 py-2.5 bg-gray-900 text-white text-[12px] font-bold tracking-wide hover:bg-blue-600 transition-colors flex items-center gap-2 shrink-0 rounded-full shadow-md"
                 >
                   <LogIn size={14} />
                   <span className="hidden sm:inline">Sign In</span>
@@ -162,55 +171,45 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
       </main>
 
       {/* Footer (Simplified Pro) */}
-      <footer className="py-24 border-t border-gray-100 bg-white transition-colors">
+      <footer className="py-24 border-t border-white/10 bg-gray-950 transition-colors">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-12 mb-24 uppercase font-bold tracking-widest text-[11px]">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-12 lg:gap-24 mb-24 uppercase font-bold tracking-widest text-[11px] max-w-4xl">
              <div>
-               <p className="text-gray-900 mb-8">Products</p>
-               <ul className="space-y-4 text-gray-500">
-                 <li><Link to="/store" className="hover:text-blue-600 transition-colors">Claude</Link></li>
-                 <li><Link to="/store" className="hover:text-blue-600 transition-colors">Enterprise</Link></li>
-                 <li><Link to="/store" className="hover:text-blue-600 transition-colors">API</Link></li>
+               <p className="text-white mb-8">Our Products</p>
+               <ul className="space-y-4 text-gray-400">
+                 <li><Link to="/store" className="hover:text-blue-400 transition-colors">Softwares</Link></li>
+                 <li><Link to="/#store" className="hover:text-blue-400 transition-colors">Trending</Link></li>
+                 <li><Link to="/store" className="hover:text-blue-400 transition-colors">New Arrivals</Link></li>
                </ul>
              </div>
              <div>
-               <p className="text-gray-900 mb-8">Solutions</p>
-               <ul className="space-y-4 text-gray-500">
-                 <li><Link to="/" className="hover:text-blue-600 transition-colors">Engineering</Link></li>
-                 <li><Link to="/" className="hover:text-blue-600 transition-colors">Research</Link></li>
-                 <li><Link to="/" className="hover:text-blue-600 transition-colors">Policy</Link></li>
+               <p className="text-white mb-8">Solutions</p>
+               <ul className="space-y-4 text-gray-400">
+                 <li><Link to="/" className="hover:text-blue-400 transition-colors">Engineering</Link></li>
+                 <li><Link to="/" className="hover:text-blue-400 transition-colors">Analytics</Link></li>
                </ul>
              </div>
              <div>
-               <p className="text-gray-900 mb-8">Resources</p>
-               <ul className="space-y-4 text-gray-500">
-                 <li><Link to="/" className="hover:text-blue-600 transition-colors">Blog</Link></li>
-                 <li><Link to="/" className="hover:text-blue-600 transition-colors">Events</Link></li>
-                 <li><Link to="/" className="hover:text-blue-600 transition-colors">Community</Link></li>
-               </ul>
-             </div>
-             <div>
-               <p className="text-gray-900 mb-8">Company</p>
-               <ul className="space-y-4 text-gray-500">
-                 <li><Link to="/" className="hover:text-blue-600 transition-colors">Careers</Link></li>
-                 <li><Link to="/" className="hover:text-blue-600 transition-colors">Safety</Link></li>
-                 <li><Link to="/" className="hover:text-blue-600 transition-colors">Press</Link></li>
+               <p className="text-white mb-8">Company</p>
+               <ul className="space-y-4 text-gray-400">
+                 <li><Link to="/about" className="hover:text-blue-400 transition-colors">About Us</Link></li>
+                 <li><a href="https://wa.me/919552530324" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors">Contact</a></li>
                </ul>
              </div>
           </div>
           
-          <div className="pt-12 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-8 group">
+          <div className="pt-12 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-8 group">
             <div className="flex flex-col gap-4">
-               <div className="text-[20px] font-black tracking-tighter flex items-center gap-2 text-gray-900">
-                 <div className="w-6 h-6 border-2 border-gray-900 flex items-center justify-center">
+               <div className="text-[20px] font-black tracking-tighter flex items-center gap-2 text-white">
+                 <div className="w-6 h-6 border-2 border-white flex items-center justify-center">
                    <span className="text-xs">S</span>
                  </div>
                  SOFTWARE STORE
                </div>
-               <p className="text-[11px] text-gray-600 font-mono">© 2026 SOFTWARE STORE PBC. ALL RIGHTS RESERVED.</p>
+               <p className="text-[11px] text-gray-500 font-mono">© 2026 SOFTWARE STORE PBC. ALL RIGHTS RESERVED.</p>
             </div>
             
-            <div className="flex gap-12 text-[11px] text-gray-700 font-mono uppercase tracking-[0.3em]">
+            <div className="flex gap-12 text-[11px] text-gray-500 font-mono uppercase tracking-[0.3em]">
                <span className="flex items-center gap-2 animate-pulse"><div className="w-1.5 h-1.5 rounded-full bg-green-500" /> SYSTEM ACTIVE</span>
                <span>VER 8.4.2</span>
             </div>
