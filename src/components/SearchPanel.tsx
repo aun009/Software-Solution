@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search } from 'lucide-react';
+import { Search, LayoutGrid, PenTool, Palette, Film, Target, BookOpen, Camera, Gamepad2 } from 'lucide-react';
 import { Category } from '../types';
 import { cn } from '../lib/utils';
 import { motion } from 'motion/react';
@@ -12,6 +12,17 @@ interface SearchPanelProps {
 }
 
 const CATEGORIES: Category[] = ['All', 'AI & Writing', 'Graphic Design', 'Video Editing', 'SEO & Marketing', 'Learning', 'Stock & Media', 'Entertainment'];
+
+const CATEGORY_ICONS: Record<Category, React.ElementType> = {
+  'All': LayoutGrid,
+  'AI & Writing': PenTool,
+  'Graphic Design': Palette,
+  'Video Editing': Film,
+  'SEO & Marketing': Target,
+  'Learning': BookOpen,
+  'Stock & Media': Camera,
+  'Entertainment': Gamepad2
+};
 
 const PLACEHOLDERS = [
   "Search AI research...",
@@ -90,6 +101,10 @@ export const SearchPanel = ({
                 : "bg-white text-gray-500 border-gray-200 hover:border-gray-300 hover:text-gray-900 shadow-sm"
             )}
           >
+            {(() => {
+              const Icon = CATEGORY_ICONS[category];
+              return <Icon size={14} className="mr-1.5 inline-block -mt-0.5" />;
+            })()}
             {category}
           </motion.button>
         ))}
