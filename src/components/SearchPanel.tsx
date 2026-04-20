@@ -86,7 +86,13 @@ export const SearchPanel = ({
         </div>
       </div>
 
-      <div className="flex flex-wrap justify-center gap-3">
+      {/* Category Grid (Compact on mobile, flexible on desktop) */}
+      <motion.div 
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ staggerChildren: 0.05 }}
+        className="grid grid-cols-2 sm:grid-cols-3 md:flex md:flex-wrap justify-center gap-2 md:gap-3 w-full px-2 md:px-0"
+      >
         {CATEGORIES.map((category, idx) => (
           <motion.button
             initial={{ opacity: 0, scale: 0.8, y: 10 }}
@@ -95,20 +101,20 @@ export const SearchPanel = ({
             key={category}
             onClick={() => setSelectedCategory(category)}
             className={cn(
-              "px-6 py-2.5 rounded-full text-[11px] font-bold uppercase tracking-widest transition-all duration-300 border",
+              "px-2 md:px-6 py-2.5 rounded-2xl md:rounded-full text-[9px] sm:text-[10px] md:text-[11px] font-bold uppercase tracking-[0.05em] md:tracking-widest transition-all duration-300 border flex items-center justify-center min-w-0 md:min-w-[120px] shadow-sm transform hover:scale-[1.02] active:scale-95",
               selectedCategory === category
-                ? "bg-gray-900 text-white border-gray-900 shadow-md"
-                : "bg-white text-gray-500 border-gray-200 hover:border-gray-300 hover:text-gray-900 shadow-sm"
+                ? "bg-blue-600 text-white border-blue-600 shadow-md"
+                : "bg-white/80 backdrop-blur-sm text-gray-600 border-gray-200 hover:border-gray-300 hover:text-gray-900"
             )}
           >
             {(() => {
               const Icon = CATEGORY_ICONS[category];
-              return <Icon size={14} className="mr-1.5 inline-block -mt-0.5" />;
+              return <Icon size={12} className="mr-1.5 md:mr-2 inline-block shrink-0" />;
             })()}
-            {category}
+            <span className="truncate leading-none pt-[1px]">{category === 'SEO & Marketing' ? 'Marketing' : category === 'Stock & Media' ? 'Media' : category}</span>
           </motion.button>
         ))}
-      </div>
+      </motion.div>
     </div>
   );
 };
