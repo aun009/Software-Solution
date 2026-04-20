@@ -39,7 +39,6 @@ export const StorePage = () => {
   const { products: allProducts, fetchProducts, loading } = useProductStore();
 
   useEffect(() => {
-    window.scrollTo(0, 0);
     fetchProducts();
   }, [fetchProducts]);
 
@@ -159,7 +158,7 @@ export const StorePage = () => {
       )}
 
       {/* Grid Section */}
-      <section className="max-w-7xl mx-auto px-4 md:px-6 pt-12 border-t border-white/5 relative">
+      <section id="software-hub" className="max-w-7xl mx-auto px-4 md:px-6 pt-12 border-t border-white/5 relative scroll-mt-24">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -188,28 +187,55 @@ export const StorePage = () => {
            </div>
         ) : filteredProducts.length > 0 ? (
           <>
-            <div 
-              className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-8 lg:gap-10"
-            >
-              <AnimatePresence mode="popLayout">
-                {(showAll ? filteredProducts : filteredProducts.slice(0, 6)).map((product, idx) => (
-                  <ProductCard 
-                    key={product.id} 
-                    product={product as any} 
-                    index={idx}
-                  />
-                ))}
-              </AnimatePresence>
+            {/* Always-visible first 6 products */}
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-8 lg:gap-10">
+              {filteredProducts.slice(0, 6).map((product, idx) => (
+                <ProductCard 
+                  key={product.id} 
+                  product={product as any} 
+                  index={idx}
+                />
+              ))}
             </div>
-            {!showAll && filteredProducts.length > 6 && (
-              <div className="mt-12 flex justify-center">
-                <button
-                  onClick={() => setShowAll(true)}
-                  className="px-8 py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-white/10 hover:border-white/20 transition-all shadow-sm flex items-center gap-2 group backdrop-blur-sm"
+
+            {/* Extra products — smooth expand/collapse */}
+            {filteredProducts.length > 6 && (
+              <>
+                <div
+                  className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-8 lg:gap-10 overflow-hidden transition-all duration-500 ease-in-out"
+                  style={{
+                    maxHeight: showAll ? `${Math.ceil((filteredProducts.length - 6) / 3) * 600}px` : '0px',
+                    opacity: showAll ? 1 : 0,
+                    marginTop: showAll ? '12px' : '0px',
+                  }}
                 >
-                  View More <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                </button>
-              </div>
+                  {filteredProducts.slice(6).map((product, idx) => (
+                    <ProductCard 
+                      key={product.id} 
+                      product={product as any} 
+                      index={idx + 6}
+                    />
+                  ))}
+                </div>
+
+                <div className="mt-12 flex justify-center">
+                  <button
+                    onClick={() => {
+                      if (showAll) {
+                        const el = document.getElementById('software-hub');
+                        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        setTimeout(() => setShowAll(false), 350);
+                      } else {
+                        setShowAll(true);
+                      }
+                    }}
+                    className="px-8 py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-white/10 hover:border-white/20 transition-all shadow-sm flex items-center gap-2 group backdrop-blur-sm"
+                  >
+                    {showAll ? 'View Less' : 'View More'}
+                    <ArrowRight size={14} className={`transition-transform duration-300 ${showAll ? 'rotate-[-90deg] group-hover:-translate-y-1' : 'group-hover:translate-x-1'}`} />
+                  </button>
+                </div>
+              </>
             )}
           </>
         ) : (

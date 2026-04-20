@@ -1,11 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
-  ArrowRight, Zap, Target, TrendingUp, Sparkles, Globe, MessageSquare,
-  Users, Award, Rocket, Cpu, Layers, Fingerprint, Shield, Infinity as InfinityIcon,
-  Image as ImageIcon, Book, Leaf, Smile, Search, Play, Video, LayoutDashboard,
-  CheckCircle, Network, MessageCircle, HelpCircle, Edit3, Feather, User, Hash, Film,
-  PenTool, Hexagon, X
+  ArrowRight, X
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import gsap from 'gsap';
@@ -63,7 +59,7 @@ export const HomePage = () => {
   return (
     <div ref={containerRef} className="w-full relative z-10 overflow-hidden selection:bg-blue-500/30">
       {/* Background Decorative Mesh */}
-      <div className="absolute top-0 left-0 w-full h-[100vh] pointer-events-none opacity-30 overflow-hidden -z-10 mix-blend-multiply">
+      <div className="absolute top-0 left-0 w-full h-[100vh] pointer-events-none opacity-40 -z-[1] mix-blend-multiply">
         <motion.div
           animate={{ x: [0, 80, 0], y: [0, 40, 0], scale: [1, 1.2, 1] }}
           transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
@@ -82,7 +78,11 @@ export const HomePage = () => {
       </div>
 
       {/* Hero Section */}
-      <section id="home" ref={heroRef} className="relative min-h-[90vh] flex flex-col items-center justify-center px-6 pt-20 overflow-hidden">
+      <section
+        id="home"
+        ref={heroRef}
+        className="relative min-h-[calc(100svh-4rem)] md:min-h-[calc(100vh-5rem)] flex flex-col items-center justify-center px-6 pt-24 pb-16 overflow-hidden"
+      >
         {/* Animated Hero Gradient Aura */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-full max-h-[600px] pointer-events-none -z-10 blur-[120px] opacity-30">
           <motion.div
@@ -114,27 +114,30 @@ export const HomePage = () => {
           </p>
 
           <div className="hero-text flex flex-col sm:flex-row gap-4 justify-center items-center w-full">
-            <Link
-              to="/#store"
-              className="group overflow-hidden relative px-8 py-4 md:px-10 md:py-5 bg-blue-600 text-white rounded-xl md:rounded-2xl font-black text-xs md:text-sm uppercase tracking-widest flex items-center gap-3 hover:bg-blue-500 transition-all duration-300 hover:scale-[1.03] active:scale-95 shadow-[0_0_30px_rgba(37,99,235,0.3)] hover:shadow-[0_0_40px_rgba(37,99,235,0.5)]"
+            <button
+              onClick={() => {
+                const el = document.getElementById('store');
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }}
+              className="group overflow-hidden relative px-8 py-4 md:px-10 md:py-5 bg-blue-600 text-white rounded-xl md:rounded-2xl font-black text-xs md:text-sm uppercase tracking-widest flex items-center gap-3 hover:bg-blue-500 transition-all duration-300 hover:scale-[1.03] active:scale-95 shadow-[0_0_30px_rgba(37,99,235,0.3)] hover:shadow-[0_0_40px_rgba(37,99,235,0.5)] cursor-pointer"
             >
               <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out" />
               <span className="relative z-10 block transition-transform duration-300 group-hover:-translate-x-1">Explore Softwares</span>
               <ArrowRight size={18} className="relative z-10 transition-transform duration-300 group-hover:translate-x-1 group-hover:scale-110" />
-            </Link>
+            </button>
           </div>
         </div>
       </section>
 
       {/* Partner Marquee Rows */}
-      <section className="fade-up-section py-10 md:py-16 overflow-hidden border-y border-white/10 bg-gradient-to-br from-blue-950 via-slate-900 to-indigo-950 relative">
+      <section className="py-5 md:py-16 overflow-hidden border-y border-white/10 bg-gradient-to-br from-blue-950 via-slate-900 to-indigo-950 relative">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(59,130,246,0.15)_0%,transparent_60%)]" />
-        <div className="flex flex-col gap-4 md:gap-6 relative z-10 max-w-[100vw]">
+        <div className="flex flex-col gap-2 md:gap-6 relative z-10 max-w-[100vw]">
           {/* Row 1: Moving Right */}
           <div className="flex whitespace-nowrap">
-            <div className="flex animate-marquee-right gap-4 md:gap-6 items-center pr-4 md:pr-6 hover:[animation-play-state:paused] w-max py-4 pointer-events-none" style={{ animationDuration: '60s' }}>
+            <div className="flex animate-marquee-right gap-2 md:gap-6 items-center pr-2 md:pr-6 hover:[animation-play-state:paused] w-max py-1.5 md:py-4 pointer-events-none" style={{ animationDuration: '60s', willChange: 'transform' }}>
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="flex gap-4 md:gap-6 items-center">
+                <div key={i} className="flex gap-2 md:gap-6 items-center">
                   {[
                     { name: "ChatGPT", url: "openai.com" },
                     { name: "Claude", url: "anthropic.com" },
@@ -151,15 +154,15 @@ export const HomePage = () => {
                   ].map((item, idx) => (
                     <div
                       key={idx}
-                      className="shrink-0 flex flex-col items-center gap-[8px] bg-white/5 border border-white/10 rounded-[16px] px-5 py-3 md:py-4 min-w-[110px] md:min-w-[130px] cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:scale-[1.10] hover:shadow-2xl hover:z-50 relative group hover:bg-white/10 pointer-events-auto"
+                      className="shrink-0 flex flex-col items-center gap-1 md:gap-[8px] bg-white/5 border border-white/10 rounded-xl md:rounded-[16px] px-3 md:px-5 py-2 md:py-4 min-w-[76px] md:min-w-[130px] cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:scale-[1.10] hover:shadow-2xl hover:z-50 relative group hover:bg-white/10 pointer-events-auto"
                     >
                       <img
                         src={`https://img.logo.dev/${item.url}?token=${LOGO_DEV_PUBLIC_KEY}&size=128&format=png`}
                         alt={item.name}
-                        className="w-12 h-12 md:w-14 md:h-14 object-contain rounded-[12px] bg-white p-1.5"
+                        className="w-9 h-9 md:w-14 md:h-14 object-contain rounded-lg md:rounded-[12px] bg-white p-1 md:p-1.5"
                         onError={(e) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&size=64&background=2ec4b6&color=fff&bold=true` }}
                       />
-                      <span className="font-bold tracking-tight text-[11px] md:text-xs text-gray-300 truncate w-full text-center group-hover:text-white transition-colors">{item.name}</span>
+                      <span className="font-bold tracking-tight text-[9px] md:text-xs text-gray-300 truncate w-full text-center group-hover:text-white transition-colors">{item.name}</span>
                     </div>
                   ))}
                 </div>
@@ -168,9 +171,9 @@ export const HomePage = () => {
           </div>
           {/* Row 2: Moving Left */}
           <div className="flex whitespace-nowrap">
-            <div className="flex animate-marquee-left gap-4 md:gap-6 items-center pr-4 md:pr-6 hover:[animation-play-state:paused] w-max py-4 pointer-events-none" style={{ animationDuration: '60s' }}>
+            <div className="flex animate-marquee-left gap-2 md:gap-6 items-center pr-2 md:pr-6 hover:[animation-play-state:paused] w-max py-1.5 md:py-4 pointer-events-none" style={{ animationDuration: '60s', willChange: 'transform' }}>
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="flex gap-4 md:gap-6 items-center">
+                <div key={i} className="flex gap-2 md:gap-6 items-center">
                   {[
                     { name: "Monday", url: "monday.com" },
                     { name: "ClickUp", url: "clickup.com" },
@@ -187,15 +190,15 @@ export const HomePage = () => {
                   ].map((item, idx) => (
                     <div
                       key={idx}
-                      className="shrink-0 flex flex-col items-center gap-[8px] bg-white/5 border border-white/10 rounded-[16px] px-5 py-3 md:py-4 min-w-[110px] md:min-w-[130px] cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:scale-[1.10] hover:shadow-2xl hover:z-50 relative group hover:bg-white/10 pointer-events-auto"
+                      className="shrink-0 flex flex-col items-center gap-1 md:gap-[8px] bg-white/5 border border-white/10 rounded-xl md:rounded-[16px] px-3 md:px-5 py-2 md:py-4 min-w-[76px] md:min-w-[130px] cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:scale-[1.10] hover:shadow-2xl hover:z-50 relative group hover:bg-white/10 pointer-events-auto"
                     >
                       <img
                         src={`https://img.logo.dev/${item.url}?token=${LOGO_DEV_PUBLIC_KEY}&size=128&format=png`}
                         alt={item.name}
-                        className="w-12 h-12 md:w-14 md:h-14 object-contain rounded-[12px] bg-white p-1.5"
+                        className="w-9 h-9 md:w-14 md:h-14 object-contain rounded-lg md:rounded-[12px] bg-white p-1 md:p-1.5"
                         onError={(e) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&size=64&background=2ec4b6&color=fff&bold=true` }}
                       />
-                      <span className="font-bold tracking-tight text-[11px] md:text-xs text-gray-300 truncate w-full text-center group-hover:text-white transition-colors">{item.name}</span>
+                      <span className="font-bold tracking-tight text-[9px] md:text-xs text-gray-300 truncate w-full text-center group-hover:text-white transition-colors">{item.name}</span>
                     </div>
                   ))}
                 </div>
@@ -205,9 +208,9 @@ export const HomePage = () => {
 
           {/* Row 3: Moving Right */}
           <div className="flex whitespace-nowrap">
-            <div className="flex animate-marquee-right gap-4 md:gap-6 items-center pr-4 md:pr-6 hover:[animation-play-state:paused] w-max py-4 pointer-events-none" style={{ animationDuration: '60s' }}>
+            <div className="flex animate-marquee-right gap-2 md:gap-6 items-center pr-2 md:pr-6 hover:[animation-play-state:paused] w-max py-1.5 md:py-4 pointer-events-none" style={{ animationDuration: '60s', willChange: 'transform' }}>
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="flex gap-4 md:gap-6 items-center">
+                <div key={i} className="flex gap-2 md:gap-6 items-center">
                   {[
                     { name: "Figma", url: "figma.com" },
                     { name: "Linear", url: "linear.app" },
@@ -224,15 +227,15 @@ export const HomePage = () => {
                   ].map((item, idx) => (
                     <div
                       key={idx}
-                      className="shrink-0 flex flex-col items-center gap-[8px] bg-white/5 border border-white/10 rounded-[16px] px-5 py-3 md:py-4 min-w-[110px] md:min-w-[130px] cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:scale-[1.10] hover:shadow-2xl hover:z-50 relative group hover:bg-white/10 pointer-events-auto"
+                      className="shrink-0 flex flex-col items-center gap-1 md:gap-[8px] bg-white/5 border border-white/10 rounded-xl md:rounded-[16px] px-3 md:px-5 py-2 md:py-4 min-w-[76px] md:min-w-[130px] cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:scale-[1.10] hover:shadow-2xl hover:z-50 relative group hover:bg-white/10 pointer-events-auto"
                     >
                       <img
                         src={`https://img.logo.dev/${item.url}?token=${LOGO_DEV_PUBLIC_KEY}&size=128&format=png`}
                         alt={item.name}
-                        className="w-12 h-12 md:w-14 md:h-14 object-contain rounded-[12px] bg-white p-1.5"
+                        className="w-9 h-9 md:w-14 md:h-14 object-contain rounded-lg md:rounded-[12px] bg-white p-1 md:p-1.5"
                         onError={(e) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&size=64&background=2ec4b6&color=fff&bold=true` }}
                       />
-                      <span className="font-bold tracking-tight text-[11px] md:text-xs text-gray-300 truncate w-full text-center group-hover:text-white transition-colors">{item.name}</span>
+                      <span className="font-bold tracking-tight text-[9px] md:text-xs text-gray-300 truncate w-full text-center group-hover:text-white transition-colors">{item.name}</span>
                     </div>
                   ))}
                 </div>
@@ -251,7 +254,7 @@ export const HomePage = () => {
       <Reviews />
 
       {/* Persistent WhatsApp Floating Widget */}
-      <div className="fixed bottom-8 right-8 z-[150] flex flex-col items-end gap-4 pointer-events-none">
+      <div className="fixed bottom-5 right-5 md:bottom-8 md:right-8 z-[150] flex flex-col items-end gap-4 pointer-events-none">
 
         {/* Animated Help Bubble */}
         <AnimatePresence>
@@ -260,7 +263,7 @@ export const HomePage = () => {
               initial={{ opacity: 0, y: 10, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-              className="relative bg-white pl-5 pr-10 py-3 rounded-2xl shadow-xl shadow-black/10 border border-black/5 animate-bounce pointer-events-auto"
+              className="relative bg-white pl-5 pr-10 py-3 rounded-2xl shadow-xl shadow-black/10 border border-black/5 animate-bounce pointer-events-auto hidden sm:block"
             >
               <div className="flex items-center gap-2.5">
                 <span className="flex h-2.5 w-2.5 relative">
@@ -289,28 +292,32 @@ export const HomePage = () => {
           href="https://wa.me/919552530324"
           target="_blank"
           rel="noopener noreferrer"
-          className="relative w-16 h-16 bg-[#25D366] rounded-full flex items-center justify-center text-white shadow-[0_8px_30px_rgba(37,211,102,0.4)] hover:scale-110 transition-transform duration-300 active:scale-95 group pointer-events-auto"
+          className="relative w-14 h-14 md:w-16 md:h-16 bg-[#25D366] rounded-full flex items-center justify-center text-white shadow-[0_8px_30px_rgba(37,211,102,0.4)] hover:scale-110 transition-transform duration-300 active:scale-95 group pointer-events-auto"
           title="Chat with Us on WhatsApp"
         >
           <div className="absolute inset-0 bg-[#25D366] rounded-full animate-ping opacity-20 group-hover:opacity-40 transition-opacity" />
-          <svg viewBox="0 0 24 24" width="30" height="30" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" className="relative z-10 -ml-0.5 mt-0.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+          <svg viewBox="0 0 24 24" width="26" height="26" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" className="relative z-10 -ml-0.5 mt-0.5 md:w-[30px] md:h-[30px]"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
         </a>
       </div>
 
       <style>{`
         @keyframes marquee-right {
-          0% { transform: translateX(-50%); }
-          100% { transform: translateX(0%); }
+          0% { transform: translateX(-50%) translateZ(0); }
+          100% { transform: translateX(0%) translateZ(0); }
         }
         @keyframes marquee-left {
-          0% { transform: translateX(0%); }
-          100% { transform: translateX(-50%); }
+          0% { transform: translateX(0%) translateZ(0); }
+          100% { transform: translateX(-50%) translateZ(0); }
         }
         .animate-marquee-right {
           animation: marquee-right 30s linear infinite;
+          will-change: transform;
+          backface-visibility: hidden;
         }
         .animate-marquee-left {
           animation: marquee-left 30s linear infinite;
+          will-change: transform;
+          backface-visibility: hidden;
         }
       `}</style>
     </div>

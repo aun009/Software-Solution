@@ -6,6 +6,9 @@ import { StorePage } from './pages/StorePage';
 import { ProductDetails } from './pages/ProductDetails';
 import { AdminPage } from './pages/AdminPage';
 import { ProfilePage } from './pages/ProfilePage';
+import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
+import { TermsOfServicePage } from './pages/TermsOfServicePage';
+import { DisclaimerPage } from './pages/DisclaimerPage';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 
@@ -21,6 +24,9 @@ export default function App() {
               <Route path="/product/:id" element={<ProductDetails />} />
               <Route path="/admin" element={<AdminPage />} />
               <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/privacy" element={<PrivacyPolicyPage />} />
+              <Route path="/terms" element={<TermsOfServicePage />} />
+              <Route path="/disclaimer" element={<DisclaimerPage />} />
             </Routes>
           </Layout>
         </AuthProvider>

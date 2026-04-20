@@ -1,4 +1,4 @@
-# Software Store Theme Manifest
+# SP Tech Solutions Theme Manifest
 
 This document preserves the "Mission Control" Dark Theme and "Corporate Dashboard" Light Theme configurations used during development.
 

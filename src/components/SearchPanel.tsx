@@ -78,20 +78,20 @@ export const SearchPanel = ({
             placeholder={placeholderText || "Search..."}
             value={searchTerm}
             onChange={(e) => { setSearchTerm(e.target.value); if (e.target.value) setSelectedCategory('All' as Category); }}
-            className="flex-1 w-full bg-transparent text-gray-900 pl-4 pr-6 py-3.5 text-lg font-sans font-medium placeholder:text-gray-400 focus:outline-none"
+            className="flex-1 w-full bg-transparent text-gray-900 pl-3 md:pl-4 pr-2 md:pr-6 py-3 text-base md:text-lg font-sans font-medium placeholder:text-gray-400 focus:outline-none"
           />
-          <button className="px-8 py-3.5 bg-blue-600 text-white font-black rounded-full text-sm uppercase tracking-wider hover:bg-blue-700 shadow-[0_4px_14px_rgba(37,99,235,0.2)] transition-all shrink-0 active:scale-95">
+          <button className="hidden sm:block px-8 py-3.5 bg-blue-600 text-white font-black rounded-full text-sm uppercase tracking-wider hover:bg-blue-700 shadow-[0_4px_14px_rgba(37,99,235,0.2)] transition-all shrink-0 active:scale-95">
             Search
           </button>
         </div>
       </div>
 
-      {/* Category Grid (Compact on mobile, flexible on desktop) */}
+      {/* Category Tag Cloud (Compact and native wrapping) */}
       <motion.div 
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ staggerChildren: 0.05 }}
-        className="grid grid-cols-2 sm:grid-cols-3 md:flex md:flex-wrap justify-center gap-2 md:gap-3 w-full px-2 md:px-0"
+        className="flex flex-wrap justify-center gap-2 md:gap-3 w-full px-2 md:px-0 max-w-3xl"
       >
         {CATEGORIES.map((category, idx) => (
           <motion.button
@@ -101,17 +101,17 @@ export const SearchPanel = ({
             key={category}
             onClick={() => setSelectedCategory(category)}
             className={cn(
-              "px-2 md:px-6 py-2.5 rounded-2xl md:rounded-full text-[9px] sm:text-[10px] md:text-[11px] font-bold uppercase tracking-[0.05em] md:tracking-widest transition-all duration-300 border flex items-center justify-center min-w-0 md:min-w-[120px] shadow-sm transform hover:scale-[1.02] active:scale-95",
+              "px-3 md:px-6 py-2 md:py-2.5 rounded-full text-[10px] md:text-[11px] font-bold uppercase tracking-widest transition-all duration-300 border flex items-center justify-center shadow-sm transform hover:scale-[1.02] active:scale-95",
               selectedCategory === category
-                ? "bg-blue-600 text-white border-blue-600 shadow-md"
-                : "bg-white/80 backdrop-blur-sm text-gray-600 border-gray-200 hover:border-gray-300 hover:text-gray-900"
+                ? "bg-gray-900 text-white border-gray-900 shadow-[0_4px_12px_rgba(0,0,0,0.15)]"
+                : "bg-white/90 backdrop-blur-sm text-gray-500 border-gray-200 hover:border-gray-300 hover:text-gray-900"
             )}
           >
             {(() => {
               const Icon = CATEGORY_ICONS[category];
-              return <Icon size={12} className="mr-1.5 md:mr-2 inline-block shrink-0" />;
+              return <Icon size={12} className="mr-1.5 inline-block shrink-0" />;
             })()}
-            <span className="truncate leading-none pt-[1px]">{category === 'SEO & Marketing' ? 'Marketing' : category === 'Stock & Media' ? 'Media' : category}</span>
+            <span className="leading-none pt-[1px]">{category === 'SEO & Marketing' ? 'Marketing' : category === 'Stock & Media' ? 'Media' : category}</span>
           </motion.button>
         ))}
       </motion.div>

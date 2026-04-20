@@ -103,16 +103,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
           <img 
             src={product.image} 
             alt={product.title}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 group-hover:-rotate-2"
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
             referrerPolicy="no-referrer"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#162032] via-transparent to-transparent opacity-90" />
           
-          <div className="absolute top-6 left-6">
-            <span className="px-3 py-1 bg-black/40 backdrop-blur-md rounded-full text-[10px] font-black uppercase tracking-widest text-blue-400 border border-white/10">
-              {product.category}
-            </span>
-          </div>
+
         </div>
 
         {/* Content */}

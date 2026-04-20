@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Store, LucideIcon, LogIn, LogOut, Settings, Info, MessageCircle, Sun, Moon, Home, User as UserIcon } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
-import { motion, useScroll, useSpring } from 'motion/react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { motion, useScroll, useSpring, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -37,11 +37,22 @@ const NavLink = ({ to, icon: Icon, label, active, onClick }: NavLinkProps) => (
 
 export const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const navRef = useRef<HTMLDivElement>(null);
   const brandTextRef = useRef<HTMLSpanElement>(null);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const { user, isAdmin, logout } = useAuth();
   const { scrollYProgress } = useScroll();
+
+  const scrollToStore = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    if (location.pathname === '/') {
+      const el = document.getElementById('store');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      navigate('/#store');
+    }
+  }, [location.pathname, navigate]);
   
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 100,
@@ -102,13 +113,13 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
         >
           <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center gap-2 pl-2 group shrink-0">
             <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center group-hover:scale-105 transition-transform shadow-md shadow-blue-600/20">
-              <span className="font-black text-sm text-white">S</span>
+              <span className="font-black text-[10px] text-white">SP</span>
             </div>
             <span 
               ref={brandTextRef}
               className="text-base md:text-lg font-black tracking-tight text-gray-900 hidden sm:block"
             >
-              Software Store
+              SP Tech Solutions
             </span>
           </Link>
 
@@ -119,6 +130,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
               <NavLink to="/about" icon={Info} label="About" active={location.pathname === '/about'} />
               <Link 
                 to="/#store" 
+                onClick={scrollToStore}
                 className={cn(
                   "flex items-center gap-1.5 md:gap-2 px-3 md:px-5 py-2 md:py-2.5 rounded-full transition-all duration-300",
                   location.hash === '#store'
@@ -167,7 +179,17 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
 
       {/* Main Content */}
       <main className="flex-grow">
-        {children}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={location.pathname}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25, ease: 'easeInOut' }}
+          >
+            {children}
+          </motion.div>
+        </AnimatePresence>
       </main>
 
       {/* Footer */}
@@ -178,9 +200,9 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
             <div className="md:col-span-5 flex flex-col gap-6 pr-0 md:pr-12">
                <div className="text-[26px] font-black tracking-tighter flex items-center gap-3 text-white">
                  <div className="w-9 h-9 bg-gradient-to-br from-teal-400 to-emerald-600 rounded-lg flex items-center justify-center text-white shadow-lg shadow-teal-500/20">
-                   <span className="text-base font-black">N</span>
+                   <span className="text-[11px] font-black">SP</span>
                  </div>
-                 SOFTWARE STORE
+                 SP TECH SOLUTIONS
                </div>
                <p className="text-gray-300 text-[15px] leading-[1.8] font-medium max-w-[90%] font-sans">
                  The internet's most complete AI tools directory. Discover, compare, and find the perfect AI for any task.
@@ -203,29 +225,23 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
                <div>
                  <p className="text-white font-bold tracking-[0.1em] text-[13px] uppercase mb-6 md:mb-8 bg-transparent">Explore</p>
                  <ul className="space-y-4 text-[15px] text-gray-300 font-medium">
-                   <li><Link to="/#store" className="hover:text-white hover:underline decoration-white/30 transition-all">All AI Tools</Link></li>
-                   <li><Link to="/#store" className="hover:text-white hover:underline decoration-white/30 transition-all">Categories</Link></li>
-                   <li><Link to="/#store" className="hover:text-white hover:underline decoration-white/30 transition-all">Trending</Link></li>
-                   <li><Link to="/#store" className="hover:text-white hover:underline decoration-white/30 transition-all">New Arrivals</Link></li>
-                   <li><Link to="/#store" className="hover:text-white hover:underline decoration-white/30 transition-all">Free Tools</Link></li>
+                   <li><a href="/#store" onClick={scrollToStore} className="hover:text-white hover:underline decoration-white/30 transition-all cursor-pointer">All AI Tools</a></li>
+                   <li><a href="/#store" onClick={scrollToStore} className="hover:text-white hover:underline decoration-white/30 transition-all cursor-pointer">Store</a></li>
                  </ul>
                </div>
                <div>
                  <p className="text-white font-bold tracking-[0.1em] text-[13px] uppercase mb-6 md:mb-8">Company</p>
                  <ul className="space-y-4 text-[15px] text-gray-300 font-medium">
                    <li><Link to="/about" className="hover:text-white hover:underline decoration-white/30 transition-all">About Us</Link></li>
-                   <li><a href="#" className="hover:text-white hover:underline decoration-white/30 transition-all">Blog</a></li>
                    <li><a href="https://wa.me/919552530324" target="_blank" rel="noopener noreferrer" className="hover:text-white hover:underline decoration-white/30 transition-all">Contact</a></li>
-                   <li><a href="#" className="hover:text-white hover:underline decoration-white/30 transition-all">Advertise</a></li>
                  </ul>
                </div>
                <div>
                  <p className="text-white font-bold tracking-[0.1em] text-[13px] uppercase mb-6 md:mb-8">Legal</p>
                  <ul className="space-y-4 text-[15px] text-gray-300 font-medium">
-                   <li><Link to="#" className="hover:text-white hover:underline decoration-white/30 transition-all">Privacy Policy</Link></li>
-                   <li><Link to="#" className="hover:text-white hover:underline decoration-white/30 transition-all">Terms of Service</Link></li>
-                   <li><Link to="#" className="hover:text-white hover:underline decoration-white/30 transition-all">Cookie Policy</Link></li>
-                   <li><Link to="#" className="hover:text-white hover:underline decoration-white/30 transition-all">Sitemap</Link></li>
+                   <li><Link to="/privacy" className="hover:text-white hover:underline decoration-white/30 transition-all">Privacy Policy</Link></li>
+                   <li><Link to="/terms" className="hover:text-white hover:underline decoration-white/30 transition-all">Terms of Service</Link></li>
+                   <li><Link to="/disclaimer" className="hover:text-white hover:underline decoration-white/30 transition-all">Disclaimer</Link></li>
                  </ul>
                </div>
             </div>
@@ -233,7 +249,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
           
           <div className="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center md:items-start gap-6 relative">
             <p className="text-[14px] text-gray-400 font-medium text-center md:text-left pt-2">
-              © 2026 Software Store · Built with <span className="text-red-500 mx-0.5">❤️</span> for AI explorers everywhere
+              © 2026 SP Tech Solutions · Built with <span className="text-red-500 mx-0.5">❤️</span> for AI explorers everywhere
             </p>
             
             <div className="flex flex-wrap justify-center md:justify-end gap-3">
