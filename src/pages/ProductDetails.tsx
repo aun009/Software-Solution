@@ -42,7 +42,7 @@ export const ProductDetails = () => {
   if (loading) {
     return (
       <div className="h-screen flex items-center justify-center bg-[#F8FAFC]">
-        <Loader2 className="animate-spin text-gray-900" size={40} />
+        <Loader2 className="animate-spin text-blue-600" size={40} />
       </div>
     );
   }
@@ -52,7 +52,7 @@ export const ProductDetails = () => {
       <div className="h-[70vh] flex flex-col items-center justify-center gap-6 bg-[#F8FAFC]">
         <h1 className="text-4xl font-bold text-gray-900">Product not found</h1>
         <Link 
-          to="/store" 
+          to="/#store" 
           className="px-6 py-3 bg-blue-600 text-white rounded-lg font-bold shadow-lg"
         >
           Return to Store
@@ -117,9 +117,10 @@ export const ProductDetails = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-12 md:py-20 relative z-10 pt-32 md:pt-48">
+    <div className="min-h-screen bg-[#F8FAFC] relative">
+      <div className="max-w-7xl mx-auto px-6 py-12 md:py-20 relative z-10 pt-32 md:pt-48">
       <Link 
-        to="/store" 
+        to="/#store" 
         className="inline-flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors mb-12 md:mb-16 group"
       >
         <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
@@ -134,16 +135,6 @@ export const ProductDetails = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <div className="flex items-center gap-6 mb-8 md:mb-12">
-              <span className="px-5 py-2 bg-blue-50 border border-blue-100 text-blue-600 text-xs font-black uppercase tracking-widest rounded-full">
-                {product.category}
-              </span>
-              <div className="flex items-center gap-2 px-5 py-2 bg-emerald-50 border border-emerald-100 rounded-full">
-                <span className="text-[10px] font-black text-emerald-600 tracking-[0.2em] uppercase">Value Matrix</span>
-                <span className="text-sm font-black text-emerald-600 italic">₹{product.price || '999'}</span>
-              </div>
-            </div>
-
             <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-8 mb-6 md:mb-10">
               <img 
                  src={getLogoUrl(product.url, product.title)}
@@ -151,9 +142,15 @@ export const ProductDetails = () => {
                  className="w-16 h-16 md:w-24 md:h-24 rounded-[20px] md:rounded-[32px] object-contain shadow-lg border border-gray-100 shrink-0 bg-white"
                  onError={(e) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(product.title)}&background=random&bold=true&size=128&font-size=0.45&format=svg&uppercase=true` }}
               />
-              <h1 className="text-4xl md:text-8xl font-black text-gray-900 tracking-tighter leading-tight md:leading-[0.9]">
-                {product.title}
-              </h1>
+              <div className="flex flex-col gap-2">
+                <h1 className="text-3xl md:text-5xl font-['Plus_Jakarta_Sans'] font-extrabold text-gray-900 tracking-tight leading-tight">
+                  {product.title}
+                </h1>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-black text-emerald-600 tracking-[0.2em] uppercase">Price</span>
+                  <span className="text-lg font-black text-emerald-600">₹{Number(product.price || 999).toLocaleString('en-IN')}</span>
+                </div>
+              </div>
             </div>
             
             <div className="block lg:hidden mb-10 w-full shadow-2xl rounded-[24px]">
@@ -165,32 +162,34 @@ export const ProductDetails = () => {
             </p>
 
             {/* Features & Benefits */}
-            <div className="grid md:grid-cols-2 gap-8 md:gap-12 mb-16 md:mb-20">
-              <div className="p-6 md:p-8 bg-white border border-gray-100 rounded-3xl shadow-sm">
+            <div className="grid md:grid-cols-2 gap-8 md:gap-12 mb-16 md:mb-20 p-6 md:p-10 bg-white rounded-[32px] md:rounded-[40px] shadow-[0_20px_80px_rgba(0,0,0,0.06)] border border-gray-100 relative overflow-hidden">
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(59,130,246,0.04)_0%,transparent_70%)]" />
+
+              <div className="p-6 md:p-8 bg-gray-50/50 border border-gray-100 rounded-3xl shadow-sm relative z-10">
                 <h3 className="text-xs font-black text-gray-900 uppercase tracking-[0.3em] mb-6 md:mb-8 flex items-center gap-3">
                   <Zap size={16} className="text-blue-600" />
-                  Technical Suite
+                  Features
                 </h3>
                 <ul className="space-y-4 md:space-y-6">
                   {product.features?.map((feature: string, idx: number) => (
                     <li key={idx} className="flex items-start gap-4">
-                      <CheckCircle2 size={20} className="text-blue-600 mt-0.5 flex-shrink-0" />
+                      <CheckCircle2 size={20} className="text-blue-500 mt-0.5 flex-shrink-0" />
                       <span className="text-gray-600 font-medium leading-relaxed text-sm md:text-base">{feature}</span>
                     </li>
                   ))}
                 </ul>
               </div>
 
-              <div className="p-6 md:p-8 bg-white border border-gray-100 rounded-3xl shadow-sm">
+              <div className="p-6 md:p-8 bg-gray-50/50 border border-gray-100 rounded-3xl shadow-sm relative z-10">
                 <h3 className="text-xs font-black text-gray-900 uppercase tracking-[0.3em] mb-6 md:mb-8 flex items-center gap-3">
                   <ShieldCheck size={16} className="text-purple-600" />
-                  Strategic Value
+                  Benefits
                 </h3>
                 <ul className="space-y-4 md:space-y-6">
                   {product.benefits?.map((benefit: string, idx: number) => (
                     <li key={idx} className="flex items-start gap-4">
-                      <div className="w-2 h-2 rounded-full bg-purple-600/50 mt-2.5 flex-shrink-0" />
-                      <span className="text-gray-500 font-medium leading-relaxed text-sm md:text-base">{benefit}</span>
+                      <div className="w-2 h-2 rounded-full bg-purple-500 mt-2.5 flex-shrink-0" />
+                      <span className="text-gray-600 font-medium leading-relaxed text-sm md:text-base">{benefit}</span>
                     </li>
                   ))}
                 </ul>
@@ -224,5 +223,6 @@ export const ProductDetails = () => {
         </div>
       </div>
     </div>
+  </div>
   );
 };

@@ -19,7 +19,7 @@ export const AdminPage = () => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    category: 'Development',
+    category: 'AI & Writing',
     price: '',
     image: 'https://images.unsplash.com/photo-1618477388954-7852f32655ec?auto=format&fit=crop&q=80&w=1000',
     videoUrl: '',
@@ -80,7 +80,7 @@ export const AdminPage = () => {
     setFormData({
       title: '',
       description: '',
-      category: 'Development',
+      category: 'AI & Writing',
       price: '',
       image: 'https://images.unsplash.com/photo-1618477388954-7852f32655ec?auto=format&fit=crop&q=80&w=1000',
       videoUrl: '',
@@ -325,7 +325,7 @@ export const AdminPage = () => {
                         onChange={e => setFormData({ ...formData, category: e.target.value })}
                         className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-4 px-5 text-gray-900 text-sm focus:outline-none focus:border-blue-500 focus:bg-white transition-all font-bold cursor-pointer"
                       >
-                        {['AI Writing', 'Generative Art', 'Development', 'Data Science', 'Productivity'].map(cat => (
+                        {['AI & Writing', 'Graphic Design', 'Video Editing', 'SEO & Marketing', 'Learning', 'Stock & Media', 'Entertainment'].map(cat => (
                           <option key={cat} value={cat}>{cat}</option>
                         ))}
                       </select>

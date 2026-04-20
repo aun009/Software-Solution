@@ -31,6 +31,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
         rotationY: xPercent,
         rotationX: yPercent,
         scale: 1.05,
+        y: -12,
         duration: 0.4,
         ease: 'power2.out',
         perspective: 1000
@@ -51,6 +52,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
         rotationY: 0,
         rotationX: 0,
         scale: 1,
+        y: 0,
         duration: 0.6,
         ease: 'power3.out'
       });
@@ -85,7 +87,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
     >
       <div 
         ref={cardRef}
-        className="relative h-full bg-white border border-gray-100 rounded-[32px] overflow-hidden flex flex-col hover:border-blue-500/30 transition-all duration-300 shadow-xl group"
+        className="relative h-full bg-[#162032] border border-white/10 rounded-[32px] overflow-hidden flex flex-col hover:border-blue-500/30 transition-all duration-300 shadow-xl group backdrop-blur-sm"
       >
         {/* Dynamic Glow Overlay */}
         <div 
@@ -101,13 +103,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
           <img 
             src={product.image} 
             alt={product.title}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 group-hover:-rotate-2"
             referrerPolicy="no-referrer"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent opacity-80" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#162032] via-transparent to-transparent opacity-90" />
           
           <div className="absolute top-6 left-6">
-            <span className="px-3 py-1 bg-white/60 backdrop-blur-md rounded-full text-[10px] font-black uppercase tracking-widest text-blue-600 border border-blue-500/10">
+            <span className="px-3 py-1 bg-black/40 backdrop-blur-md rounded-full text-[10px] font-black uppercase tracking-widest text-blue-400 border border-white/10">
               {product.category}
             </span>
           </div>
@@ -122,26 +124,27 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
              <Star size={12} fill="currentColor" />
              <Star size={12} fill="currentColor" />
           </div>
-          <h3 className="text-2xl font-black text-gray-900 mb-3 tracking-tighter group-hover:text-blue-500 transition-colors">
+          <h3 className="text-2xl font-black text-white mb-3 tracking-tighter transition-all duration-300 group-hover:text-blue-400 group-hover:translate-x-1">
             {product.title}
           </h3>
-          <p className="text-sm text-gray-600 line-clamp-3 mb-8 leading-relaxed font-medium">
+          <p className="text-sm text-gray-400 line-clamp-3 mb-8 leading-relaxed font-medium">
             {product.description}
           </p>
           
-          <div className="mt-8 pt-8 flex items-center justify-between border-t border-gray-100 flex-wrap gap-6">
-            <div className="flex flex-col">
-              <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-1">Projected Cost</span>
-              <span className="text-xl font-bold text-gray-900 tracking-tight font-sans">
+          <div className="mt-8 pt-6 flex flex-col border-t border-white/10 gap-4">
+            <div className="flex items-center justify-between">
+              <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Projected Cost</span>
+              <span className="text-xl font-bold text-white tracking-tight font-sans">
                  ₹{Number(product.price || 82917).toLocaleString('en-IN')}
               </span>
             </div>
             <Link 
               to={`/product/${product.id}`}
-              className="px-6 py-3 bg-gray-900 text-white rounded-xl text-[10px] font-black uppercase tracking-[0.2em] shadow-lg hover:bg-blue-600 hover:text-white transition-all transform active:scale-95 flex items-center gap-2"
+              className="group/btn w-full py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-[12px] font-black uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(37,99,235,0.3)] transition-all transform active:scale-95 flex items-center justify-center gap-2 relative overflow-hidden"
             >
-              Analyze
-              <ArrowRight size={14} />
+              <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent group-hover/btn:translate-x-[150%] transition-transform duration-1000 ease-in-out" />
+              <span className="relative z-10 transition-transform duration-300 group-hover/btn:-translate-x-1">Checkout</span>
+              <ArrowRight size={16} className="relative z-10 transition-transform duration-300 group-hover/btn:translate-x-2 group-hover/btn:scale-110" />
             </Link>
           </div>
         </div>

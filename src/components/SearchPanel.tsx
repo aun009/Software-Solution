@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
 import { Category } from '../types';
 import { cn } from '../lib/utils';
+import { motion } from 'motion/react';
 
 interface SearchPanelProps {
   searchTerm: string;
@@ -10,7 +11,7 @@ interface SearchPanelProps {
   setSelectedCategory: (val: Category) => void;
 }
 
-const CATEGORIES: Category[] = ['All', 'AI Writing', 'Generative Art', 'Development', 'Data Science', 'Productivity'];
+const CATEGORIES: Category[] = ['All', 'AI & Writing', 'Graphic Design', 'Video Editing', 'SEO & Marketing', 'Learning', 'Stock & Media', 'Entertainment'];
 
 const PLACEHOLDERS = [
   "Search AI research...",
@@ -75,8 +76,11 @@ export const SearchPanel = ({
       </div>
 
       <div className="flex flex-wrap justify-center gap-3">
-        {CATEGORIES.map((category) => (
-          <button
+        {CATEGORIES.map((category, idx) => (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: idx * 0.05 + 0.1, type: "spring", stiffness: 200, damping: 20 }}
             key={category}
             onClick={() => setSelectedCategory(category)}
             className={cn(
@@ -87,7 +91,7 @@ export const SearchPanel = ({
             )}
           >
             {category}
-          </button>
+          </motion.button>
         ))}
       </div>
     </div>

@@ -118,10 +118,10 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
               <NavLink to="/" icon={Home} label="Home" active={location.pathname === '/' && !location.hash} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} />
               <NavLink to="/about" icon={Info} label="About" active={location.pathname === '/about'} />
               <Link 
-                to="/store" 
+                to="/#store" 
                 className={cn(
                   "flex items-center gap-1.5 md:gap-2 px-3 md:px-5 py-2 md:py-2.5 rounded-full transition-all duration-300",
-                  location.pathname === '/store'
+                  location.hash === '#store'
                     ? "bg-blue-600 text-white shadow-md shadow-blue-500/20" 
                     : "text-gray-600 hover:text-gray-900 hover:bg-gray-100/80"
                 )}
@@ -170,48 +170,77 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
         {children}
       </main>
 
-      {/* Footer (Simplified Pro) */}
-      <footer className="py-24 border-t border-white/10 bg-gray-950 transition-colors">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-12 lg:gap-24 mb-24 uppercase font-bold tracking-widest text-[11px] max-w-4xl">
-             <div>
-               <p className="text-white mb-8">Our Products</p>
-               <ul className="space-y-4 text-gray-400">
-                 <li><Link to="/store" className="hover:text-blue-400 transition-colors">Softwares</Link></li>
-                 <li><Link to="/#store" className="hover:text-blue-400 transition-colors">Trending</Link></li>
-                 <li><Link to="/store" className="hover:text-blue-400 transition-colors">New Arrivals</Link></li>
-               </ul>
-             </div>
-             <div>
-               <p className="text-white mb-8">Solutions</p>
-               <ul className="space-y-4 text-gray-400">
-                 <li><Link to="/" className="hover:text-blue-400 transition-colors">Engineering</Link></li>
-                 <li><Link to="/" className="hover:text-blue-400 transition-colors">Analytics</Link></li>
-               </ul>
-             </div>
-             <div>
-               <p className="text-white mb-8">Company</p>
-               <ul className="space-y-4 text-gray-400">
-                 <li><Link to="/about" className="hover:text-blue-400 transition-colors">About Us</Link></li>
-                 <li><a href="https://wa.me/919552530324" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors">Contact</a></li>
-               </ul>
-             </div>
-          </div>
-          
-          <div className="pt-12 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-8 group">
-            <div className="flex flex-col gap-4">
-               <div className="text-[20px] font-black tracking-tighter flex items-center gap-2 text-white">
-                 <div className="w-6 h-6 border-2 border-white flex items-center justify-center">
-                   <span className="text-xs">S</span>
+      {/* Footer */}
+      <footer className="py-16 md:py-24 border-t border-white/5 bg-[#0e1628] font-sans">
+        <div className="max-w-[75rem] mx-auto px-6 md:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-8 mb-16 md:mb-24">
+            {/* Logo and About */}
+            <div className="md:col-span-5 flex flex-col gap-6 pr-0 md:pr-12">
+               <div className="text-[26px] font-black tracking-tighter flex items-center gap-3 text-white">
+                 <div className="w-9 h-9 bg-gradient-to-br from-teal-400 to-emerald-600 rounded-lg flex items-center justify-center text-white shadow-lg shadow-teal-500/20">
+                   <span className="text-base font-black">N</span>
                  </div>
                  SOFTWARE STORE
                </div>
-               <p className="text-[11px] text-gray-500 font-mono">© 2026 SOFTWARE STORE PBC. ALL RIGHTS RESERVED.</p>
+               <p className="text-gray-300 text-[15px] leading-[1.8] font-medium max-w-[90%] font-sans">
+                 The internet's most complete AI tools directory. Discover, compare, and find the perfect AI for any task.
+               </p>
+               <div className="flex gap-3 mt-2">
+                 <a href="#" className="w-[42px] h-[42px] rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-300 hover:text-white hover:bg-white/10 transition-colors shadow-sm">
+                   <span className="font-bold text-sm">X</span>
+                 </a>
+                 <a href="#" className="w-[42px] h-[42px] rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-300 hover:text-white hover:bg-white/10 transition-colors shadow-sm">
+                   <span className="font-bold text-sm tracking-widest pl-1">in</span>
+                 </a>
+                 <a href="#" className="w-[42px] h-[42px] rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-300 hover:text-white hover:bg-white/10 transition-colors shadow-sm">
+                   <span className="font-bold text-sm">▶</span>
+                 </a>
+               </div>
             </div>
+
+            {/* Links Columns */}
+            <div className="md:col-span-7 grid grid-cols-2 md:grid-cols-3 gap-10 md:gap-8">
+               <div>
+                 <p className="text-white font-bold tracking-[0.1em] text-[13px] uppercase mb-6 md:mb-8 bg-transparent">Explore</p>
+                 <ul className="space-y-4 text-[15px] text-gray-300 font-medium">
+                   <li><Link to="/#store" className="hover:text-white hover:underline decoration-white/30 transition-all">All AI Tools</Link></li>
+                   <li><Link to="/#store" className="hover:text-white hover:underline decoration-white/30 transition-all">Categories</Link></li>
+                   <li><Link to="/#store" className="hover:text-white hover:underline decoration-white/30 transition-all">Trending</Link></li>
+                   <li><Link to="/#store" className="hover:text-white hover:underline decoration-white/30 transition-all">New Arrivals</Link></li>
+                   <li><Link to="/#store" className="hover:text-white hover:underline decoration-white/30 transition-all">Free Tools</Link></li>
+                 </ul>
+               </div>
+               <div>
+                 <p className="text-white font-bold tracking-[0.1em] text-[13px] uppercase mb-6 md:mb-8">Company</p>
+                 <ul className="space-y-4 text-[15px] text-gray-300 font-medium">
+                   <li><Link to="/about" className="hover:text-white hover:underline decoration-white/30 transition-all">About Us</Link></li>
+                   <li><a href="#" className="hover:text-white hover:underline decoration-white/30 transition-all">Blog</a></li>
+                   <li><a href="https://wa.me/919552530324" target="_blank" rel="noopener noreferrer" className="hover:text-white hover:underline decoration-white/30 transition-all">Contact</a></li>
+                   <li><a href="#" className="hover:text-white hover:underline decoration-white/30 transition-all">Advertise</a></li>
+                 </ul>
+               </div>
+               <div>
+                 <p className="text-white font-bold tracking-[0.1em] text-[13px] uppercase mb-6 md:mb-8">Legal</p>
+                 <ul className="space-y-4 text-[15px] text-gray-300 font-medium">
+                   <li><Link to="#" className="hover:text-white hover:underline decoration-white/30 transition-all">Privacy Policy</Link></li>
+                   <li><Link to="#" className="hover:text-white hover:underline decoration-white/30 transition-all">Terms of Service</Link></li>
+                   <li><Link to="#" className="hover:text-white hover:underline decoration-white/30 transition-all">Cookie Policy</Link></li>
+                   <li><Link to="#" className="hover:text-white hover:underline decoration-white/30 transition-all">Sitemap</Link></li>
+                 </ul>
+               </div>
+            </div>
+          </div>
+          
+          <div className="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center md:items-start gap-6 relative">
+            <p className="text-[14px] text-gray-400 font-medium text-center md:text-left pt-2">
+              © 2026 Software Store · Built with <span className="text-red-500 mx-0.5">❤️</span> for AI explorers everywhere
+            </p>
             
-            <div className="flex gap-12 text-[11px] text-gray-500 font-mono uppercase tracking-[0.3em]">
-               <span className="flex items-center gap-2 animate-pulse"><div className="w-1.5 h-1.5 rounded-full bg-green-500" /> SYSTEM ACTIVE</span>
-               <span>VER 8.4.2</span>
+            <div className="flex flex-wrap justify-center md:justify-end gap-3">
+               <span className="px-4 py-2 border border-white/10 bg-white/5 rounded-[10px] text-[13px] text-gray-300 font-medium shadow-sm hover:bg-white/10 cursor-pointer transition-colors">AI Tools</span>
+               <span className="px-4 py-2 border border-white/10 bg-white/5 rounded-[10px] text-[13px] text-gray-300 font-medium shadow-sm hover:bg-white/10 cursor-pointer transition-colors">Directory</span>
+               <span className="px-4 py-2 border border-white/10 bg-white/5 rounded-[10px] text-[13px] text-gray-300 font-medium shadow-sm hover:bg-white/10 cursor-pointer transition-colors">AI Tools 2026</span>
+               <span className="px-4 py-2 border border-white/10 bg-white/5 rounded-[10px] text-[13px] text-gray-300 font-medium shadow-sm hover:bg-white/10 cursor-pointer transition-colors">Free & Paid</span>
             </div>
           </div>
         </div>
