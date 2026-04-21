@@ -43,7 +43,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const userProfile: UserProfile = {
         uid: session.user.id,
         email: session.user.email || '',
-        role: session.user.email === 'arunmahajan9240@gmail.com' ? 'admin' : 'user',
+        role: ['arunmahajan9240@gmail.com', 'panditprathamesh00@gmail.com'].includes(session.user.email || '') ? 'admin' : 'user',
         displayName: session.user.user_metadata?.full_name || session.user.email || 'User'
       };
       setProfile(userProfile);

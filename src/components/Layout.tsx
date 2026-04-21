@@ -111,13 +111,13 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
           ref={navRef}
           className="pointer-events-auto w-full md:w-auto mx-auto bg-white border border-gray-200 shadow-sm rounded-2xl md:rounded-full px-2 md:px-3 py-2 md:py-2.5 flex items-center justify-between gap-1 md:gap-12 transition-all"
         >
-          <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center gap-2 pl-2 group shrink-0">
-            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center group-hover:scale-105 transition-transform shadow-md shadow-blue-600/20">
-              <span className="font-black text-[10px] text-white">SP</span>
+          <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center gap-2.5 pl-2 group shrink-0">
+            <div className="relative w-10 h-10 rounded-full overflow-hidden group-hover:scale-[1.15] transition-transform duration-300 shadow-lg shadow-blue-600/20 ring-2 ring-blue-500/20 group-hover:ring-blue-500/40">
+              <img src="/sp-logo.png" alt="SP Tech Solutions" className="w-full h-full object-cover" />
             </div>
             <span 
               ref={brandTextRef}
-              className="text-base md:text-lg font-black tracking-tight text-gray-900 hidden sm:block"
+              className="text-base md:text-lg font-black tracking-wide text-gray-900 hidden sm:block"
             >
               SP Tech Solutions
             </span>
@@ -198,14 +198,17 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
           <div className="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-8 mb-16 md:mb-24">
             {/* Logo and About */}
             <div className="md:col-span-5 flex flex-col gap-6 pr-0 md:pr-12">
-               <div className="text-[26px] font-black tracking-tighter flex items-center gap-3 text-white">
-                 <div className="w-9 h-9 bg-gradient-to-br from-teal-400 to-emerald-600 rounded-lg flex items-center justify-center text-white shadow-lg shadow-teal-500/20">
-                   <span className="text-[11px] font-black">SP</span>
+               <div className="text-[26px] font-black tracking-[0.08em] flex items-center gap-4 text-white">
+                 <div className="w-12 h-12 rounded-xl overflow-hidden shadow-lg ring-2 ring-white/10 shrink-0">
+                   <img src="/sp-logo.png" alt="SP Tech Solutions" className="w-full h-full object-cover" />
                  </div>
                  SP TECH SOLUTIONS
                </div>
-               <p className="text-gray-300 text-[15px] leading-[1.8] font-medium max-w-[90%] font-sans">
-                 The internet's most complete AI tools directory. Discover, compare, and find the perfect AI for any task.
+               <p className="text-gray-300 text-[15px] leading-[1.8] font-medium max-w-[90%]">
+                 Your trusted platform for AI tools and software solutions.
+               </p>
+               <p className="text-gray-400 text-[14px] leading-[1.7] font-medium max-w-[90%]">
+                 Discover, compare, and find the perfect tools for your projects, business, and growth.
                </p>
                <div className="flex gap-3 mt-2">
                  <a href="#" className="w-[42px] h-[42px] rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-300 hover:text-white hover:bg-white/10 transition-colors shadow-sm">

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useMemo } from 'react';
 import { motion } from 'motion/react';
 import { ArrowRight, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -10,137 +10,182 @@ interface ProductCardProps {
   index: number;
 }
 
+// Deterministic rating from product id — gives 4.5–4.9 range
+const getRating = (id: string) => {
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) hash = id.charCodeAt(i) + ((hash << 5) - hash);
+  const ratings = [4.5, 4.6, 4.7, 4.7, 4.8, 4.8, 4.8, 4.9];
+  return ratings[Math.abs(hash) % ratings.length];
+};
+
 export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const glowRef = useRef<HTMLDivElement>(null);
+  const rating = useMemo(() => getRating(product.id), [product.id]);
 
   useEffect(() => {
     if (!cardRef.current || window.innerWidth < 768) return;
 
     const card = cardRef.current;
-    
+
     const onMouseMove = (e: MouseEvent) => {
       const { left, top, width, height } = card.getBoundingClientRect();
-      const x = e.clientX - left;
-      const y = e.clientY - top;
-      
-      const xPercent = (x / width - 0.5) * 20; // 3D Tilt
-      const yPercent = (y / height - 0.5) * -20;
-      
+      const x = (e.clientX - left) / width - 0.5;
+      const y = (e.clientY - top) / height - 0.5;
+
       gsap.to(card, {
-        rotationY: xPercent,
-        rotationX: yPercent,
-        scale: 1.05,
-        y: -12,
+        rotationY: x * 12,
+        rotationX: -y * 12,
         duration: 0.4,
         ease: 'power2.out',
-        perspective: 1000
       });
 
+      // Move glow to cursor position
       if (glowRef.current) {
         gsap.to(glowRef.current, {
-          x: x - 150,
-          y: y - 150,
+          x: e.clientX - left - 120,
+          y: e.clientY - top - 120,
           opacity: 1,
-          duration: 0.6
+          duration: 0.3,
+          ease: 'power2.out',
         });
       }
+    };
+
+    const onMouseEnter = () => {
+      gsap.to(card, {
+        y: -6,
+        boxShadow: '0 20px 50px rgba(0,0,0,0.15), 0 0 0 1px rgba(59,130,246,0.3)',
+        borderColor: 'rgba(59,130,246,0.5)',
+        duration: 0.25,
+        ease: 'power2.out',
+      });
     };
 
     const onMouseLeave = () => {
       gsap.to(card, {
         rotationY: 0,
         rotationX: 0,
-        scale: 1,
         y: 0,
-        duration: 0.6,
+        boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+        borderColor: 'rgba(229,231,235,0.7)',
+        duration: 0.5,
         ease: 'power3.out'
       });
       if (glowRef.current) {
-        gsap.to(glowRef.current, {
-          opacity: 0,
-          duration: 0.6
-        });
+        gsap.to(glowRef.current, { opacity: 0, duration: 0.4 });
       }
     };
 
     card.addEventListener('mousemove', onMouseMove);
+    card.addEventListener('mouseenter', onMouseEnter);
     card.addEventListener('mouseleave', onMouseLeave);
 
     return () => {
       card.removeEventListener('mousemove', onMouseMove);
+      card.removeEventListener('mouseenter', onMouseEnter);
       card.removeEventListener('mouseleave', onMouseLeave);
     };
   }, []);
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
+      initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
-      transition={{ 
-        duration: 0.8, 
-        delay: (index % 4) * 0.1,
-        ease: [0.16, 1, 0.3, 1] 
+      transition={{
+        duration: 0.6,
+        delay: (index % 3) * 0.08,
+        ease: [0.16, 1, 0.3, 1]
       }}
-      className="relative perspective-1000"
+      style={{ perspective: 800 }}
     >
-      <div 
+      {/* Cursor glow — outside card so overflow-hidden doesn't clip it */}
+      <div
+        ref={glowRef}
+        className="pointer-events-none absolute w-[260px] h-[260px] rounded-full opacity-0 z-50"
+        style={{
+          background: 'radial-gradient(circle, rgba(59,130,246,0.2) 0%, rgba(99,102,241,0.1) 40%, transparent 70%)',
+          filter: 'blur(24px)',
+          top: 0,
+          left: 0,
+        }}
+      />
+      <div
         ref={cardRef}
-        className="relative h-full bg-[#162032] border border-white/10 rounded-[32px] overflow-hidden flex flex-col hover:border-blue-500/30 transition-all duration-300 shadow-xl group backdrop-blur-sm"
+        className="relative h-full bg-white rounded-2xl md:rounded-3xl overflow-hidden flex flex-col border border-gray-200/70 cursor-pointer"
+        style={{
+          boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+          transformStyle: 'preserve-3d',
+          willChange: 'transform',
+        }}
       >
-        {/* Dynamic Glow Overlay */}
-        <div 
-          ref={glowRef}
-          className="pointer-events-none absolute -inset-px opacity-0 transition-opacity duration-300 z-10"
-          style={{
-            background: 'radial-gradient(300px circle at center, rgba(59, 130, 246, 0.12), transparent 80%)',
-          }}
-        />
 
-        {/* Card Header / Image */}
-        <div className="relative aspect-[2/1] md:aspect-[16/10] overflow-hidden">
-          <img 
-            src={product.image} 
+        {/* Image — fixed height, clean */}
+        <Link to={`/product/${product.id}`} className="block overflow-hidden">
+          <img
+            src={product.image}
             alt={product.title}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            className="w-full h-[160px] md:h-[200px] object-cover transition-transform duration-500 group-hover:scale-[1.04]"
             referrerPolicy="no-referrer"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#162032] via-transparent to-transparent opacity-90" />
-          
-
-        </div>
+        </Link>
 
         {/* Content */}
-        <div className="p-4 md:p-8 flex flex-col flex-grow relative z-20">
-          <div className="flex items-center gap-1 text-yellow-500/30 mb-4">
-             <Star size={12} fill="currentColor" />
-             <Star size={12} fill="currentColor" />
-             <Star size={12} fill="currentColor" />
-             <Star size={12} fill="currentColor" />
-             <Star size={12} fill="currentColor" />
+        <div className="px-3 pt-3 pb-3 md:px-6 md:pt-6 md:pb-6 flex flex-col flex-grow">
+          {/* Stars + rating */}
+          <div className="flex items-center gap-0.5 mb-2 md:mb-4">
+            {[...Array(5)].map((_, i) => {
+              const filled = i < Math.floor(rating);
+              const partial = !filled && i < Math.ceil(rating);
+              return (
+                <Star
+                  key={i}
+                  size={10}
+                  className={`md:!w-3 md:!h-3 ${filled || partial ? "text-amber-400" : "text-gray-200"}`}
+                  fill={filled ? "#fbbf24" : partial ? "#fbbf24" : "#e5e7eb"}
+                  stroke="none"
+                />
+              );
+            })}
+            <span className="text-[9px] md:text-[10px] font-semibold text-gray-400 ml-1">{rating}</span>
           </div>
-          <h3 className="text-xl md:text-2xl font-black text-white mb-2 md:mb-3 tracking-tighter transition-all duration-300 group-hover:text-blue-400 group-hover:translate-x-1">
-            {product.title}
-          </h3>
-          <p className="text-xs md:text-sm text-gray-400 line-clamp-2 md:line-clamp-3 mb-4 md:mb-8 leading-relaxed font-medium">
+
+          {/* Title */}
+          <Link to={`/product/${product.id}`}>
+            <h3 className="text-sm md:text-lg font-bold text-gray-900 leading-snug tracking-tight mb-1 md:mb-2 hover:text-blue-600 transition-colors duration-200 truncate">
+              {product.title}
+            </h3>
+          </Link>
+
+          {/* Description */}
+          <p className="text-[10px] md:text-xs text-[#6b7280] leading-relaxed font-medium mb-2 md:mb-5 line-clamp-1 md:line-clamp-2">
             {product.description}
           </p>
-          
-          <div className="mt-auto md:mt-8 pt-4 md:pt-6 flex flex-col border-t border-white/10 gap-3 md:gap-4">
-            <div className="flex items-center justify-between">
-              <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Projected Cost</span>
-              <span className="text-xl font-bold text-white tracking-tight font-sans">
-                 ₹{Number(product.price || 82917).toLocaleString('en-IN')}
+
+          {/* Category pill */}
+          {product.category && (
+            <div className="mt-1 mb-2 md:mt-2 md:mb-5">
+              <span className="inline-block px-2 py-0.5 md:px-3 md:py-1 bg-blue-50 text-blue-600 rounded-full text-[9px] md:text-[10px] font-semibold tracking-wide">
+                {product.category}
               </span>
             </div>
-            <Link 
+          )}
+
+          {/* Price + CTA — stacked */}
+          <div className="mt-auto pt-3 md:pt-4 border-t border-gray-100 flex flex-col gap-2 md:gap-3">
+            <span className="text-lg md:text-[28px] font-extrabold text-gray-900 tracking-tight leading-none">
+              ₹{Number(product.price || 82917).toLocaleString('en-IN')}
+            </span>
+            <Link
               to={`/product/${product.id}`}
-              className="group/btn w-full py-3 md:py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-[11px] md:text-[12px] font-black uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(37,99,235,0.3)] transition-all transform active:scale-95 flex items-center justify-center gap-2 relative overflow-hidden"
+              className="relative w-full overflow-hidden flex items-center justify-center gap-1.5 min-h-[44px] py-2 md:py-3 bg-blue-600 text-white rounded-lg text-[10px] md:text-xs font-bold uppercase tracking-wider hover:bg-blue-700 hover:scale-[1.03] hover:shadow-lg hover:shadow-blue-600/30 transition-all duration-200 active:scale-95 group/checkout"
             >
-              <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent group-hover/btn:translate-x-[150%] transition-transform duration-1000 ease-in-out" />
-              <span className="relative z-10 transition-transform duration-300 group-hover/btn:-translate-x-1">Checkout</span>
-              <ArrowRight size={16} className="relative z-10 transition-transform duration-300 group-hover/btn:translate-x-2 group-hover/btn:scale-110" />
+              {/* Shimmer sweep */}
+              <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent group-hover/checkout:translate-x-[200%] transition-transform duration-700 ease-in-out pointer-events-none" />
+              {/* Text hidden on mobile, arrow only */}
+              <span className="relative z-10 hidden md:inline transition-transform duration-200 group-hover/checkout:-translate-x-0.5">Checkout</span>
+              <ArrowRight size={15} className="relative z-10 transition-transform duration-200 group-hover/checkout:translate-x-1 group-hover/checkout:scale-110" />
             </Link>
           </div>
         </div>

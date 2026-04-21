@@ -95,7 +95,7 @@ export const Reviews = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl md:text-5xl font-['Plus_Jakarta_Sans'] font-extrabold text-gray-900 tracking-tight mb-4">Trusted by builders</h2>
+          <h2 className="text-3xl md:text-5xl font-['Plus_Jakarta_Sans'] font-extrabold text-gray-900 tracking-tight mb-4">Trusted by Creators & Professionals</h2>
           <p className="text-gray-500 text-lg">See what our community has to say about our tools.</p>
         </motion.div>
         

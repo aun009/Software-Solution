@@ -103,13 +103,13 @@ export const HomePage = () => {
 
         <div className="max-w-6xl mx-auto w-full relative z-10 flex flex-col items-center text-center pt-8">
 
-          <h1 className="hero-text text-[44px] sm:text-6xl md:text-[85px] lg:text-[100px] font-['Plus_Jakarta_Sans'] font-extrabold tracking-[-0.05em] text-[#0f172a] mb-8 md:mb-10 leading-[1] md:leading-[1.1]">
+          <h1 className="hero-text text-[44px] sm:text-6xl md:text-[85px] lg:text-[100px] font-['Poppins'] font-extrabold tracking-[-0.02em] text-[#0f172a] mb-8 md:mb-10 leading-[1] md:leading-[1.1]">
             Smart AI and <br className="hidden md:block" />
             <span className="bg-gradient-to-r from-blue-600 to-purple-500 bg-clip-text text-transparent font-[600]">Software Solutions</span>
             <br className="hidden md:block" /> for Your Business
           </h1>
 
-          <p className="hero-text text-lg md:text-2xl text-gray-600 max-w-3xl mb-12 md:mb-16 leading-relaxed font-['Inter'] font-normal">
+          <p className="hero-text text-lg md:text-2xl text-gray-600 max-w-3xl mb-12 md:mb-16 leading-relaxed font-['Poppins'] font-normal tracking-wide">
             Delivering trusted AI tools and smart software solutions to help you build, innovate, and grow faster.
           </p>
 
@@ -254,7 +254,7 @@ export const HomePage = () => {
       <Reviews />
 
       {/* Persistent WhatsApp Floating Widget */}
-      <div className="fixed bottom-5 right-5 md:bottom-8 md:right-8 z-[150] flex flex-col items-end gap-4 pointer-events-none">
+      <div className="fixed bottom-20 right-4 md:bottom-8 md:right-8 z-[150] flex flex-col items-end gap-4 pointer-events-none">
 
         {/* Animated Help Bubble */}
         <AnimatePresence>

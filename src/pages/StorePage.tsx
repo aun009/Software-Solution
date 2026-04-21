@@ -64,9 +64,9 @@ export const StorePage = () => {
              className="text-center mb-12 md:mb-16"
           >
             <div className="inline-block px-4 py-1.5 rounded-full bg-blue-100/50 border border-blue-200 text-[10px] font-black uppercase tracking-[0.3em] text-blue-700 mb-6 backdrop-blur-md">
-              The Digital Exchange
+              Explore
             </div>
-            <h1 className="text-4xl md:text-7xl font-black text-gray-900 tracking-tighter mb-6 leading-tight">
+            <h1 className="text-4xl md:text-7xl font-black text-gray-900 tracking-wide mb-6 leading-tight">
               Software <span className="text-blue-600">Store</span>
             </h1>
             <p className="text-gray-600 text-sm md:text-lg max-w-2xl mx-auto font-medium px-4">
@@ -74,14 +74,14 @@ export const StorePage = () => {
             </p>
           </motion.div>
 
-        {/* Redesigned Stats Bar */}
-        <div className="hidden md:flex justify-center mb-16 md:mb-24 px-4">
+        {/* Stats Bar — 2x2 on mobile, row on desktop */}
+        <div className="flex justify-center mt-6 mb-6 md:mb-24 px-2 md:px-4">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true, margin: "-50px" }}
             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-            className="flex flex-wrap md:flex-nowrap items-center justify-center gap-8 md:gap-0 p-8 md:p-12 rounded-[48px] bg-white border border-gray-200 backdrop-blur-md relative overflow-hidden shadow-[0_20px_40px_-15px_rgba(37,99,235,0.15)]"
+            className="grid grid-cols-2 md:flex md:flex-nowrap items-center justify-center gap-0 w-full p-4 md:p-12 rounded-3xl md:rounded-[48px] bg-white border border-gray-200 backdrop-blur-md relative overflow-hidden shadow-[0_20px_40px_-15px_rgba(37,99,235,0.15)]"
             onMouseMove={(e) => {
               const card = e.currentTarget;
               const { left, top, width, height } = card.getBoundingClientRect();
@@ -100,21 +100,21 @@ export const StorePage = () => {
           >
             {[
               { label: 'VERIFIED TOOLS', value: '100', suffix: '%', delay: 0.2 },
-              { label: 'AVERAGE RATING', value: '5.0', suffix: '★', delay: 0.4 },
+              { label: 'AVERAGE RATING', value: '4.8', suffix: '★', delay: 0.4 },
               { label: 'SUPPORT', value: '24/7', suffix: '', delay: 0.6 },
               { label: 'ACTIVE SOFTWARES', value: `${allProducts.length}`, suffix: '+', delay: 0.8 }
             ].map((stat, i) => (
               <React.Fragment key={i}>
-                <div className="flex flex-col items-center px-12 md:px-16 min-w-[200px] text-center group">
+                <div className="flex flex-col items-center px-4 md:px-16 py-4 md:py-0 text-center group">
                   <motion.div
                     initial={{ scale: 0.5, opacity: 0 }}
                     whileInView={{ scale: 1, opacity: 1 }}
                     viewport={{ once: true }}
                     transition={{ delay: stat.delay, type: "spring", stiffness: 200 }}
-                    className="text-5xl md:text-6xl font-black text-gray-900 mb-2 tracking-tighter group-hover:text-blue-600 transition-colors flex items-baseline gap-1"
+                    className="text-2xl md:text-6xl font-black text-gray-900 mb-1 md:mb-2 tracking-tighter group-hover:text-blue-600 transition-colors flex items-baseline gap-1"
                   >
                     {stat.value}
-                    {stat.suffix && <span className="text-xl md:text-2xl text-blue-600">{stat.suffix}</span>}
+                    {stat.suffix && <span className="text-base md:text-2xl text-blue-600">{stat.suffix}</span>}
                   </motion.div>
                   <TypewriterLabel text={stat.label} delay={stat.delay + 0.5} />
                 </div>
@@ -173,11 +173,6 @@ export const StorePage = () => {
               </span>
             )}
           </h2>
-          <div className="flex items-center gap-6">
-            <p className="text-gray-400 font-bold uppercase text-[10px] tracking-[0.3em] bg-white/5 px-4 py-1.5 rounded-lg border border-white/10">
-              Verified Deployments
-            </p>
-          </div>
         </motion.div>
 
         {loading ? (
@@ -204,9 +199,9 @@ export const StorePage = () => {
                 <div
                   className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-8 lg:gap-10 overflow-hidden transition-all duration-500 ease-in-out"
                   style={{
-                    maxHeight: showAll ? `${Math.ceil((filteredProducts.length - 6) / 3) * 600}px` : '0px',
+                    maxHeight: showAll ? `${Math.ceil((filteredProducts.length - 6) / 3) * 700}px` : '0px',
                     opacity: showAll ? 1 : 0,
-                    marginTop: showAll ? '12px' : '0px',
+                    marginTop: showAll ? '32px' : '0px',
                   }}
                 >
                   {filteredProducts.slice(6).map((product, idx) => (

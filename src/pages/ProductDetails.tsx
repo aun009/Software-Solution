@@ -143,10 +143,16 @@ export const ProductDetails = () => {
                  onError={(e) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(product.title)}&background=random&bold=true&size=128&font-size=0.45&format=svg&uppercase=true` }}
               />
               <div className="flex flex-col gap-2">
-                <h1 className="text-3xl md:text-5xl font-['Plus_Jakarta_Sans'] font-extrabold text-gray-900 tracking-tight leading-tight">
+                <h1 className="text-3xl md:text-5xl font-['Poppins'] font-extrabold text-gray-900 tracking-tight leading-tight">
                   {product.title}
                 </h1>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3 flex-wrap">
+                  {product.category && (
+                    <span className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-blue-50 border border-blue-200 rounded-full text-[11px] font-bold uppercase tracking-[0.15em] text-blue-700">
+                      <Zap size={12} className="text-blue-500" />
+                      {product.category}
+                    </span>
+                  )}
                   <span className="text-[10px] font-black text-emerald-600 tracking-[0.2em] uppercase">Price</span>
                   <span className="text-lg font-black text-emerald-600">₹{Number(product.price || 999).toLocaleString('en-IN')}</span>
                 </div>
