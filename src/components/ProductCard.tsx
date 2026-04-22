@@ -124,8 +124,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
         {/* Image — fixed height, clean */}
         <Link to={`/product/${product.id}`} className="block overflow-hidden">
           <img
-            src={product.image}
+            src={product.image?.includes('unsplash.com') ? `${product.image.split('?')[0]}?w=600&h=360&fit=crop&q=75&auto=format` : product.image}
             alt={product.title}
+            loading="lazy"
+            decoding="async"
             className="w-full h-[160px] md:h-[200px] object-cover transition-transform duration-500 group-hover:scale-[1.04]"
             referrerPolicy="no-referrer"
           />

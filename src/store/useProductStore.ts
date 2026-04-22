@@ -21,7 +21,7 @@ export const useProductStore = create<ProductState>()(
         try {
           const { data, error } = await supabase
             .from('products')
-            .select('*')
+            .select('id, title, description, price, image, category, url, features, benefits, videoUrl, is_trending, created_at')
             .order('created_at', { ascending: false });
             
           if (data && !error) {

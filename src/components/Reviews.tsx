@@ -8,42 +8,42 @@ const reviews = [
     name: "Rahul Sharma",
     role: "Freelance Developer",
     content: "The software hub made it incredibly easy to find the exact tools I needed. Saved me hours of research.",
-    avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&h=150&fit=crop"
+    avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=80&h=80&fit=crop&q=75&auto=format"
   },
   {
     id: 2,
     name: "Priya Patel",
     role: "Startup Founder",
     content: "Very clean UI and the product information is spot on. Bought a tool and it worked perfectly for our team.",
-    avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&h=150&fit=crop"
+    avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=80&h=80&fit=crop&q=75&auto=format"
   },
   {
     id: 3,
     name: "Amit Kumar",
     role: "UI/UX Designer",
     content: "I love the dark mode on the product detail pages. Everything feels so premium and responsive.",
-    avatar: "https://images.unsplash.com/photo-1607990281513-2c110a25bd8c?w=150&h=150&fit=crop"
+    avatar: "https://images.unsplash.com/photo-1607990281513-2c110a25bd8c?w=80&h=80&fit=crop&q=75&auto=format"
   },
   {
     id: 4,
     name: "Sneha Reddy",
     role: "Product Manager",
     content: "It's super easy to navigate and find what you need. A well-organized catalog of tools.",
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop"
+    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&q=75&auto=format"
   },
   {
     id: 5,
     name: "Vikram Singh",
     role: "Software Architect",
     content: "Great collection of AI tools. Highly recommend browsing through if you want to scale fast.",
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop"
+    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop&q=75&auto=format"
   },
   {
     id: 6,
     name: "Anjali Gupta",
     role: "Content Creator",
     content: "Smooth checkout process and amazing customer support via WhatsApp. Really impressed.",
-    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop"
+    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&h=80&fit=crop&q=75&auto=format"
   }
 ];
 
@@ -64,7 +64,7 @@ const ReviewCard = ({ review, idx }: { review: typeof reviews[0]; idx: number })
     
     <div className="mb-6 flex justify-between items-start relative z-10">
       <div className="relative">
-        <img src={review.avatar} alt={review.name} className="w-14 h-14 rounded-full object-cover shadow-md border-2 border-white relative z-10" />
+        <img src={review.avatar} alt={review.name} loading="lazy" decoding="async" className="w-14 h-14 rounded-full object-cover shadow-md border-2 border-white relative z-10" />
         <div className="absolute inset-0 rounded-full border-2 border-blue-500/20 scale-110 -z-0" />
       </div>
       <div className="flex gap-1 text-yellow-400 bg-yellow-50/80 backdrop-blur-sm border border-yellow-100/50 shadow-sm px-3 py-1.5 rounded-full">
