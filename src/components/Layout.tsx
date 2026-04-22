@@ -198,7 +198,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
           <div className="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-8 mb-16 md:mb-24">
             {/* Logo and About */}
             <div className="md:col-span-5 flex flex-col gap-6 pr-0 md:pr-12">
-               <div className="text-[26px] font-black tracking-[0.08em] flex items-center gap-4 text-white">
+               <div className="text-[18px] md:text-[26px] font-black tracking-[0.08em] flex items-center gap-3 md:gap-4 text-white">
                  <div className="w-12 h-12 rounded-xl overflow-hidden shadow-lg ring-2 ring-white/10 shrink-0">
                    <img src="/sp-logo.png" alt="SP Tech Solutions" className="w-full h-full object-cover" />
                  </div>

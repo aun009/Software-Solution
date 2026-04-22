@@ -112,7 +112,7 @@ export const Reviews = () => {
             <div
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-hidden transition-all duration-500 ease-in-out"
               style={{
-                maxHeight: showAll ? '800px' : '0px',
+                maxHeight: showAll ? '2000px' : '0px',
                 opacity: showAll ? 1 : 0,
                 marginTop: showAll ? '24px' : '0px',
               }}

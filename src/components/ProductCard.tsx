@@ -183,8 +183,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
             >
               {/* Shimmer sweep */}
               <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent group-hover/checkout:translate-x-[200%] transition-transform duration-700 ease-in-out pointer-events-none" />
-              {/* Text hidden on mobile, arrow only */}
-              <span className="relative z-10 hidden md:inline transition-transform duration-200 group-hover/checkout:-translate-x-0.5">Checkout</span>
+              <span className="relative z-10 transition-transform duration-200 group-hover/checkout:-translate-x-0.5">Checkout</span>
               <ArrowRight size={15} className="relative z-10 transition-transform duration-200 group-hover/checkout:translate-x-1 group-hover/checkout:scale-110" />
             </Link>
           </div>
