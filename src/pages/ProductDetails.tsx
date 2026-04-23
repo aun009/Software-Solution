@@ -69,15 +69,34 @@ export const ProductDetails = () => {
     return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=0&mute=0&loop=1&controls=1` : url;
   };
 
+  const getVimeoEmbedUrl = (url: string) => {
+    // Handles: vimeo.com/123456, vimeo.com/video/123456, player.vimeo.com/video/123456
+    const match = url.match(/vimeo\.com(?:\/video)?\/([0-9]+)/);
+    const videoId = match?.[1];
+    return videoId ? `https://player.vimeo.com/video/${videoId}?autoplay=0&loop=0&color=2563eb&title=0&byline=0&portrait=0` : url;
+  };
+
+  const isYouTube = (url: string) => url.includes('youtube.com') || url.includes('youtu.be');
+  const isVimeo = (url: string) => url.includes('vimeo.com');
+
   const VisualAssets = () => (
     <div className="group relative aspect-video md:aspect-[4/5] bg-gray-50 border border-gray-200 rounded-[24px] md:rounded-[40px] overflow-hidden shadow-2xl flex items-center justify-center bg-black">
-      {product.videoUrl && (product.videoUrl.includes('youtube.com') || product.videoUrl.includes('youtu.be')) ? (
+      {product.videoUrl && isYouTube(product.videoUrl) ? (
         <iframe 
           className="absolute inset-0 w-full h-full flex-1 border-0"
           src={getYouTubeEmbedUrl(product.videoUrl)}
           title="YouTube video player"
           frameBorder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        />
+      ) : product.videoUrl && isVimeo(product.videoUrl) ? (
+        <iframe
+          className="absolute inset-0 w-full h-full flex-1 border-0"
+          src={getVimeoEmbedUrl(product.videoUrl)}
+          title="Vimeo video player"
+          frameBorder="0"
+          allow="autoplay; fullscreen; picture-in-picture"
           allowFullScreen
         />
       ) : (
