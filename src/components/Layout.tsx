@@ -124,37 +124,40 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
           </Link>
 
           {/* Navigation Links */}
-          <div className="flex items-center gap-0.5 md:gap-2">
-            <div className="flex items-center p-1 bg-gray-100 rounded-full gap-0.5">
-              <NavLink to="/" icon={Home} label="Home" active={location.pathname === '/' && !location.hash} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} />
-              <NavLink to="/about" icon={Info} label="About" active={location.pathname === '/about'} />
-              <Link 
-                to="/#store" 
-                onClick={scrollToStore}
-                className={cn(
-                  "flex items-center gap-1.5 md:gap-2 px-3 md:px-5 py-2 md:py-2.5 rounded-full transition-all duration-300",
-                  location.hash === '#store'
-                    ? "bg-blue-600 text-white shadow-md shadow-blue-500/20" 
-                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-100/80"
+          <div className="flex items-center gap-0.5 md:gap-2 min-w-0 flex-1 md:flex-none justify-end">
+            {/* Scrollable nav pills on mobile */}
+            <div className="overflow-x-auto scrollbar-none flex-1 md:flex-none">
+              <div className="flex items-center p-1 bg-gray-100 rounded-full gap-0.5 w-max">
+                <NavLink to="/" icon={Home} label="Home" active={location.pathname === '/' && !location.hash} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} />
+                <NavLink to="/about" icon={Info} label="About" active={location.pathname === '/about'} />
+                <Link 
+                  to="/#store" 
+                  onClick={scrollToStore}
+                  className={cn(
+                    "flex items-center gap-1.5 md:gap-2 px-3 md:px-5 py-2 md:py-2.5 rounded-full transition-all duration-300",
+                    location.hash === '#store'
+                      ? "bg-blue-600 text-white shadow-md shadow-blue-500/20" 
+                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-100/80"
+                  )}
+                >
+                  <Store size={14} className="md:size-[15px]" />
+                  <span className="text-[11px] md:text-[13px] font-bold tracking-tight">Store</span>
+                </Link>
+                {isAdmin && (
+                  <NavLink to="/admin" icon={Settings} label="Admin" active={location.pathname === '/admin'} />
                 )}
-              >
-                <Store size={14} className="md:size-[15px]" />
-                <span className="text-[11px] md:text-[13px] font-bold tracking-tight">Store</span>
-              </Link>
-              {isAdmin && (
-                <NavLink to="/admin" icon={Settings} label="Admin" active={location.pathname === '/admin'} />
-              )}
+              </div>
             </div>
 
             <div className="w-px h-8 bg-gray-200 mx-2 hidden md:block" />
             
-            <div className="flex items-center pr-1">
+            <div className="flex items-center pr-1 shrink-0">
               {user ? (
                 <Link 
                   to="/profile"
-                  className="flex items-center gap-2 pl-2 pr-4 py-1.5 bg-white border border-gray-200 rounded-full hover:border-gray-300 hover:bg-gray-50 transition-all group shadow-sm"
+                  className="flex items-center gap-2 pl-2 pr-3 md:pr-4 py-1.5 bg-white border border-gray-200 rounded-full hover:border-gray-300 hover:bg-gray-50 transition-all group shadow-sm"
                 >
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-[11px] font-black text-white shadow-inner">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-[11px] font-black text-white shadow-inner shrink-0">
                     {user.displayName?.[0] || user.email?.[0]?.toUpperCase()}
                   </div>
                   <span className="text-[12px] font-bold text-gray-800 hidden sm:inline">
@@ -164,7 +167,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
               ) : (
                 <button 
                   onClick={() => setIsLoginOpen(true)}
-                  className="px-5 py-2.5 bg-gray-900 text-white text-[12px] font-bold tracking-wide hover:bg-blue-600 transition-colors flex items-center gap-2 shrink-0 rounded-full shadow-md"
+                  className="px-4 md:px-5 py-2.5 bg-gray-900 text-white text-[12px] font-bold tracking-wide hover:bg-blue-600 transition-colors flex items-center gap-2 shrink-0 rounded-full shadow-md"
                 >
                   <LogIn size={14} />
                   <span className="hidden sm:inline">Sign In</span>

@@ -38,6 +38,15 @@
   100% { background-color: #FAFAFC; }
 }
 
+/* Hide scrollbar utility */
+.scrollbar-none {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;

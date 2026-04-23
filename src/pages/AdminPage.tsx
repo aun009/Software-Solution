@@ -14,6 +14,7 @@ export const AdminPage = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [useCustomCategory, setUseCustomCategory] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -77,6 +78,7 @@ export const AdminPage = () => {
   const handleResetForm = () => {
     setEditingId(null);
     setIsModalOpen(false);
+    setUseCustomCategory(false);
     setFormData({
       title: '',
       description: '',
@@ -93,6 +95,9 @@ export const AdminPage = () => {
 
   const startEdit = (product: any) => {
     setEditingId(product.id);
+    const presets = ['AI & Writing', 'Graphic Design', 'Video Editing', 'SEO & Marketing', 'Learning', 'Stock & Media', 'Entertainment'];
+    const isCustom = !presets.includes(product.category);
+    setUseCustomCategory(isCustom);
     setFormData({
       title: product.title,
       description: product.description,
@@ -320,15 +325,44 @@ export const AdminPage = () => {
                     </div>
                     <div className="space-y-4">
                       <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Matrix Category</label>
-                      <select
-                        value={formData.category}
-                        onChange={e => setFormData({ ...formData, category: e.target.value })}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-4 px-5 text-gray-900 text-sm focus:outline-none focus:border-blue-500 focus:bg-white transition-all font-bold cursor-pointer"
-                      >
-                        {['AI & Writing', 'Graphic Design', 'Video Editing', 'SEO & Marketing', 'Learning', 'Stock & Media', 'Entertainment'].map(cat => (
-                          <option key={cat} value={cat}>{cat}</option>
-                        ))}
-                      </select>
+                      {!useCustomCategory ? (
+                        <select
+                          value={formData.category}
+                          onChange={e => {
+                            if (e.target.value === '__custom__') {
+                              setUseCustomCategory(true);
+                              setFormData({ ...formData, category: '' });
+                            } else {
+                              setFormData({ ...formData, category: e.target.value });
+                            }
+                          }}
+                          className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-4 px-5 text-gray-900 text-sm focus:outline-none focus:border-blue-500 focus:bg-white transition-all font-bold cursor-pointer"
+                        >
+                          {['AI & Writing', 'Graphic Design', 'Video Editing', 'SEO & Marketing', 'Learning', 'Stock & Media', 'Entertainment'].map(cat => (
+                            <option key={cat} value={cat}>{cat}</option>
+                          ))}
+                          <option value="__custom__">✏️ Custom...</option>
+                        </select>
+                      ) : (
+                        <div className="flex gap-2">
+                          <input
+                            required
+                            autoFocus
+                            value={formData.category}
+                            onChange={e => setFormData({ ...formData, category: e.target.value })}
+                            placeholder="Type custom category..."
+                            className="flex-1 bg-gray-50 border border-blue-400 rounded-2xl py-4 px-5 text-gray-900 text-sm focus:outline-none focus:border-blue-500 focus:bg-white transition-all font-bold placeholder:text-gray-300"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => { setUseCustomCategory(false); setFormData({ ...formData, category: 'AI & Writing' }); }}
+                            className="px-4 rounded-2xl border border-gray-200 bg-gray-50 text-gray-400 hover:text-gray-700 text-xs font-bold transition-all"
+                            title="Back to presets"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
 

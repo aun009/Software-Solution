@@ -121,16 +121,19 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
         }}
       >
 
-        {/* Image — fixed height, clean */}
-        <Link to={`/product/${product.id}`} className="block overflow-hidden">
-          <img
-            src={product.image?.includes('unsplash.com') ? `${product.image.split('?')[0]}?w=600&h=360&fit=crop&q=75&auto=format` : product.image}
-            alt={product.title}
-            loading="lazy"
-            decoding="async"
-            className="w-full h-[160px] md:h-[200px] object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-            referrerPolicy="no-referrer"
-          />
+        {/* Image — centered logo on white background */}
+        <Link to={`/product/${product.id}`} className="block overflow-hidden relative border-b border-gray-200">
+          <div className="w-full h-[160px] md:h-[200px] relative flex items-center justify-center bg-white overflow-hidden">
+            {/* Main centered logo */}
+            <img
+              src={product.image?.includes('unsplash.com') ? `${product.image.split('?')[0]}?w=600&h=360&fit=crop&q=75&auto=format` : product.image}
+              alt={product.title}
+              loading="lazy"
+              decoding="async"
+              className="relative z-10 max-h-[120px] md:max-h-[150px] max-w-[75%] w-auto object-contain transition-transform duration-500"
+              referrerPolicy="no-referrer"
+            />
+          </div>
         </Link>
 
         {/* Content */}
@@ -155,7 +158,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
 
           {/* Title */}
           <Link to={`/product/${product.id}`}>
-            <h3 className="text-sm md:text-lg font-bold text-gray-900 leading-snug tracking-tight mb-1 md:mb-2 hover:text-blue-600 transition-colors duration-200 truncate">
+            <h3 className="text-base md:text-xl font-bold text-gray-900 leading-snug tracking-tight mb-1 md:mb-2 hover:text-blue-600 transition-colors duration-200 truncate">
               {product.title}
             </h3>
           </Link>
