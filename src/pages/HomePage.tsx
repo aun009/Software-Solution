@@ -289,7 +289,7 @@ export const HomePage = () => {
         </AnimatePresence>
 
         <a
-          href="https://wa.me/919552530324"
+          href={`https://wa.me/919552530324?text=${encodeURIComponent("👋 Hi SP Tech Solutions! I'm interested in your products. Can you help me choose the right one?")}`}
           target="_blank"
           rel="noopener noreferrer"
           className="relative w-14 h-14 md:w-16 md:h-16 bg-[#25D366] rounded-full flex items-center justify-center text-white shadow-[0_8px_30px_rgba(37,211,102,0.4)] hover:scale-110 transition-transform duration-300 active:scale-95 group pointer-events-auto"

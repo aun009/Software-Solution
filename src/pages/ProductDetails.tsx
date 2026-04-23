@@ -205,12 +205,12 @@ export const ProductDetails = () => {
             {/* CTA */}
             <div className="flex flex-col sm:flex-row gap-4 md:gap-6">
               <button 
-                onClick={() => window.open(`https://wa.me/919552530324?text=${encodeURIComponent(`Hello, I would like to inquire about the ${product.title} software solution. Could you please provide more details regarding its features?`)}`, '_blank')} 
+                onClick={() => window.open(`https://wa.me/919552530324?text=${encodeURIComponent(`Hello, I would like to buy the "${product.title}" Software/Tool. Could you provide details regarding its ?`)}`, '_blank')} 
                 className="group overflow-hidden relative px-8 md:px-12 py-4 md:py-5 bg-[#25D366] text-white rounded-2xl font-black text-base md:text-lg shadow-xl shadow-[#25D366]/30 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 hover:shadow-2xl hover:shadow-[#25D366]/50 active:scale-95 flex items-center justify-center gap-3"
               >
                 <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out" />
                 <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 transition-transform duration-500 group-hover:rotate-[20deg] group-hover:scale-125 relative z-10"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-                <span className="relative z-10 block transition-transform group-hover:translate-x-1">Contact via WhatsApp</span>
+                <span className="relative z-10 block transition-transform group-hover:translate-x-1">Get Access</span>
               </button>
             </div>
           </motion.div>
