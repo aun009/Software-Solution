@@ -1,253 +1,250 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { products as staticProducts } from '../data/products';
 import { supabase } from '../lib/supabase';
 import { motion } from 'motion/react';
-import { CheckCircle2, Star, Play, ArrowLeft, Zap, ShieldCheck, Loader2, ArrowRight } from 'lucide-react';
+import { CheckCircle2, Play, ArrowLeft, Zap, ShieldCheck, Loader2 } from 'lucide-react';
 import { useProductStore } from '../store/useProductStore';
 
 export const ProductDetails = () => {
   const { id } = useParams();
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const { products } = useProductStore();
 
-  const { products, fetchProducts } = useProductStore();
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [id]);
+  useEffect(() => { window.scrollTo(0, 0); }, [id]);
 
   useEffect(() => {
-    // Find instantly out of memory
-    const cachedItem = products.find(p => p.id === id);
-    if (cachedItem) {
-      setProduct(cachedItem);
-      setLoading(false);
-    }
-    
-    // Fallback manual refresh if it's deeply linked and completely cacheless
-    if (!cachedItem && id) {
-      const fetchDeep = async () => {
-        try {
-          const { data } = await supabase.from('products').select('*').eq('id', id).single();
-          if (data) setProduct(data);
-        } finally {
-          setLoading(false);
-        }
-      };
-      fetchDeep();
+    const cached = products.find(p => p.id === id);
+    if (cached) { setProduct(cached); setLoading(false); return; }
+    if (id) {
+      supabase.from('products').select('*').eq('id', id).single()
+        .then(({ data }) => { if (data) setProduct(data); })
+        .finally(() => setLoading(false));
     }
   }, [id, products]);
 
-  if (loading) {
-    return (
-      <div className="h-screen flex items-center justify-center bg-[#F8FAFC]">
-        <Loader2 className="animate-spin text-blue-600" size={40} />
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="h-screen flex items-center justify-center bg-[#F8FAFC]">
+      <Loader2 className="animate-spin text-blue-600" size={36} />
+    </div>
+  );
 
-  if (!product) {
-    return (
-      <div className="h-[70vh] flex flex-col items-center justify-center gap-6 bg-[#F8FAFC]">
-        <h1 className="text-4xl font-bold text-gray-900">Product not found</h1>
-        <Link 
-          to="/#store" 
-          className="px-6 py-3 bg-blue-600 text-white rounded-lg font-bold shadow-lg"
-        >
-          Return to Store
-        </Link>
-      </div>
-    );
-  }
+  if (!product) return (
+    <div className="h-[70vh] flex flex-col items-center justify-center gap-6 bg-[#F8FAFC]">
+      <h1 className="text-4xl font-bold text-gray-900">Product not found</h1>
+      <Link to="/#store" className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold shadow-lg">Return to Store</Link>
+    </div>
+  );
 
   const getYouTubeEmbedUrl = (url: string) => {
-    let videoId = '';
-    if (url.includes('youtube.com/watch?v=')) videoId = url.split('v=')[1].split('&')[0];
-    else if (url.includes('youtu.be/')) videoId = url.split('youtu.be/')[1].split('?')[0];
-    else if (url.includes('youtube.com/shorts/')) videoId = url.split('shorts/')[1].split('?')[0];
-    return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=0&mute=0&loop=1&controls=1` : url;
+    let id = '';
+    if (url.includes('youtube.com/watch?v=')) id = url.split('v=')[1].split('&')[0];
+    else if (url.includes('youtu.be/')) id = url.split('youtu.be/')[1].split('?')[0];
+    else if (url.includes('youtube.com/shorts/')) id = url.split('shorts/')[1].split('?')[0];
+    return id ? `https://www.youtube.com/embed/${id}?autoplay=0&controls=1` : url;
   };
 
   const getVimeoEmbedUrl = (url: string) => {
-    // Handles: vimeo.com/123456, vimeo.com/video/123456, player.vimeo.com/video/123456
-    const match = url.match(/vimeo\.com(?:\/video)?\/([0-9]+)/);
-    const videoId = match?.[1];
-    return videoId ? `https://player.vimeo.com/video/${videoId}?autoplay=0&loop=0&color=2563eb&title=0&byline=0&portrait=0` : url;
+    const m = url.match(/vimeo\.com(?:\/video)?\/([0-9]+)/);
+    return m?.[1] ? `https://player.vimeo.com/video/${m[1]}?autoplay=0&color=2563eb&title=0&byline=0` : url;
   };
 
   const isYouTube = (url: string) => url.includes('youtube.com') || url.includes('youtu.be');
-  const isVimeo = (url: string) => url.includes('vimeo.com');
+  const isVimeo   = (url: string) => url.includes('vimeo.com');
 
-  const VisualAssets = () => (
-    <div className="group relative aspect-video md:aspect-[4/5] bg-gray-50 border border-gray-200 rounded-[24px] md:rounded-[40px] overflow-hidden shadow-2xl flex items-center justify-center bg-black">
+  const getLogoUrl = (url: string, name: string) => {
+    if (!url) return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&bold=true&size=128&format=svg&uppercase=true`;
+    if (url.includes('/') || url.startsWith('http')) return url;
+    return `https://img.logo.dev/${url}?token=${import.meta.env.VITE_LOGO_DEV_PUBLIC_KEY}&size=128&format=png`;
+  };
+
+  /* ── Video / image player ── */
+  const VideoPlayer = () => (
+    <div className="relative w-full aspect-video rounded-2xl md:rounded-[20px] overflow-hidden shadow-[0_24px_80px_rgba(0,0,0,0.14)] bg-black">
       {product.videoUrl && isYouTube(product.videoUrl) ? (
-        <iframe 
-          className="absolute inset-0 w-full h-full flex-1 border-0"
+        <iframe
+          className="absolute inset-0 w-full h-full border-0"
           src={getYouTubeEmbedUrl(product.videoUrl)}
           title="YouTube video player"
-          frameBorder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
         />
       ) : product.videoUrl && isVimeo(product.videoUrl) ? (
         <iframe
-          className="absolute inset-0 w-full h-full flex-1 border-0"
+          className="absolute inset-0 w-full h-full border-0"
           src={getVimeoEmbedUrl(product.videoUrl)}
           title="Vimeo video player"
-          frameBorder="0"
           allow="autoplay; fullscreen; picture-in-picture"
           allowFullScreen
         />
       ) : (
         <>
-          <img 
-            src={product.image} 
-            alt="Product Preview" 
-            className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-1000"
+          <img
+            src={product.image}
+            alt="Product Preview"
+            className="absolute inset-0 w-full h-full object-cover opacity-70"
             referrerPolicy="no-referrer"
           />
-          <div className="absolute inset-0 bg-white/20 group-hover:bg-transparent transition-colors pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+            <div className="w-14 h-14 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-xl">
+              <Play size={20} fill="#2563eb" className="text-blue-600 ml-1" />
+            </div>
+            <span className="text-white/80 text-[11px] font-bold uppercase tracking-[0.25em]">Product Preview</span>
+          </div>
         </>
-      )}
-      
-      {!product.videoUrl && (
-        <div className="relative z-10 text-center px-6 md:px-10 pointer-events-none">
-          <div className="w-16 h-16 md:w-24 md:h-24 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-2xl transform group-hover:scale-110 transition-transform mb-4 md:mb-8 mx-auto">
-            <Play size={24} fill="currentColor" className="ml-1.5" />
-          </div>
-          <div className="space-y-2 md:space-y-3">
-            <span className="block text-gray-900 font-black uppercase tracking-[0.3em] text-[10px] md:text-xs">
-              Product Insight
-            </span>
-            <p className="text-gray-500 text-[9px] md:text-[10px] font-medium leading-relaxed max-w-[200px] mx-auto uppercase tracking-widest hidden md:block">
-              Visual representation of architectural efficiency.
-            </p>
-          </div>
-        </div>
       )}
     </div>
   );
 
-  const getLogoUrl = (url: string, fallbackName: string) => {
-    if (!url) return `https://ui-avatars.com/api/?name=${encodeURIComponent(fallbackName)}&background=random&bold=true&size=128&font-size=0.45&format=svg&uppercase=true`;
-    if (url.includes('/') || url.startsWith('http')) return url;
-    return `https://img.logo.dev/${url}?token=${import.meta.env.VITE_LOGO_DEV_PUBLIC_KEY}&size=128&format=png`;
-  };
-
   return (
-    <div className="min-h-screen bg-[#F8FAFC] relative">
-      <div className="max-w-7xl mx-auto px-6 py-12 md:py-20 relative z-10 pt-32 md:pt-48">
-      <Link 
-        to="/#store" 
-        className="inline-flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors mb-12 md:mb-16 group"
-      >
-        <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-        <span className="font-bold uppercase tracking-[0.2em] text-[10px]">Back to Store</span>
-      </Link>
+    <div className="min-h-screen bg-[#F8FAFC]">
+      <div className="max-w-7xl mx-auto px-5 md:px-10 pt-28 md:pt-40 pb-20 md:pb-28">
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24">
-        {/* Left Column: Product Info */}
-        <div className="lg:col-span-7">
+        {/* Back link */}
+        <Link
+          to="/#store"
+          className="inline-flex items-center gap-2 text-gray-400 hover:text-gray-800 transition-colors mb-10 md:mb-14 group"
+        >
+          <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+          <span className="text-[11px] font-bold uppercase tracking-[0.2em]">Back to Store</span>
+        </Link>
+
+        {/* ── HERO: 50/50 grid ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 lg:items-start mb-14 md:mb-20">
+
+          {/* LEFT – product info */}
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
           >
-            <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-8 mb-6 md:mb-10">
-              <img 
-                 src={getLogoUrl(product.url, product.title)}
-                 alt={`${product.title} Icon`}
-                 className="w-16 h-16 md:w-24 md:h-24 rounded-[20px] md:rounded-[32px] object-contain shadow-lg border border-gray-100 shrink-0 bg-white"
-                 onError={(e) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(product.title)}&background=random&bold=true&size=128&font-size=0.45&format=svg&uppercase=true` }}
+            {/* Icon + title */}
+            <div className="flex items-start gap-4 md:gap-5 mb-5 md:mb-7">
+              <img
+                src={getLogoUrl(product.url, product.title)}
+                alt={`${product.title} icon`}
+                className="w-14 h-14 md:w-[72px] md:h-[72px] rounded-2xl object-contain shadow-md border border-gray-100 bg-white shrink-0"
+                onError={e => {
+                  e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(product.title)}&background=random&bold=true&size=128&format=svg`;
+                }}
               />
-              <div className="flex flex-col gap-2">
-                <h1 className="text-3xl md:text-5xl font-['Poppins'] font-extrabold text-gray-900 tracking-tight leading-tight">
+              <div>
+                <h1 className="text-3xl md:text-[40px] font-['Poppins'] font-extrabold text-gray-900 tracking-tight leading-tight mb-2">
                   {product.title}
                 </h1>
-                <div className="flex items-center gap-3 flex-wrap">
+                <div className="flex items-center gap-2.5 flex-wrap">
                   {product.category && (
-                    <span className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-blue-50 border border-blue-200 rounded-full text-[11px] font-bold uppercase tracking-[0.15em] text-blue-700">
-                      <Zap size={12} className="text-blue-500" />
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 border border-blue-200 rounded-full text-[11px] font-bold uppercase tracking-[0.12em] text-blue-700">
+                      <Zap size={11} className="text-blue-500" />
                       {product.category}
                     </span>
                   )}
-                  <span className="text-[10px] font-black text-emerald-600 tracking-[0.2em] uppercase">Price</span>
-                  <span className="text-lg font-black text-emerald-600">₹{Number(product.price || 999).toLocaleString('en-IN')}</span>
+                  <span className="text-[11px] font-black text-emerald-600 tracking-[0.15em] uppercase">Price</span>
+                  <span className="text-base font-black text-emerald-600">
+                    ₹{Number(product.price || 999).toLocaleString('en-IN')}
+                  </span>
                 </div>
               </div>
             </div>
-            
-            <div className="block lg:hidden mb-10 w-full shadow-2xl rounded-[24px]">
-               <VisualAssets />
+
+            {/* Mobile video */}
+            <div className="block lg:hidden mb-7">
+              <VideoPlayer />
             </div>
 
-            <p className="text-lg md:text-2xl text-gray-500 leading-relaxed mb-10 md:mb-16 font-medium">
+            {/* Description */}
+            <p className="text-[15px] md:text-base text-gray-600 leading-[1.75] mb-8 md:mb-10 max-w-prose">
               {product.description}
             </p>
 
-            {/* Features & Benefits */}
-            <div className="grid md:grid-cols-2 gap-8 md:gap-12 mb-16 md:mb-20 p-6 md:p-10 bg-white rounded-[32px] md:rounded-[40px] shadow-[0_20px_80px_rgba(0,0,0,0.06)] border border-gray-100 relative overflow-hidden">
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(59,130,246,0.04)_0%,transparent_70%)]" />
 
-              <div className="p-6 md:p-8 bg-gray-50/50 border border-gray-100 rounded-3xl shadow-sm relative z-10">
-                <h3 className="text-xs font-black text-gray-900 uppercase tracking-[0.3em] mb-6 md:mb-8 flex items-center gap-3">
-                  <Zap size={16} className="text-blue-600" />
-                  Features
-                </h3>
-                <ul className="space-y-4 md:space-y-6">
-                  {product.features?.map((feature: string, idx: number) => (
-                    <li key={idx} className="flex items-start gap-4">
-                      <CheckCircle2 size={20} className="text-blue-500 mt-0.5 flex-shrink-0" />
-                      <span className="text-gray-600 font-medium leading-relaxed text-sm md:text-base">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="p-6 md:p-8 bg-gray-50/50 border border-gray-100 rounded-3xl shadow-sm relative z-10">
-                <h3 className="text-xs font-black text-gray-900 uppercase tracking-[0.3em] mb-6 md:mb-8 flex items-center gap-3">
-                  <ShieldCheck size={16} className="text-purple-600" />
-                  Benefits
-                </h3>
-                <ul className="space-y-4 md:space-y-6">
-                  {product.benefits?.map((benefit: string, idx: number) => (
-                    <li key={idx} className="flex items-start gap-4">
-                      <div className="w-2 h-2 rounded-full bg-purple-500 mt-2.5 flex-shrink-0" />
-                      <span className="text-gray-600 font-medium leading-relaxed text-sm md:text-base">{benefit}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            {/* CTA */}
-            <div className="flex flex-col sm:flex-row gap-4 md:gap-6">
-              <button 
-                onClick={() => window.open(`https://wa.me/919552530324?text=${encodeURIComponent(`Hello, I would like to buy the "${product.title}" Software/Tool. Could you provide details regarding its ?`)}`, '_blank')} 
-                className="group overflow-hidden relative px-8 md:px-12 py-4 md:py-5 bg-[#25D366] text-white rounded-2xl font-black text-base md:text-lg shadow-xl shadow-[#25D366]/30 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 hover:shadow-2xl hover:shadow-[#25D366]/50 active:scale-95 flex items-center justify-center gap-3"
-              >
-                <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out" />
-                <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 transition-transform duration-500 group-hover:rotate-[20deg] group-hover:scale-125 relative z-10"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-                <span className="relative z-10 block transition-transform group-hover:translate-x-1">Get Access</span>
-              </button>
-            </div>
           </motion.div>
-        </div>
 
-        {/* Right Column: Visuals (Desktop Only) */}
-        <div className="hidden lg:block lg:col-span-5">
+          {/* RIGHT – desktop video (sticky) */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
+            className="hidden lg:block"
+            initial={{ opacity: 0, scale: 0.97 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, delay: 0.2 }}
-            className="sticky top-32 md:top-48"
+            transition={{ duration: 0.7, delay: 0.15 }}
           >
-            <VisualAssets />
+            <div className="sticky top-32">
+              <VideoPlayer />
+            </div>
           </motion.div>
         </div>
+
+        {/* ── FEATURES & BENEFITS – full-width below hero ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.3 }}
+          className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-7"
+        >
+          {/* Features */}
+          <div className="bg-white border border-gray-100 rounded-[24px] p-7 md:p-9 shadow-[0_8px_40px_rgba(0,0,0,0.05)]">
+            <div className="flex items-center gap-3 mb-7">
+              <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
+                <Zap size={15} className="text-blue-600" />
+              </div>
+              <h3 className="text-[15px] font-black uppercase tracking-[0.18em] text-gray-800">Features</h3>
+            </div>
+            <ul className="space-y-3.5">
+              {product.features?.map((f: string, i: number) => (
+                <li key={i} className="flex items-start gap-3">
+                  <CheckCircle2 size={17} className="text-blue-500 mt-0.5 shrink-0" />
+                  <span className="text-[15.5px] text-gray-700 font-semibold leading-snug">{f}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Benefits */}
+          <div className="bg-white border border-gray-100 rounded-[24px] p-7 md:p-9 shadow-[0_8px_40px_rgba(0,0,0,0.05)]">
+            <div className="flex items-center gap-3 mb-7">
+              <div className="w-8 h-8 rounded-xl bg-purple-50 flex items-center justify-center shrink-0">
+                <ShieldCheck size={15} className="text-purple-600" />
+              </div>
+              <h3 className="text-[15px] font-black uppercase tracking-[0.18em] text-gray-800">Benefits</h3>
+            </div>
+            <ul className="space-y-3.5">
+              {product.benefits?.map((b: string, i: number) => (
+                <li key={i} className="flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full bg-purple-50 border border-purple-100 flex items-center justify-center shrink-0 mt-0.5">
+                    <div className="w-1.5 h-1.5 rounded-full bg-purple-500" />
+                  </div>
+                  <span className="text-[15.5px] text-gray-700 font-semibold leading-snug">{b}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </motion.div>
+
+        {/* ── CTA – below features & benefits ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.5 }}
+          className="mt-8 md:mt-10 flex justify-center md:justify-start"
+        >
+          <button
+            onClick={() =>
+              window.open(
+                `https://wa.me/919552530324?text=${encodeURIComponent(`Hello, I would like to buy the "${product.title}" Software/Tool. Could you provide details?`)}`,
+                '_blank'
+              )
+            }
+            className="group relative overflow-hidden inline-flex items-center gap-3 px-10 py-4 bg-[#25D366] text-white rounded-2xl font-black text-base shadow-xl shadow-[#25D366]/25 hover:shadow-2xl hover:shadow-[#25D366]/40 hover:scale-[1.02] hover:-translate-y-0.5 active:scale-95 transition-all duration-300"
+          >
+            <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent group-hover:translate-x-[150%] transition-transform duration-700" />
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 relative z-10 group-hover:rotate-12 transition-transform duration-300">
+              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+            </svg>
+            <span className="relative z-10">Get Access</span>
+          </button>
+        </motion.div>
+
       </div>
     </div>
-  </div>
   );
 };

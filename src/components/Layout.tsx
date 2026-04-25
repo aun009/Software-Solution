@@ -113,7 +113,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
         >
           <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center gap-2.5 pl-2 group shrink-0">
             <div className="relative w-10 h-10 rounded-full overflow-hidden group-hover:scale-[1.15] transition-transform duration-300 shadow-lg shadow-blue-600/20 ring-2 ring-blue-500/20 group-hover:ring-blue-500/40">
-              <img src="/sp-logo.png" alt="SP Tech Solutions" className="w-full h-full object-cover" />
+              <img src="/logo.jpeg" alt="SP Tech Solutions" className="w-full h-full object-cover" />
             </div>
             <span 
               ref={brandTextRef}
@@ -203,7 +203,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
             <div className="md:col-span-5 flex flex-col gap-6 pr-0 md:pr-12">
                <div className="text-[18px] md:text-[26px] font-black tracking-[0.08em] flex items-center gap-3 md:gap-4 text-white">
                  <div className="w-12 h-12 rounded-xl overflow-hidden shadow-lg ring-2 ring-white/10 shrink-0">
-                   <img src="/sp-logo.png" alt="SP Tech Solutions" className="w-full h-full object-cover" />
+                   <img src="/logo.jpeg" alt="SP Tech Solutions" className="w-full h-full object-cover" />
                  </div>
                  SP TECH SOLUTIONS
                </div>
