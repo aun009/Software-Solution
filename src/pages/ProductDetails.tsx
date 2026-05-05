@@ -2,13 +2,32 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { motion } from 'motion/react';
-import { CheckCircle2, Play, ArrowLeft, Zap, ShieldCheck, Loader2 } from 'lucide-react';
+import { CheckCircle2, Play, ArrowLeft, Zap, ShieldCheck, Loader2, Clock, Infinity, Check } from 'lucide-react';
 import { useProductStore } from '../store/useProductStore';
+
+const VALIDITY_PLANS = [
+  { key: 'price_1m',        label: '1 Month',   short: '1M',   icon: Clock,    color: 'blue'   },
+  { key: 'price_3m',        label: '3 Months',  short: '3M',   icon: Clock,    color: 'indigo' },
+  { key: 'price_6m',        label: '6 Months',  short: '6M',   icon: Clock,    color: 'violet' },
+  { key: 'price_1y',        label: '1 Year',    short: '1Y',   icon: Clock,    color: 'purple' },
+  { key: 'price_lifetime',  label: 'Lifetime',  short: '∞',    icon: Infinity, color: 'emerald'},
+] as const;
+
+type PlanKey = typeof VALIDITY_PLANS[number]['key'];
+
+const colorMap: Record<string, { pill: string; active: string; badge: string }> = {
+  blue:   { pill: 'border-blue-200 hover:border-blue-400',   active: 'bg-blue-600 border-blue-600 text-white shadow-blue-400/30',   badge: 'bg-blue-100 text-blue-700'   },
+  indigo: { pill: 'border-indigo-200 hover:border-indigo-400', active: 'bg-indigo-600 border-indigo-600 text-white shadow-indigo-400/30', badge: 'bg-indigo-100 text-indigo-700' },
+  violet: { pill: 'border-violet-200 hover:border-violet-400', active: 'bg-violet-600 border-violet-600 text-white shadow-violet-400/30', badge: 'bg-violet-100 text-violet-700' },
+  purple: { pill: 'border-purple-200 hover:border-purple-400', active: 'bg-purple-600 border-purple-600 text-white shadow-purple-400/30', badge: 'bg-purple-100 text-purple-700' },
+  emerald:{ pill: 'border-emerald-200 hover:border-emerald-400', active: 'bg-emerald-600 border-emerald-600 text-white shadow-emerald-400/30', badge: 'bg-emerald-100 text-emerald-700' },
+};
 
 export const ProductDetails = () => {
   const { id } = useParams();
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedPlan, setSelectedPlan] = useState<PlanKey>('price_1m');
   const { products } = useProductStore();
 
   useEffect(() => { window.scrollTo(0, 0); }, [id]);
@@ -17,9 +36,11 @@ export const ProductDetails = () => {
     const cached = products.find(p => p.id === id);
     if (cached) { setProduct(cached); setLoading(false); return; }
     if (id) {
-      supabase.from('products').select('*').eq('id', id).single()
-        .then(({ data }) => { if (data) setProduct(data); })
-        .finally(() => setLoading(false));
+      (async () => {
+        const { data } = await supabase.from('products').select('*').eq('id', id).single();
+        if (data) setProduct(data);
+        setLoading(false);
+      })();
     }
   }, [id, products]);
 
@@ -57,6 +78,19 @@ export const ProductDetails = () => {
     if (url.includes('/') || url.startsWith('http')) return url;
     return `https://img.logo.dev/${url}?token=${import.meta.env.VITE_LOGO_DEV_PUBLIC_KEY}&size=128&format=png`;
   };
+
+  // Get price for the selected plan, fallback to base price
+  const getPlanPrice = (planKey: PlanKey): number | null => {
+    const val = product[planKey];
+    if (val !== undefined && val !== null && val !== '') return Number(val);
+    return null;
+  };
+
+  // Check if any validity plan prices are configured
+  const hasValidityPricing = VALIDITY_PLANS.some(p => getPlanPrice(p.key) !== null);
+
+  const selectedPlanData = VALIDITY_PLANS.find(p => p.key === selectedPlan)!;
+  const selectedPrice = getPlanPrice(selectedPlan) ?? Number(product.price || 999);
 
   /* ── Video / image player ── */
   const VideoPlayer = () => (
@@ -140,10 +174,6 @@ export const ProductDetails = () => {
                       {product.category}
                     </span>
                   )}
-                  <span className="text-[11px] font-black text-emerald-600 tracking-[0.15em] uppercase">Price</span>
-                  <span className="text-base font-black text-emerald-600">
-                    ₹{Number(product.price || 999).toLocaleString('en-IN')}
-                  </span>
                 </div>
               </div>
             </div>
@@ -158,6 +188,78 @@ export const ProductDetails = () => {
               {product.description}
             </p>
 
+            {/* ── VALIDITY PLAN SELECTOR ── */}
+            {hasValidityPricing ? (
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="mb-8 md:mb-10"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[11px] font-black text-gray-500 uppercase tracking-[0.18em]">Choose Your Plan</span>
+                  <span className="text-[11px] font-semibold text-gray-400">Select validity period</span>
+                </div>
+
+                {/* Horizontal scroll on mobile, flex-wrap on desktop */}
+                <div className="overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none">
+                  <div className="flex gap-2.5 w-max md:w-auto md:flex-wrap">
+                    {VALIDITY_PLANS.map((plan) => {
+                      const price = getPlanPrice(plan.key);
+                      if (price === null) return null; // skip unconfigured plans
+                      const isActive = selectedPlan === plan.key;
+                      const colors = colorMap[plan.color];
+                      const Icon = plan.icon;
+                      return (
+                        <button
+                          key={plan.key}
+                          onClick={() => setSelectedPlan(plan.key)}
+                          className={`relative flex flex-col items-center justify-center gap-1 px-4 py-3 rounded-2xl border-2 font-bold transition-all duration-200 min-w-[80px] shrink-0 select-none
+                            ${isActive
+                              ? `${colors.active} shadow-lg scale-[1.04]`
+                              : `bg-white ${colors.pill} text-gray-700 hover:scale-[1.02]`
+                            }`}
+                        >
+                          {isActive && (
+                            <span className="absolute -top-2 -right-2 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow border border-gray-100">
+                              <Check size={11} className={`text-${plan.color}-600`} strokeWidth={3} />
+                            </span>
+                          )}
+                          <Icon size={14} className={isActive ? 'opacity-90' : 'text-gray-400'} />
+                          <span className="text-[13px] font-black leading-none">{plan.label}</span>
+                          <span className={`text-[11px] font-extrabold leading-none ${isActive ? 'opacity-90' : 'text-emerald-600'}`}>
+                            ₹{Number(price).toLocaleString('en-IN')}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Selected plan summary */}
+                <div className="mt-4 flex items-center gap-3 p-3.5 bg-white border border-gray-100 rounded-2xl shadow-sm">
+                  <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${colorMap[selectedPlanData.color].badge}`}>
+                    <selectedPlanData.icon size={15} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[12px] font-bold text-gray-500">Selected: <span className="text-gray-800">{selectedPlanData.label} Access</span></p>
+                    <p className="text-[11px] text-gray-400 mt-0.5">One-time payment · Instant delivery via WhatsApp</p>
+                  </div>
+                  <div className="shrink-0 text-right">
+                    <p className="text-[18px] font-black text-gray-900 leading-none">₹{selectedPrice.toLocaleString('en-IN')}</p>
+                    <p className="text-[10px] text-gray-400 font-semibold mt-0.5">incl. all taxes</p>
+                  </div>
+                </div>
+              </motion.div>
+            ) : (
+              /* Fallback: simple price display when no validity plans configured */
+              <div className="mb-8 flex items-center gap-2.5">
+                <span className="text-[11px] font-black text-emerald-600 tracking-[0.15em] uppercase">Price</span>
+                <span className="text-base font-black text-emerald-600">
+                  ₹{Number(product.price || 999).toLocaleString('en-IN')}
+                </span>
+              </div>
+            )}
 
           </motion.div>
 
@@ -230,7 +332,11 @@ export const ProductDetails = () => {
           <button
             onClick={() =>
               window.open(
-                `https://wa.me/919552530324?text=${encodeURIComponent(`Hello, I would like to buy the "${product.title}" Software/Tool. Could you provide details?`)}`,
+                `https://wa.me/919552530324?text=${encodeURIComponent(
+                  hasValidityPricing
+                    ? `Hello, I would like to buy the "${product.title}" Software/Tool — ${selectedPlanData.label} plan (₹${selectedPrice.toLocaleString('en-IN')}). Could you please provide details?`
+                    : `Hello, I would like to buy the "${product.title}" Software/Tool. Could you provide details?`
+                )}`,
                 '_blank'
               )
             }
@@ -240,7 +346,11 @@ export const ProductDetails = () => {
             <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 relative z-10 group-hover:rotate-12 transition-transform duration-300">
               <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
             </svg>
-            <span className="relative z-10">Get Access</span>
+            <span className="relative z-10">
+              {hasValidityPricing
+                ? `Get ${selectedPlanData.label} Access — ₹${selectedPrice.toLocaleString('en-IN')}`
+                : 'Get Access'}
+            </span>
           </button>
         </motion.div>
 

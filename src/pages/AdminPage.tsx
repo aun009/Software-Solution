@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
-import { Plus, Trash2, Package, CheckCircle2, Loader2, AlertCircle, Sparkles, Edit2, X, DollarSign, Image as ImageIcon, Video, Trash, ArrowRight } from 'lucide-react';
+import { Plus, Trash2, Package, CheckCircle2, Loader2, AlertCircle, Sparkles, Edit2, X, DollarSign, Image as ImageIcon, Video, Trash, ArrowRight, UploadCloud, Link as LinkIcon, Clock, Infinity } from 'lucide-react';
 import { Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -15,6 +15,10 @@ export const AdminPage = () => {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [useCustomCategory, setUseCustomCategory] = useState(false);
+  const [imageTab, setImageTab] = useState<'upload' | 'url'>('upload');
+  const [imageUploading, setImageUploading] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -22,6 +26,11 @@ export const AdminPage = () => {
     description: '',
     category: 'AI & Writing',
     price: '',
+    price_1m: '',
+    price_3m: '',
+    price_6m: '',
+    price_1y: '',
+    price_lifetime: '',
     image: 'https://images.unsplash.com/photo-1618477388954-7852f32655ec?auto=format&fit=crop&q=80&w=1000',
     videoUrl: '',
     url: '',
@@ -79,11 +88,17 @@ export const AdminPage = () => {
     setEditingId(null);
     setIsModalOpen(false);
     setUseCustomCategory(false);
+    setImageTab('upload');
     setFormData({
       title: '',
       description: '',
       category: 'AI & Writing',
       price: '',
+      price_1m: '',
+      price_3m: '',
+      price_6m: '',
+      price_1y: '',
+      price_lifetime: '',
       image: 'https://images.unsplash.com/photo-1618477388954-7852f32655ec?auto=format&fit=crop&q=80&w=1000',
       videoUrl: '',
       url: '',
@@ -93,16 +108,44 @@ export const AdminPage = () => {
     });
   };
 
+  // Upload image to Supabase Storage bucket 'product-images'
+  const handleImageUpload = useCallback(async (file: File) => {
+    if (!file.type.startsWith('image/')) { setError('Please upload a valid image file.'); return; }
+    setImageUploading(true);
+    setError('');
+    try {
+      const ext = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from('product-images')
+        .upload(fileName, file, { upsert: false, contentType: file.type });
+      if (uploadError) throw uploadError;
+      const { data } = supabase.storage.from('product-images').getPublicUrl(fileName);
+      setFormData(prev => ({ ...prev, image: data.publicUrl }));
+    } catch (err: any) {
+      setError(`Image upload failed: ${err.message}`);
+    } finally {
+      setImageUploading(false);
+    }
+  }, []);
+
   const startEdit = (product: any) => {
     setEditingId(product.id);
     const presets = ['AI & Writing', 'Graphic Design', 'Video Editing', 'SEO & Marketing', 'Learning', 'Stock & Media', 'Entertainment'];
     const isCustom = !presets.includes(product.category);
     setUseCustomCategory(isCustom);
+    // If product has an existing image URL, switch to URL tab for editing
+    setImageTab(product.image ? 'url' : 'upload');
     setFormData({
       title: product.title,
       description: product.description,
       category: product.category,
       price: product.price || '',
+      price_1m: product.price_1m || '',
+      price_3m: product.price_3m || '',
+      price_6m: product.price_6m || '',
+      price_1y: product.price_1y || '',
+      price_lifetime: product.price_lifetime || '',
       image: product.image,
       videoUrl: product.videoUrl || product.video_url || '',
       url: product.url || '',
@@ -415,31 +458,114 @@ export const AdminPage = () => {
                       </label>
                     </div>
                     <div className="space-y-4">
-                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Media Assets</label>
-                      <div className="space-y-2">
-                        <div className="relative">
-                          <ImageIcon className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                          <input
-                            type="text"
-                            value={formData.image}
-                            onChange={e => setFormData({ ...formData, image: e.target.value })}
-                            placeholder="Primary Image URL"
-                            className="w-full bg-white border border-gray-200 rounded-2xl py-4 pl-12 pr-5 text-gray-900 text-sm focus:outline-none focus:border-blue-500 transition-all font-mono"
-                          />
-                        </div>
-                        <div className="relative">
-                          <Video className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                          <input
-                            type="text"
-                            value={formData.videoUrl}
-                            onChange={e => setFormData({ ...formData, videoUrl: e.target.value })}
-                            placeholder="YouTube Video URL (Optional)"
-                            className="w-full bg-white border border-gray-200 rounded-2xl py-4 pl-12 pr-5 text-gray-900 text-sm focus:outline-none focus:border-blue-500 transition-all font-mono"
-                          />
-                        </div>
-                      </div>
-                    </div>
+                       <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Media Assets</label>
+                       <div className="space-y-3">
+                         {/* Image upload — dual mode tabs */}
+                         <div className="rounded-2xl border border-gray-200 overflow-hidden bg-white">
+                           {/* Tab switcher */}
+                           <div className="flex border-b border-gray-100">
+                             <button type="button" onClick={() => setImageTab('upload')}
+                               className={`flex-1 py-2.5 text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-1.5 transition-colors ${
+                                 imageTab === 'upload' ? 'bg-blue-600 text-white' : 'bg-gray-50 text-gray-400 hover:text-gray-700'}`}>
+                               <UploadCloud size={12} /> Drag & Drop
+                             </button>
+                             <button type="button" onClick={() => setImageTab('url')}
+                               className={`flex-1 py-2.5 text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-1.5 transition-colors ${
+                                 imageTab === 'url' ? 'bg-blue-600 text-white' : 'bg-gray-50 text-gray-400 hover:text-gray-700'}`}>
+                               <LinkIcon size={12} /> Paste URL
+                             </button>
+                           </div>
+
+                           {imageTab === 'upload' ? (
+                             <div
+                               onDragOver={e => { e.preventDefault(); setDragOver(true); }}
+                               onDragLeave={() => setDragOver(false)}
+                               onDrop={e => {
+                                 e.preventDefault(); setDragOver(false);
+                                 const file = e.dataTransfer.files[0];
+                                 if (file) handleImageUpload(file);
+                               }}
+                               onClick={() => fileInputRef.current?.click()}
+                               className={`relative flex flex-col items-center justify-center gap-2 p-5 cursor-pointer transition-all min-h-[110px] ${
+                                 dragOver ? 'bg-blue-50 border-blue-400' : 'bg-gray-50/60 hover:bg-gray-50'}`}
+                             >
+                               <input ref={fileInputRef} type="file" accept="image/*" className="hidden"
+                                 onChange={e => { const f = e.target.files?.[0]; if (f) handleImageUpload(f); }} />
+                               {imageUploading ? (
+                                 <><Loader2 size={22} className="animate-spin text-blue-500" />
+                                 <span className="text-[11px] text-blue-500 font-bold">Uploading to Supabase...</span></>
+                               ) : formData.image && formData.image.includes('supabase') ? (
+                                 <><img src={formData.image} className="h-16 w-full object-cover rounded-xl" alt="preview" />
+                                 <span className="text-[10px] text-emerald-600 font-bold">✓ Uploaded! Click to change.</span></>
+                               ) : (
+                                 <><UploadCloud size={22} className={dragOver ? 'text-blue-500' : 'text-gray-300'} />
+                                 <span className="text-[11px] text-gray-400 font-semibold text-center">Drop image here or <span className="text-blue-500 font-bold">click to browse</span></span>
+                                 <span className="text-[9px] text-gray-300 font-medium">PNG, JPG, WEBP — uploaded to Supabase Storage</span></>
+                               )}
+                             </div>
+                           ) : (
+                             <div className="p-3">
+                               <div className="relative">
+                                 <ImageIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
+                                 <input type="text" value={formData.image}
+                                   onChange={e => setFormData({ ...formData, image: e.target.value })}
+                                   placeholder="https://example.com/image.jpg"
+                                   className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-10 pr-4 text-gray-900 text-xs focus:outline-none focus:border-blue-500 transition-all font-mono" />
+                               </div>
+                               {formData.image && (
+                                 <img src={formData.image} className="mt-2 h-14 w-full object-cover rounded-xl border border-gray-100" alt="preview"
+                                   onError={e => (e.currentTarget.style.display = 'none')} />
+                               )}
+                             </div>
+                           )}
+                         </div>
+
+                         <div className="relative">
+                           <Video className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                           <input
+                             type="text"
+                             value={formData.videoUrl}
+                             onChange={e => setFormData({ ...formData, videoUrl: e.target.value })}
+                             placeholder="YouTube Video URL (Optional)"
+                             className="w-full bg-white border border-gray-200 rounded-2xl py-4 pl-12 pr-5 text-gray-900 text-sm focus:outline-none focus:border-blue-500 transition-all font-mono"
+                           />
+                         </div>
+                       </div>
+                     </div>
                   </div>
+
+                   {/* Validity Pricing */}
+                   <div className="space-y-4 p-6 bg-gray-50/50 rounded-[28px] border border-gray-100">
+                     <div className="flex items-center gap-2 mb-1">
+                       <Clock size={14} className="text-blue-500" />
+                       <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Validity Pricing (₹) — Leave blank to hide</label>
+                     </div>
+                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                       {[
+                         { key: 'price_1m', label: '1 Month' },
+                         { key: 'price_3m', label: '3 Months' },
+                         { key: 'price_6m', label: '6 Months' },
+                         { key: 'price_1y', label: '1 Year' },
+                         { key: 'price_lifetime', label: 'Lifetime', icon: true },
+                       ].map(({ key, label, icon }) => (
+                         <div key={key} className="space-y-1.5">
+                           <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1 flex items-center gap-1">
+                             {icon ? <Infinity size={9} className="text-emerald-500" /> : null}{label}
+                           </label>
+                           <div className="relative">
+                             <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-bold">₹</span>
+                             <input
+                               type="number"
+                               value={(formData as any)[key]}
+                               onChange={e => setFormData({ ...formData, [key]: e.target.value } as any)}
+                               placeholder="—"
+                               className="w-full bg-white border border-gray-200 rounded-xl py-3 pl-7 pr-3 text-gray-900 text-sm focus:outline-none focus:border-blue-500 transition-all font-bold"
+                             />
+                           </div>
+                         </div>
+                       ))}
+                     </div>
+                   </div>
 
                   {/* Arrays */}
                   <div className="grid md:grid-cols-2 gap-8">

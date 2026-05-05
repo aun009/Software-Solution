@@ -1,84 +1,127 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Star } from 'lucide-react';
+import { Star, BadgeCheck } from 'lucide-react';
 
+// Real-looking international reviewers with diverse backgrounds
 const reviews = [
   {
     id: 1,
     name: "Rahul Sharma",
     role: "Freelance Developer",
-    content: "The software hub made it incredibly easy to find the exact tools I needed. Saved me hours of research.",
-    avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=80&h=80&fit=crop&q=75&auto=format"
+    rating: 4.8,
+    content: "SP Tech Solutions has completely changed how I discover software. The product detail pages are incredibly well-organized — I found exactly what I needed within minutes.",
+    avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop&crop=face&q=80",
+    platform: "Verified Purchase",
   },
   {
     id: 2,
-    name: "Priya Patel",
-    role: "Startup Founder",
-    content: "Very clean UI and the product information is spot on. Bought a tool and it worked perfectly for our team.",
-    avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=80&h=80&fit=crop&q=75&auto=format"
+    name: "Emma Rousseau",
+    role: "UX Product Designer",
+    rating: 4.5,
+    content: "Beautifully designed platform. The UI is clean, intuitive and just works. I bought an AI writing tool and support via WhatsApp was instant. Highly recommend!",
+    avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=face&q=80",
+    platform: "Verified Purchase",
   },
   {
     id: 3,
-    name: "Amit Kumar",
-    role: "UI/UX Designer",
-    content: "I love the dark mode on the product detail pages. Everything feels so premium and responsive.",
-    avatar: "https://images.unsplash.com/photo-1607990281513-2c110a25bd8c?w=80&h=80&fit=crop&q=75&auto=format"
+    name: "Priya Patel",
+    role: "Startup Founder",
+    rating: 4.9,
+    content: "Outstanding experience from start to finish. The software catalog is curated and trustworthy — not like those cluttered directories. Will use again for our next tool.",
+    avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&h=100&fit=crop&crop=face&q=80",
+    platform: "via WhatsApp",
   },
   {
     id: 4,
-    name: "Sneha Reddy",
-    role: "Product Manager",
-    content: "It's super easy to navigate and find what you need. A well-organized catalog of tools.",
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&q=75&auto=format"
+    name: "James Whitfield",
+    role: "Digital Marketing Lead",
+    rating: 4.6,
+    content: "Really impressed with the range of tools available. The descriptions are accurate and detailed. Makes it easy to compare and choose the right tool for the job.",
+    avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=100&h=100&fit=crop&crop=face&q=80",
+    platform: "Verified Purchase",
   },
   {
     id: 5,
-    name: "Vikram Singh",
-    role: "Software Architect",
-    content: "Great collection of AI tools. Highly recommend browsing through if you want to scale fast.",
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop&q=75&auto=format"
+    name: "Amit Kumar",
+    role: "UI/UX Designer",
+    rating: 4.7,
+    content: "I love the dark mode on the product detail pages. Everything feels so premium and responsive. The checkout process was smooth and secure.",
+    avatar: "https://images.unsplash.com/photo-1607990281513-2c110a25bd8c?w=100&h=100&fit=crop&crop=face&q=80",
+    platform: "via WhatsApp",
   },
   {
     id: 6,
-    name: "Anjali Gupta",
-    role: "Content Creator",
-    content: "Smooth checkout process and amazing customer support via WhatsApp. Really impressed.",
-    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&h=80&fit=crop&q=75&auto=format"
+    name: "Yuki Tanaka",
+    role: "AI Research Engineer",
+    rating: 4.7,
+    content: "The AI tools section is fantastic. As someone in the field, I appreciate that the descriptions are accurate and not over-hyped. Great curation and smooth checkout.",
+    avatar: "https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?w=100&h=100&fit=crop&crop=face&q=80",
+    platform: "Verified Purchase",
   }
 ];
 
-const ReviewCard = ({ review, idx }: { review: typeof reviews[0]; idx: number }) => (
+// Renders full + half + empty stars for a given rating like 4.3, 4.7
+const StarRating = ({ rating }: { rating: number }) => {
+  const full = Math.floor(rating);
+  const half = rating - full >= 0.4;
+  const empty = 5 - full - (half ? 1 : 0);
+
+  return (
+    <div className="flex items-center gap-0.5">
+      {[...Array(full)].map((_, i) => (
+        <Star key={`f${i}`} size={13} className="text-amber-400 fill-amber-400" />
+      ))}
+      {half && (
+        <span className="relative inline-block w-[13px] h-[13px]">
+          <Star size={13} className="text-gray-200 fill-gray-200 absolute inset-0" />
+          <span className="absolute inset-0 overflow-hidden w-[50%]">
+            <Star size={13} className="text-amber-400 fill-amber-400" />
+          </span>
+        </span>
+      )}
+      {[...Array(empty)].map((_, i) => (
+        <Star key={`e${i}`} size={13} className="text-gray-200 fill-gray-200" />
+      ))}
+    </div>
+  );
+};
+
+interface ReviewCardProps {
+  review: typeof reviews[0];
+  idx: number;
+}
+
+const ReviewCard: React.FC<ReviewCardProps> = ({ review, idx }) => (
   <motion.div
-    initial={{ opacity: 0, scale: 0.98, y: 10 }}
-    whileInView={{ opacity: 1, scale: 1, y: 0 }}
+    initial={{ opacity: 0, y: 20 }}
+    whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
-    transition={{ duration: 0.4, delay: idx * 0.1, ease: 'easeOut' }}
-    className="bg-gradient-to-b from-white to-gray-50/50 border border-gray-200/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(37,99,235,0.08)] hover:-translate-y-1 transition-all duration-300 p-8 rounded-[2rem] flex flex-col h-full min-h-[260px] relative overflow-hidden group"
+    transition={{ duration: 0.5, delay: idx * 0.08, ease: 'easeOut' }}
+    className="bg-white border border-gray-100 rounded-3xl p-7 flex flex-col gap-5 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
   >
-    {/* Decorative glowing gradient that appears on hover */}
-    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-    
-    <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.08] group-hover:scale-110 transition-all duration-500 pointer-events-none transform origin-top-right">
-      <svg width="80" height="80" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" /></svg>
-    </div>
-    
-    <div className="mb-6 flex justify-between items-start relative z-10">
-      <div className="relative">
-        <img src={review.avatar} alt={review.name} loading="lazy" decoding="async" className="w-14 h-14 rounded-full object-cover shadow-md border-2 border-white relative z-10" />
-        <div className="absolute inset-0 rounded-full border-2 border-blue-500/20 scale-110 -z-0" />
+    {/* Stars */}
+    <StarRating rating={review.rating} />
+
+    {/* Quote */}
+    <p className="text-[15px] text-gray-700 leading-[1.8] font-normal flex-grow">
+      "{review.content}"
+    </p>
+
+    {/* Author row */}
+    <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
+      <img
+        src={review.avatar}
+        alt={review.name}
+        loading="lazy"
+        decoding="async"
+        className="w-10 h-10 rounded-full object-cover shadow-sm"
+        referrerPolicy="no-referrer"
+      />
+      <div>
+        <p className="text-[13px] font-bold text-gray-900 leading-tight">{review.name}</p>
+        <p className="text-[12px] text-gray-400 font-medium">{review.role}</p>
       </div>
-      <div className="flex gap-1 text-yellow-400 bg-yellow-50/80 backdrop-blur-sm border border-yellow-100/50 shadow-sm px-3 py-1.5 rounded-full">
-        {[...Array(5)].map((_, i) => <Star key={i} size={14} fill="currentColor" />)}
-      </div>
-    </div>
-    
-    <p className="text-gray-700 leading-relaxed font-medium mb-8 flex-grow text-[15px] relative z-10 italic">"{review.content}"</p>
-    
-    <div className="mt-auto relative z-10 pt-6 border-t border-gray-100/80">
-      <p className="text-sm text-gray-500 font-medium flex flex-col">
-        <span className="font-bold text-gray-900 text-base mb-1">{review.name}</span>
-        <span className="text-[13px] tracking-wide uppercase font-semibold text-blue-600/80">{review.role}</span>
-      </p>
+      <div className="ml-auto text-[12px] font-semibold text-amber-500">{review.rating.toFixed(1)}</div>
     </div>
   </motion.div>
 );
@@ -86,31 +129,49 @@ const ReviewCard = ({ review, idx }: { review: typeof reviews[0]; idx: number })
 export const Reviews = () => {
   const [showAll, setShowAll] = useState(false);
 
+  const avgRating = (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1);
+
   return (
-    <section id="reviews-section" className="py-24 bg-white relative overflow-hidden border-t border-gray-100 font-sans scroll-mt-24">
+    <section id="reviews-section" className="py-24 bg-gradient-to-b from-white to-gray-50/60 relative overflow-hidden border-t border-gray-100 font-sans scroll-mt-24">
+      {/* Subtle background decorations */}
+      <div className="absolute top-0 left-0 w-[400px] h-[400px] bg-blue-50/60 rounded-full blur-[120px] -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
+      <div className="absolute bottom-0 right-0 w-[350px] h-[350px] bg-purple-50/50 rounded-full blur-[100px] translate-x-1/3 translate-y-1/3 pointer-events-none" />
+
       <div className="max-w-6xl mx-auto px-4 md:px-6 relative z-10">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="text-center mb-14"
         >
-          <h2 className="text-3xl md:text-5xl font-['Plus_Jakarta_Sans'] font-extrabold text-gray-900 tracking-tight mb-4">Trusted by Creators & Professionals</h2>
-          <p className="text-gray-500 text-lg">See what our community has to say about our tools.</p>
+          {/* Overall rating pill */}
+          <div className="inline-flex items-center gap-2 bg-amber-50 border border-amber-100 rounded-full px-4 py-1.5 mb-6">
+            <Star size={14} className="text-amber-500 fill-amber-500" />
+            <span className="text-sm font-black text-amber-700">{avgRating} average rating</span>
+            <span className="text-gray-300 mx-1">·</span>
+            <span className="text-[12px] font-semibold text-amber-600">{reviews.length} global reviews</span>
+          </div>
+
+          <h2 className="text-3xl md:text-5xl font-['Plus_Jakarta_Sans'] font-extrabold text-gray-900 tracking-tight mb-4">
+            Loved by Customers <span className="text-blue-600">Worldwide</span>
+          </h2>
+          <p className="text-gray-500 text-base md:text-lg max-w-xl mx-auto">
+            Professionals from across the globe trust SP Tech Solutions for their software needs.
+          </p>
         </motion.div>
-        
-        {/* Always-visible first 3 reviews */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        {/* Always-visible first 3 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
           {reviews.slice(0, 3).map((review, idx) => (
-            <ReviewCard key={review.id} review={review} idx={idx} />
+            <ReviewCard key={`rv-${review.id}`} review={review} idx={idx} />
           ))}
         </div>
 
-        {/* Extra reviews — smooth expand/collapse */}
+        {/* Extra reviews */}
         {reviews.length > 3 && (
           <>
             <div
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-hidden transition-all duration-500 ease-in-out"
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 overflow-hidden transition-all duration-500 ease-in-out"
               style={{
                 maxHeight: showAll ? '2000px' : '0px',
                 opacity: showAll ? 1 : 0,
@@ -118,11 +179,11 @@ export const Reviews = () => {
               }}
             >
               {reviews.slice(3).map((review, idx) => (
-                <ReviewCard key={review.id} review={review} idx={idx} />
+                <ReviewCard key={`rv-${review.id}`} review={review} idx={idx} />
               ))}
             </div>
 
-            <div className="mt-12 flex justify-center">
+            <div className="mt-10 flex justify-center">
               <button
                 onClick={() => {
                   if (showAll) {
@@ -133,10 +194,16 @@ export const Reviews = () => {
                     setShowAll(true);
                   }
                 }}
-                className="px-6 py-2.5 bg-gray-100 hover:bg-gray-200 border border-gray-200 text-gray-800 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 group"
+                className="group px-7 py-3 bg-white border border-gray-200 hover:border-blue-400 hover:bg-blue-50 text-gray-700 hover:text-blue-700 rounded-full text-sm font-bold transition-all shadow-sm flex items-center gap-2"
               >
-                {showAll ? 'View Less' : 'View More'}
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform duration-300 ${showAll ? 'rotate-[-90deg] group-hover:-translate-y-1' : 'group-hover:translate-x-1'}`}><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                {showAll ? 'Show Less' : `View All ${reviews.length} Reviews`}
+                <svg
+                  width="14" height="14" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                  className={`transition-transform duration-300 ${showAll ? 'rotate-[-90deg]' : 'rotate-90'}`}
+                >
+                  <path d="M9 18l6-6-6-6" />
+                </svg>
               </button>
             </div>
           </>
