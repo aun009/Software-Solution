@@ -15,10 +15,6 @@ export const AdminPage = () => {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [useCustomCategory, setUseCustomCategory] = useState(false);
-  const [imageTab, setImageTab] = useState<'upload' | 'url'>('upload');
-  const [imageUploading, setImageUploading] = useState(false);
-  const [dragOver, setDragOver] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -88,7 +84,6 @@ export const AdminPage = () => {
     setEditingId(null);
     setIsModalOpen(false);
     setUseCustomCategory(false);
-    setImageTab('upload');
     setFormData({
       title: '',
       description: '',
@@ -108,34 +103,11 @@ export const AdminPage = () => {
     });
   };
 
-  // Upload image to Supabase Storage bucket 'product-images'
-  const handleImageUpload = useCallback(async (file: File) => {
-    if (!file.type.startsWith('image/')) { setError('Please upload a valid image file.'); return; }
-    setImageUploading(true);
-    setError('');
-    try {
-      const ext = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-      const { error: uploadError } = await supabase.storage
-        .from('product-images')
-        .upload(fileName, file, { upsert: false, contentType: file.type });
-      if (uploadError) throw uploadError;
-      const { data } = supabase.storage.from('product-images').getPublicUrl(fileName);
-      setFormData(prev => ({ ...prev, image: data.publicUrl }));
-    } catch (err: any) {
-      setError(`Image upload failed: ${err.message}`);
-    } finally {
-      setImageUploading(false);
-    }
-  }, []);
-
   const startEdit = (product: any) => {
     setEditingId(product.id);
     const presets = ['AI & Writing', 'Graphic Design', 'Video Editing', 'SEO & Marketing', 'Learning', 'Stock & Media', 'Entertainment'];
     const isCustom = !presets.includes(product.category);
     setUseCustomCategory(isCustom);
-    // If product has an existing image URL, switch to URL tab for editing
-    setImageTab(product.image ? 'url' : 'upload');
     setFormData({
       title: product.title,
       description: product.description,
@@ -460,62 +432,19 @@ export const AdminPage = () => {
                     <div className="space-y-4">
                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Media Assets</label>
                        <div className="space-y-3">
-                         {/* Image upload — dual mode tabs */}
-                         <div className="rounded-2xl border border-gray-200 overflow-hidden bg-white">
-                           {/* Tab switcher */}
-                           <div className="flex border-b border-gray-100">
-                             <button type="button" onClick={() => setImageTab('upload')}
-                               className={`flex-1 py-2.5 text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-1.5 transition-colors ${
-                                 imageTab === 'upload' ? 'bg-blue-600 text-white' : 'bg-gray-50 text-gray-400 hover:text-gray-700'}`}>
-                               <UploadCloud size={12} /> Drag & Drop
-                             </button>
-                             <button type="button" onClick={() => setImageTab('url')}
-                               className={`flex-1 py-2.5 text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-1.5 transition-colors ${
-                                 imageTab === 'url' ? 'bg-blue-600 text-white' : 'bg-gray-50 text-gray-400 hover:text-gray-700'}`}>
-                               <LinkIcon size={12} /> Paste URL
-                             </button>
+                         {/* Image URL input */}
+                         <div className="p-4 bg-white rounded-2xl border border-gray-200">
+                           <div className="relative">
+                             <ImageIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                             <input type="text" value={formData.image}
+                               onChange={e => setFormData({ ...formData, image: e.target.value })}
+                               placeholder="Cover Image URL (e.g. https://unsplash.com/...)"
+                               className="w-full bg-gray-50 border border-transparent rounded-xl py-3.5 pl-11 pr-4 text-gray-900 text-sm focus:outline-none focus:border-blue-500 focus:bg-white transition-all font-mono placeholder:text-gray-400" />
                            </div>
-
-                           {imageTab === 'upload' ? (
-                             <div
-                               onDragOver={e => { e.preventDefault(); setDragOver(true); }}
-                               onDragLeave={() => setDragOver(false)}
-                               onDrop={e => {
-                                 e.preventDefault(); setDragOver(false);
-                                 const file = e.dataTransfer.files[0];
-                                 if (file) handleImageUpload(file);
-                               }}
-                               onClick={() => fileInputRef.current?.click()}
-                               className={`relative flex flex-col items-center justify-center gap-2 p-5 cursor-pointer transition-all min-h-[110px] ${
-                                 dragOver ? 'bg-blue-50 border-blue-400' : 'bg-gray-50/60 hover:bg-gray-50'}`}
-                             >
-                               <input ref={fileInputRef} type="file" accept="image/*" className="hidden"
-                                 onChange={e => { const f = e.target.files?.[0]; if (f) handleImageUpload(f); }} />
-                               {imageUploading ? (
-                                 <><Loader2 size={22} className="animate-spin text-blue-500" />
-                                 <span className="text-[11px] text-blue-500 font-bold">Uploading to Supabase...</span></>
-                               ) : formData.image && formData.image.includes('supabase') ? (
-                                 <><img src={formData.image} className="h-16 w-full object-cover rounded-xl" alt="preview" />
-                                 <span className="text-[10px] text-emerald-600 font-bold">✓ Uploaded! Click to change.</span></>
-                               ) : (
-                                 <><UploadCloud size={22} className={dragOver ? 'text-blue-500' : 'text-gray-300'} />
-                                 <span className="text-[11px] text-gray-400 font-semibold text-center">Drop image here or <span className="text-blue-500 font-bold">click to browse</span></span>
-                                 <span className="text-[9px] text-gray-300 font-medium">PNG, JPG, WEBP — uploaded to Supabase Storage</span></>
-                               )}
-                             </div>
-                           ) : (
-                             <div className="p-3">
-                               <div className="relative">
-                                 <ImageIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
-                                 <input type="text" value={formData.image}
-                                   onChange={e => setFormData({ ...formData, image: e.target.value })}
-                                   placeholder="https://example.com/image.jpg"
-                                   className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-10 pr-4 text-gray-900 text-xs focus:outline-none focus:border-blue-500 transition-all font-mono" />
-                               </div>
-                               {formData.image && (
-                                 <img src={formData.image} className="mt-2 h-14 w-full object-cover rounded-xl border border-gray-100" alt="preview"
-                                   onError={e => (e.currentTarget.style.display = 'none')} />
-                               )}
+                           {formData.image && (
+                             <div className="mt-4 rounded-xl overflow-hidden border border-gray-100 shadow-sm">
+                               <img src={formData.image} className="w-full h-32 object-cover" alt="preview"
+                                 onError={e => (e.currentTarget.style.display = 'none')} />
                              </div>
                            )}
                          </div>
