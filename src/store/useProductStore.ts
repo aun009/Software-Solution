@@ -10,6 +10,7 @@ interface ProductState {
   loading: boolean;
 }
 
+
 export const useProductStore = create<ProductState>()(
   persist(
     (set) => ({
@@ -21,7 +22,7 @@ export const useProductStore = create<ProductState>()(
         try {
           const { data, error } = await supabase
             .from('products')
-            .select('id, title, description, price, image, category, url, features, benefits, videoUrl, is_trending, created_at, price_1m, price_3m, price_6m, price_1y, price_lifetime')
+            .select('id, title, description, price, price_usd, image, category, url, features, benefits, videoUrl, is_trending, created_at, price_1m, price_3m, price_6m, price_1y, price_lifetime, price_1m_usd, price_3m_usd, price_6m_usd, price_1y_usd, price_lifetime_usd')
             .order('created_at', { ascending: false });
             
           if (data && !error) {

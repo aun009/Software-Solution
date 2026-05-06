@@ -22,11 +22,17 @@ export const AdminPage = () => {
     description: '',
     category: 'AI & Writing',
     price: '',
+    price_usd: '',
     price_1m: '',
+    price_1m_usd: '',
     price_3m: '',
+    price_3m_usd: '',
     price_6m: '',
+    price_6m_usd: '',
     price_1y: '',
+    price_1y_usd: '',
     price_lifetime: '',
+    price_lifetime_usd: '',
     image: 'https://images.unsplash.com/photo-1618477388954-7852f32655ec?auto=format&fit=crop&q=80&w=1000',
     videoUrl: '',
     url: '',
@@ -63,6 +69,14 @@ export const AdminPage = () => {
       const payload: any = { ...formData };
       delete payload.ctaText;
 
+      // Convert empty pricing fields to null so they are truly unset in the DB
+      const pricingKeys = ['price_usd', 'price_1m', 'price_1m_usd', 'price_3m', 'price_3m_usd', 'price_6m', 'price_6m_usd', 'price_1y', 'price_1y_usd', 'price_lifetime', 'price_lifetime_usd'];
+      pricingKeys.forEach(key => {
+        if (payload[key] === '' || payload[key] === undefined) {
+          payload[key] = null;
+        }
+      });
+
       if (editingId) {
         const { error } = await supabase.from('products').update(payload).eq('id', editingId);
         if (error) throw error;
@@ -89,11 +103,17 @@ export const AdminPage = () => {
       description: '',
       category: 'AI & Writing',
       price: '',
+      price_usd: '',
       price_1m: '',
+      price_1m_usd: '',
       price_3m: '',
+      price_3m_usd: '',
       price_6m: '',
+      price_6m_usd: '',
       price_1y: '',
+      price_1y_usd: '',
       price_lifetime: '',
+      price_lifetime_usd: '',
       image: 'https://images.unsplash.com/photo-1618477388954-7852f32655ec?auto=format&fit=crop&q=80&w=1000',
       videoUrl: '',
       url: '',
@@ -113,11 +133,17 @@ export const AdminPage = () => {
       description: product.description,
       category: product.category,
       price: product.price || '',
+      price_usd: product.price_usd || '',
       price_1m: product.price_1m || '',
+      price_1m_usd: product.price_1m_usd || '',
       price_3m: product.price_3m || '',
+      price_3m_usd: product.price_3m_usd || '',
       price_6m: product.price_6m || '',
+      price_6m_usd: product.price_6m_usd || '',
       price_1y: product.price_1y || '',
+      price_1y_usd: product.price_1y_usd || '',
       price_lifetime: product.price_lifetime || '',
+      price_lifetime_usd: product.price_lifetime_usd || '',
       image: product.image,
       videoUrl: product.videoUrl || product.video_url || '',
       url: product.url || '',
@@ -324,177 +350,165 @@ export const AdminPage = () => {
                 </button>
               </div>
 
-              <div className="p-8 max-h-[70vh] overflow-y-auto">
-                <form id="product-form" onSubmit={handleSaveProduct} className="space-y-10">
-                  {/* Base Info */}
-                  <div className="grid md:grid-cols-2 gap-8">
-                    <div className="space-y-4">
-                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Solution Identity</label>
-                      <input
-                        required
-                        value={formData.title}
-                        onChange={e => setFormData({ ...formData, title: e.target.value })}
-                        placeholder="Product Title"
-                        className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-4 px-5 text-gray-900 text-sm focus:outline-none focus:border-blue-500 focus:bg-white transition-all font-bold placeholder:text-gray-300"
-                      />
+              <div className="p-6 md:p-8 max-h-[70vh] overflow-y-auto">
+                <form id="product-form" onSubmit={handleSaveProduct} className="space-y-8">
+
+                  {/* ─── Section 1: Product Info ─── */}
+                  <div>
+                    <div className="flex items-center gap-2.5 mb-5">
+                      <div className="w-6 h-6 rounded-lg bg-blue-100 flex items-center justify-center text-[10px] font-black text-blue-600">1</div>
+                      <h3 className="text-sm font-bold text-gray-800">Product Information</h3>
                     </div>
                     <div className="space-y-4">
-                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Matrix Category</label>
-                      {!useCustomCategory ? (
-                        <select
-                          value={formData.category}
-                          onChange={e => {
-                            if (e.target.value === '__custom__') {
-                              setUseCustomCategory(true);
-                              setFormData({ ...formData, category: '' });
-                            } else {
-                              setFormData({ ...formData, category: e.target.value });
-                            }
-                          }}
-                          className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-4 px-5 text-gray-900 text-sm focus:outline-none focus:border-blue-500 focus:bg-white transition-all font-bold cursor-pointer"
-                        >
-                          {['AI & Writing', 'Graphic Design', 'Video Editing', 'SEO & Marketing', 'Learning', 'Stock & Media', 'Entertainment'].map(cat => (
-                            <option key={cat} value={cat}>{cat}</option>
-                          ))}
-                          <option value="__custom__">✏️ Custom...</option>
-                        </select>
-                      ) : (
-                        <div className="flex gap-2">
-                          <input
-                            required
-                            autoFocus
-                            value={formData.category}
-                            onChange={e => setFormData({ ...formData, category: e.target.value })}
-                            placeholder="Type custom category..."
-                            className="flex-1 bg-gray-50 border border-blue-400 rounded-2xl py-4 px-5 text-gray-900 text-sm focus:outline-none focus:border-blue-500 focus:bg-white transition-all font-bold placeholder:text-gray-300"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => { setUseCustomCategory(false); setFormData({ ...formData, category: 'AI & Writing' }); }}
-                            className="px-4 rounded-2xl border border-gray-200 bg-gray-50 text-gray-400 hover:text-gray-700 text-xs font-bold transition-all"
-                            title="Back to presets"
-                          >
-                            ✕
-                          </button>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-gray-500 mb-1.5 ml-0.5">Product Name *</label>
+                        <input required value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} placeholder="e.g. ChatGPT Plus"
+                          className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-[11px] font-semibold text-gray-500 mb-1.5 ml-0.5">Category</label>
+                          {!useCustomCategory ? (
+                            <select value={formData.category}
+                              onChange={e => { if (e.target.value === '__custom__') { setUseCustomCategory(true); setFormData({ ...formData, category: '' }); } else { setFormData({ ...formData, category: e.target.value }); } }}
+                              className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer">
+                              {['AI & Writing', 'Graphic Design', 'Video Editing', 'SEO & Marketing', 'Learning', 'Stock & Media', 'Entertainment'].map(cat => (
+                                <option key={cat} value={cat}>{cat}</option>
+                              ))}
+                              <option value="__custom__">✏️ Custom...</option>
+                            </select>
+                          ) : (
+                            <div className="flex gap-2">
+                              <input required autoFocus value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} placeholder="Type custom category..."
+                                className="flex-1 bg-white border border-blue-400 rounded-xl px-4 py-3 text-sm text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
+                              <button type="button" onClick={() => { setUseCustomCategory(false); setFormData({ ...formData, category: 'AI & Writing' }); }}
+                                className="px-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-400 hover:text-gray-700 text-xs font-semibold transition-all">✕</button>
+                            </div>
+                          )}
                         </div>
-                      )}
+                        <div>
+                          <label className="block text-[11px] font-semibold text-gray-500 mb-1.5 ml-0.5">Logo / Domain</label>
+                          <input type="text" value={formData.url} onChange={e => setFormData({ ...formData, url: e.target.value })} placeholder="e.g. openai.com"
+                            className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 font-mono placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-gray-500 mb-1.5 ml-0.5">Description *</label>
+                        <textarea required rows={3} value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} placeholder="Brief product description..."
+                          className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-none" />
+                      </div>
                     </div>
                   </div>
 
-                  <div className="space-y-4">
-                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Intelligence Abstract</label>
-                    <textarea
-                      required
-                      rows={3}
-                      value={formData.description}
-                      onChange={e => setFormData({ ...formData, description: e.target.value })}
-                      placeholder="Brief architectural overview..."
-                      className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-4 px-5 text-gray-900 text-sm focus:outline-none focus:border-blue-500 focus:bg-white transition-all font-medium resize-none placeholder:text-gray-300"
-                    />
-                  </div>
-
-                  {/* Pricing & Media */}
-                  <div className="grid md:grid-cols-2 gap-8 p-6 bg-gray-50/50 rounded-[32px] border border-gray-100">
-                    <div className="space-y-4">
-                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Price Unit (₹)</label>
-                      <div className="relative">
-                        <span className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 font-bold">₹</span>
-                        <input
-                          type="number"
-                          required
-                          value={formData.price}
-                          onChange={e => setFormData({ ...formData, price: e.target.value })}
-                          placeholder="999"
-                          className="w-full bg-white border border-gray-200 rounded-2xl py-4 pl-12 pr-5 text-gray-900 text-sm focus:outline-none focus:border-blue-500 transition-all font-bold"
-                        />
-                      </div>
-                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 mt-6 block">Logo (Domain or Image URL)</label>
-                      <div className="relative">
-                        <ArrowRight className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                        <input
-                           type="text"
-                           value={formData.url}
-                           onChange={e => setFormData({ ...formData, url: e.target.value })}
-                           placeholder="Domain (e.g. meta.com)"
-                           className="w-full bg-white border border-gray-200 rounded-2xl py-4 pl-12 pr-5 text-gray-900 text-sm focus:outline-none focus:border-blue-500 transition-all font-mono"
-                        />
-                      </div>
-                      <label className="flex items-center gap-3 mt-4 cursor-pointer p-4 border border-gray-200 rounded-2xl bg-white hover:border-blue-500 transition-all">
-                        <input
-                          type="checkbox"
-                          checked={formData.is_trending || false}
-                          onChange={e => setFormData({ ...formData, is_trending: e.target.checked })}
-                          className="w-5 h-5 rounded text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="text-[12px] font-bold text-gray-700 uppercase tracking-widest">Mark as Trending</span>
-                      </label>
+                  {/* ─── Section 2: Media ─── */}
+                  <div>
+                    <div className="flex items-center gap-2.5 mb-5">
+                      <div className="w-6 h-6 rounded-lg bg-purple-100 flex items-center justify-center text-[10px] font-black text-purple-600">2</div>
+                      <h3 className="text-sm font-bold text-gray-800">Media</h3>
                     </div>
-                    <div className="space-y-4">
-                       <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Media Assets</label>
-                       <div className="space-y-3">
-                         {/* Image URL input */}
-                         <div className="p-4 bg-white rounded-2xl border border-gray-200">
-                           <div className="relative">
-                             <ImageIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                             <input type="text" value={formData.image}
-                               onChange={e => setFormData({ ...formData, image: e.target.value })}
-                               placeholder="Cover Image URL (e.g. https://unsplash.com/...)"
-                               className="w-full bg-gray-50 border border-transparent rounded-xl py-3.5 pl-11 pr-4 text-gray-900 text-sm focus:outline-none focus:border-blue-500 focus:bg-white transition-all font-mono placeholder:text-gray-400" />
-                           </div>
-                           {formData.image && (
-                             <div className="mt-4 rounded-xl overflow-hidden border border-gray-100 shadow-sm">
-                               <img src={formData.image} className="w-full h-32 object-cover" alt="preview"
-                                 onError={e => (e.currentTarget.style.display = 'none')} />
-                             </div>
-                           )}
-                         </div>
-
-                         <div className="relative">
-                           <Video className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                           <input
-                             type="text"
-                             value={formData.videoUrl}
-                             onChange={e => setFormData({ ...formData, videoUrl: e.target.value })}
-                             placeholder="YouTube Video URL (Optional)"
-                             className="w-full bg-white border border-gray-200 rounded-2xl py-4 pl-12 pr-5 text-gray-900 text-sm focus:outline-none focus:border-blue-500 transition-all font-mono"
-                           />
-                         </div>
-                       </div>
-                     </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-[11px] font-semibold text-gray-500 mb-1.5 ml-0.5">Cover Image URL</label>
+                        <div className="relative">
+                          <ImageIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
+                          <input type="text" value={formData.image} onChange={e => setFormData({ ...formData, image: e.target.value })} placeholder="https://..."
+                            className="w-full bg-white border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-sm text-gray-900 font-mono placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
+                        </div>
+                        {formData.image && (
+                          <div className="mt-3 rounded-xl overflow-hidden border border-gray-100 shadow-sm">
+                            <img src={formData.image} className="w-full h-28 object-cover" alt="preview" onError={e => (e.currentTarget.style.display = 'none')} />
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-gray-500 mb-1.5 ml-0.5">YouTube URL <span className="text-gray-400">(optional)</span></label>
+                        <div className="relative">
+                          <Video className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
+                          <input type="text" value={formData.videoUrl} onChange={e => setFormData({ ...formData, videoUrl: e.target.value })} placeholder="https://youtube.com/..."
+                            className="w-full bg-white border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-sm text-gray-900 font-mono placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
-                   {/* Validity Pricing */}
-                   <div className="space-y-4 p-6 bg-gray-50/50 rounded-[28px] border border-gray-100">
-                     <div className="flex items-center gap-2 mb-1">
-                       <Clock size={14} className="text-blue-500" />
-                       <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Validity Pricing (₹) — Leave blank to hide</label>
-                     </div>
-                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                       {[
-                         { key: 'price_1m', label: '1 Month' },
-                         { key: 'price_3m', label: '3 Months' },
-                         { key: 'price_6m', label: '6 Months' },
-                         { key: 'price_1y', label: '1 Year' },
-                         { key: 'price_lifetime', label: 'Lifetime', icon: true },
-                       ].map(({ key, label, icon }) => (
-                         <div key={key} className="space-y-1.5">
-                           <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1 flex items-center gap-1">
-                             {icon ? <Infinity size={9} className="text-emerald-500" /> : null}{label}
-                           </label>
-                           <div className="relative">
-                             <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-bold">₹</span>
-                             <input
-                               type="number"
-                               value={(formData as any)[key]}
-                               onChange={e => setFormData({ ...formData, [key]: e.target.value } as any)}
-                               placeholder="—"
-                               className="w-full bg-white border border-gray-200 rounded-xl py-3 pl-7 pr-3 text-gray-900 text-sm focus:outline-none focus:border-blue-500 transition-all font-bold"
-                             />
-                           </div>
-                         </div>
-                       ))}
-                     </div>
-                   </div>
+                  {/* ─── Section 3: Pricing ─── */}
+                  <div>
+                    <div className="flex items-center gap-2.5 mb-2">
+                      <div className="w-6 h-6 rounded-lg bg-emerald-100 flex items-center justify-center text-[10px] font-black text-emerald-600">3</div>
+                      <h3 className="text-sm font-bold text-gray-800">Pricing</h3>
+                    </div>
+                    <p className="text-[11px] text-gray-400 mb-5 ml-[34px]">Set INR for Indian customers, USD for international. Leave blank to hide a plan.</p>
+
+                    {/* Base price row */}
+                    <div className="grid grid-cols-2 gap-4 mb-5">
+                      <div>
+                        <label className="block text-[11px] font-semibold text-gray-500 mb-1.5 ml-0.5">Base Price — 🇮🇳 INR *</label>
+                        <div className="relative">
+                          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-semibold">₹</span>
+                          <input type="number" required value={formData.price} onChange={e => setFormData({ ...formData, price: e.target.value })} placeholder="999"
+                            className="w-full bg-white border border-gray-200 rounded-xl pl-8 pr-4 py-3 text-sm text-gray-900 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-gray-500 mb-1.5 ml-0.5">Base Price — 🌍 USD</label>
+                        <div className="relative">
+                          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-semibold">$</span>
+                          <input type="number" value={formData.price_usd} onChange={e => setFormData({ ...formData, price_usd: e.target.value })} placeholder="9.99"
+                            className="w-full bg-white border border-gray-200 rounded-xl pl-8 pr-4 py-3 text-sm text-gray-900 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Validity pricing table */}
+                    <div className="rounded-2xl border border-gray-200 overflow-hidden">
+                      {/* Header */}
+                      <div className="grid grid-cols-[1.2fr_1fr_1fr] bg-gray-50 border-b border-gray-200">
+                        <div className="px-4 py-2.5 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Validity Plan</div>
+                        <div className="px-4 py-2.5 text-[10px] font-bold text-gray-500 uppercase tracking-wider">🇮🇳 INR (₹)</div>
+                        <div className="px-4 py-2.5 text-[10px] font-bold text-gray-500 uppercase tracking-wider">🌍 USD ($)</div>
+                      </div>
+                      {/* Rows */}
+                      {[
+                        { key: 'price_1m', label: '1 Month' },
+                        { key: 'price_3m', label: '3 Months' },
+                        { key: 'price_6m', label: '6 Months' },
+                        { key: 'price_1y', label: '1 Year' },
+                        { key: 'price_lifetime', label: 'Lifetime ∞', isLifetime: true },
+                      ].map(({ key, label, isLifetime }) => (
+                        <div key={key} className="grid grid-cols-[1.2fr_1fr_1fr] border-b border-gray-100 last:border-0 items-center">
+                          <div className={`px-4 py-3 text-sm font-semibold ${isLifetime ? 'text-emerald-700' : 'text-gray-700'}`}>{label}</div>
+                          <div className="px-3 py-2">
+                            <div className="relative">
+                              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-semibold">₹</span>
+                              <input type="number" value={(formData as any)[key]} onChange={e => setFormData({ ...formData, [key]: e.target.value } as any)} placeholder="—"
+                                className="w-full bg-white border border-gray-200 rounded-lg pl-6 pr-2 py-2 text-sm text-gray-900 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
+                            </div>
+                          </div>
+                          <div className="px-3 py-2">
+                            <div className="relative">
+                              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-semibold">$</span>
+                              <input type="number" value={(formData as any)[`${key}_usd`]} onChange={e => setFormData({ ...formData, [`${key}_usd`]: e.target.value } as any)} placeholder="—"
+                                className="w-full bg-white border border-gray-200 rounded-lg pl-6 pr-2 py-2 text-sm text-gray-900 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Trending toggle */}
+                    <label className="flex items-center gap-3 mt-5 cursor-pointer p-3.5 border border-gray-200 rounded-xl bg-white hover:border-blue-400 transition-all">
+                      <input type="checkbox" checked={formData.is_trending || false} onChange={e => setFormData({ ...formData, is_trending: e.target.checked })}
+                        className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500" />
+                      <span className="text-[11px] font-bold text-gray-600 uppercase tracking-wider">Mark as Trending</span>
+                    </label>
+                  </div>
+
+                  {/* ─── Section 4: Features & Benefits ─── */}
+                  <div>
+                    <div className="flex items-center gap-2.5 mb-5">
+                      <div className="w-6 h-6 rounded-lg bg-orange-100 flex items-center justify-center text-[10px] font-black text-orange-600">4</div>
+                      <h3 className="text-sm font-bold text-gray-800">Features & Benefits</h3>
+                    </div>
 
                   {/* Arrays */}
                   <div className="grid md:grid-cols-2 gap-8">
@@ -563,6 +577,7 @@ export const AdminPage = () => {
                         </div>
                       ))}
                     </div>
+                    </div>
                   </div>
 
                   {error && (
@@ -579,11 +594,11 @@ export const AdminPage = () => {
                   type="submit"
                   form="product-form"
                   disabled={submitting}
-                  className="w-full py-5 bg-gray-900 text-white rounded-2xl font-black text-sm uppercase tracking-[.2em] hover:bg-blue-600 transition-all disabled:opacity-50 flex items-center justify-center gap-3 shadow-xl active:scale-[0.98]"
+                  className="w-full py-4 bg-gray-900 text-white rounded-2xl font-bold text-sm tracking-wide hover:bg-blue-600 transition-all disabled:opacity-50 flex items-center justify-center gap-3 shadow-xl active:scale-[0.98]"
                 >
                   {submitting ? <Loader2 className="animate-spin" size={20} /> : (
                     <>
-                      {editingId ? 'Push Updates' : 'Establish Solution'}
+                      {editingId ? 'Save Changes' : 'Add Product'}
                       <ArrowRight size={18} />
                     </>
                   )}

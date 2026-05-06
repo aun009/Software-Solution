@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import { motion } from 'motion/react';
 import { CheckCircle2, Play, ArrowLeft, Zap, ShieldCheck, Loader2, Clock, Infinity, Check } from 'lucide-react';
 import { useProductStore } from '../store/useProductStore';
+import { useGeoLocation } from '../hooks/useGeoLocation';
 
 const VALIDITY_PLANS = [
   { key: 'price_1m',        label: '1 Month',   short: '1M',   icon: Clock,    color: 'blue'   },
@@ -27,8 +28,13 @@ export const ProductDetails = () => {
   const { id } = useParams();
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedPlan, setSelectedPlan] = useState<PlanKey>('price_1m');
+  const [selectedPlan, setSelectedPlan] = useState<PlanKey | null>(null);
   const { products } = useProductStore();
+  const { isIndia } = useGeoLocation();
+
+  // Currency config based on geo
+  const currencySymbol = isIndia ? '₹' : '$';
+  const locale = isIndia ? 'en-IN' : 'en-US';
 
   useEffect(() => { window.scrollTo(0, 0); }, [id]);
 
@@ -43,6 +49,16 @@ export const ProductDetails = () => {
       })();
     }
   }, [id, products]);
+
+  // Auto-select the first available plan when product loads
+  useEffect(() => {
+    if (!product) return;
+    const firstAvailable = VALIDITY_PLANS.find(p => {
+      const val = product[p.key];
+      return val !== undefined && val !== null && val !== '';
+    });
+    setSelectedPlan(firstAvailable ? firstAvailable.key : null);
+  }, [product]);
 
   if (loading) return (
     <div className="h-screen flex items-center justify-center bg-[#F8FAFC]">
@@ -79,18 +95,27 @@ export const ProductDetails = () => {
     return `https://img.logo.dev/${url}?token=${import.meta.env.VITE_LOGO_DEV_PUBLIC_KEY}&size=128&format=png`;
   };
 
-  // Get price for the selected plan, fallback to base price
+  // Get price for a plan — currency-aware (INR for India, USD for international)
   const getPlanPrice = (planKey: PlanKey): number | null => {
-    const val = product[planKey];
+    const key = isIndia ? planKey : `${planKey}_usd`;
+    const val = product[key];
     if (val !== undefined && val !== null && val !== '') return Number(val);
     return null;
   };
 
-  // Check if any validity plan prices are configured
-  const hasValidityPricing = VALIDITY_PLANS.some(p => getPlanPrice(p.key) !== null);
+  // Get base price based on currency
+  const getBasePrice = (): number => {
+    if (!isIndia && product.price_usd) return Number(product.price_usd);
+    return Number(product.price || 999);
+  };
 
-  const selectedPlanData = VALIDITY_PLANS.find(p => p.key === selectedPlan)!;
-  const selectedPrice = getPlanPrice(selectedPlan) ?? Number(product.price || 999);
+  // Only the plans that actually have a price filled in (for current currency)
+  const availablePlans = VALIDITY_PLANS.filter(p => getPlanPrice(p.key) !== null);
+  const hasValidityPricing = availablePlans.length > 0;
+
+  // Safely resolve selected plan data
+  const selectedPlanData = selectedPlan ? VALIDITY_PLANS.find(p => p.key === selectedPlan) ?? null : null;
+  const selectedPrice = selectedPlan ? (getPlanPrice(selectedPlan) ?? getBasePrice()) : getBasePrice();
 
   /* ── Video / image player ── */
   const VideoPlayer = () => (
@@ -228,7 +253,7 @@ export const ProductDetails = () => {
                           <Icon size={14} className={isActive ? 'opacity-90' : 'text-gray-400'} />
                           <span className="text-[13px] font-black leading-none">{plan.label}</span>
                           <span className={`text-[11px] font-extrabold leading-none ${isActive ? 'opacity-90' : 'text-emerald-600'}`}>
-                            ₹{Number(price).toLocaleString('en-IN')}
+                            {currencySymbol}{Number(price).toLocaleString(locale)}
                           </span>
                         </button>
                       );
@@ -237,26 +262,28 @@ export const ProductDetails = () => {
                 </div>
 
                 {/* Selected plan summary */}
-                <div className="mt-4 flex items-center gap-3 p-3.5 bg-white border border-gray-100 rounded-2xl shadow-sm">
-                  <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${colorMap[selectedPlanData.color].badge}`}>
-                    <selectedPlanData.icon size={15} />
+                {selectedPlanData && (
+                  <div className="mt-4 flex items-center gap-3 p-3.5 bg-white border border-gray-100 rounded-2xl shadow-sm">
+                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${colorMap[selectedPlanData.color].badge}`}>
+                      <selectedPlanData.icon size={15} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[12px] font-bold text-gray-500">Selected: <span className="text-gray-800">{selectedPlanData.label} Access</span></p>
+                      <p className="text-[11px] text-gray-400 mt-0.5">One-time payment · Instant delivery via WhatsApp</p>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <p className="text-[18px] font-black text-gray-900 leading-none">{currencySymbol}{selectedPrice.toLocaleString(locale)}</p>
+                      <p className="text-[10px] text-gray-400 font-semibold mt-0.5">incl. all taxes</p>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[12px] font-bold text-gray-500">Selected: <span className="text-gray-800">{selectedPlanData.label} Access</span></p>
-                    <p className="text-[11px] text-gray-400 mt-0.5">One-time payment · Instant delivery via WhatsApp</p>
-                  </div>
-                  <div className="shrink-0 text-right">
-                    <p className="text-[18px] font-black text-gray-900 leading-none">₹{selectedPrice.toLocaleString('en-IN')}</p>
-                    <p className="text-[10px] text-gray-400 font-semibold mt-0.5">incl. all taxes</p>
-                  </div>
-                </div>
+                )}
               </motion.div>
             ) : (
               /* Fallback: simple price display when no validity plans configured */
               <div className="mb-8 flex items-center gap-2.5">
                 <span className="text-[11px] font-black text-emerald-600 tracking-[0.15em] uppercase">Price</span>
                 <span className="text-base font-black text-emerald-600">
-                  ₹{Number(product.price || 999).toLocaleString('en-IN')}
+                  {currencySymbol}{getBasePrice().toLocaleString(locale)}
                 </span>
               </div>
             )}
@@ -333,8 +360,8 @@ export const ProductDetails = () => {
             onClick={() =>
               window.open(
                 `https://wa.me/919552530324?text=${encodeURIComponent(
-                  hasValidityPricing
-                    ? `Hello, I would like to buy the "${product.title}" Software/Tool — ${selectedPlanData.label} plan (₹${selectedPrice.toLocaleString('en-IN')}). Could you please provide details?`
+                  hasValidityPricing && selectedPlanData
+                    ? `Hello, I would like to buy the "${product.title}" Software/Tool — ${selectedPlanData.label} plan (${currencySymbol}${selectedPrice.toLocaleString(locale)}). Could you please provide details?`
                     : `Hello, I would like to buy the "${product.title}" Software/Tool. Could you provide details?`
                 )}`,
                 '_blank'
@@ -347,8 +374,8 @@ export const ProductDetails = () => {
               <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
             </svg>
             <span className="relative z-10">
-              {hasValidityPricing
-                ? `Get ${selectedPlanData.label} Access — ₹${selectedPrice.toLocaleString('en-IN')}`
+              {hasValidityPricing && selectedPlanData
+                ? `Get ${selectedPlanData.label} Access — ${currencySymbol}${selectedPrice.toLocaleString(locale)}`
                 : 'Get Access'}
             </span>
           </button>
