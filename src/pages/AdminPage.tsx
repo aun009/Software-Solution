@@ -114,9 +114,10 @@ export const AdminPage = () => {
       price_1y_usd: '',
       price_lifetime: '',
       price_lifetime_usd: '',
-      image: 'https://images.unsplash.com/photo-1618477388954-7852f32655ec?auto=format&fit=crop&q=80&w=1000',
+      image: '',
       videoUrl: '',
       url: '',
+      is_trending: false,
       ctaText: 'Deploy Now',
       features: ['Infinite scaling', 'Real-time sync', 'Multi-tenant'],
       benefits: ['Accelerate growth', 'Simplify operations', 'Maximize revenue']
