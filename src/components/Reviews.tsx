@@ -149,14 +149,14 @@ export const Reviews = () => {
             <Star size={14} className="text-amber-500 fill-amber-500" />
             <span className="text-sm font-black text-amber-700">{avgRating} average rating</span>
             <span className="text-gray-300 mx-1">·</span>
-            <span className="text-[12px] font-semibold text-amber-600">{reviews.length} global reviews</span>
+            {/* <span className="text-[12px] font-semibold text-amber-600">{reviews.length} global reviews</span> */}
           </div>
 
           <h2 className="text-3xl md:text-5xl font-['Plus_Jakarta_Sans'] font-extrabold text-gray-900 tracking-tight mb-4">
-            Loved by Customers <span className="text-blue-600">Worldwide</span>
+            Trusted by Creators and Professional <span className="text-blue-600">Worldwide</span>
           </h2>
           <p className="text-gray-500 text-base md:text-lg max-w-xl mx-auto">
-            Professionals from across the globe trust SP Tech Solutions for their software needs.
+            See what our community has to say about our tools.
           </p>
         </motion.div>
 
