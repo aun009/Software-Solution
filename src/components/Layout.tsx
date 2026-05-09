@@ -106,18 +106,18 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
       </div>
 
       {/* Header - Pill Design */}
-      <header className="fixed top-0 z-[110] w-full md:w-auto md:top-6 md:left-1/2 md:-translate-x-1/2 px-3 md:px-0 pointer-events-none mt-3 md:mt-0">
+      <header className="fixed top-0 left-0 right-0 z-[110] px-3 md:px-4 pointer-events-none mt-3 md:mt-6 flex justify-center">
         <nav 
           ref={navRef}
-          className="pointer-events-auto w-full md:w-auto mx-auto bg-white border border-gray-200 shadow-sm rounded-2xl md:rounded-full px-2 md:px-3 py-2 md:py-2.5 flex items-center justify-between gap-1 md:gap-12 transition-all"
+          className="pointer-events-auto w-full md:w-max max-w-full bg-white border border-gray-200 shadow-sm rounded-2xl md:rounded-full px-2 md:px-3 py-2 md:py-2.5 flex items-center justify-between gap-2 md:gap-6 lg:gap-10 transition-all"
         >
           <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center gap-2.5 pl-2 group shrink-0">
-            <div className="relative w-10 h-10 rounded-full overflow-hidden group-hover:scale-[1.15] transition-transform duration-300 shadow-lg shadow-blue-600/20 ring-2 ring-blue-500/20 group-hover:ring-blue-500/40">
+            <div className="relative w-10 h-10 rounded-full overflow-hidden shrink-0 group-hover:scale-[1.15] transition-transform duration-300 shadow-lg shadow-blue-600/20 ring-2 ring-blue-500/20 group-hover:ring-blue-500/40">
               <img src="/logo.jpeg" alt="SP Tech Solutions" className="w-full h-full object-cover" />
             </div>
             <span 
               ref={brandTextRef}
-              className="text-base md:text-lg font-black tracking-wide text-gray-900 hidden sm:block"
+              className="text-base md:text-lg font-black tracking-wide text-gray-900 hidden lg:block whitespace-nowrap"
             >
               SP Tech Solutions
             </span>
@@ -255,7 +255,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
           
           <div className="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center md:items-start gap-6 relative">
             <p className="text-[14px] text-gray-400 font-medium text-center md:text-left pt-2">
-              © 2026 SP Tech Solutions · Built with <span className="text-red-500 mx-0.5">❤️</span> for AI explorers everywhere
+              © 2026 SP Tech Solutions
             </p>
             
             <div className="flex flex-wrap justify-center md:justify-end gap-3">

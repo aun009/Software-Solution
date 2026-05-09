@@ -59,21 +59,24 @@ export const HomePage = () => {
   return (
     <div ref={containerRef} className="w-full relative z-10 overflow-hidden selection:bg-blue-500/30">
       {/* Background Decorative Mesh */}
-      <div className="absolute top-0 left-0 w-full h-[100vh] pointer-events-none opacity-40 -z-[1] mix-blend-multiply">
+      <div className="absolute top-0 left-0 w-full h-[100vh] pointer-events-none opacity-40 -z-[1]">
         <motion.div
-          animate={{ x: [0, 80, 0], y: [0, 40, 0], scale: [1, 1.2, 1] }}
-          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-[-20%] left-[-10%] w-[70%] h-[70%] bg-blue-300/40 blur-[180px] rounded-full"
+          animate={{ x: [0, 80, 0], y: [0, 40, 0] }}
+          transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+          style={{ willChange: "transform" }}
+          className="absolute top-[-20%] left-[-10%] w-[70%] h-[70%] bg-blue-300/40 blur-[120px] rounded-full"
         />
         <motion.div
-          animate={{ x: [0, -60, 0], y: [0, -70, 0], scale: [1, 1.3, 1] }}
-          transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-          className="absolute bottom-[10%] right-[-10%] w-[60%] h-[60%] bg-purple-300/40 blur-[180px] rounded-full"
+          animate={{ x: [0, -60, 0], y: [0, -70, 0] }}
+          transition={{ duration: 18, repeat: Infinity, ease: "linear", delay: 2 }}
+          style={{ willChange: "transform" }}
+          className="absolute bottom-[10%] right-[-10%] w-[60%] h-[60%] bg-purple-300/40 blur-[120px] rounded-full"
         />
         <motion.div
-          animate={{ x: [0, 90, 0], y: [0, -60, 0], scale: [1, 0.8, 1] }}
-          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut", delay: 4 }}
-          className="absolute top-[40%] left-[40%] w-[40%] h-[40%] bg-pink-300/30 blur-[180px] rounded-full"
+          animate={{ x: [0, 90, 0], y: [0, -60, 0] }}
+          transition={{ duration: 15, repeat: Infinity, ease: "linear", delay: 4 }}
+          style={{ willChange: "transform" }}
+          className="absolute top-[40%] left-[40%] w-[40%] h-[40%] bg-pink-300/30 blur-[120px] rounded-full"
         />
       </div>
 
@@ -84,26 +87,20 @@ export const HomePage = () => {
         className="relative min-h-[calc(100svh-4rem)] md:min-h-[calc(100vh-5rem)] flex flex-col items-center justify-center px-6 pt-24 pb-16 overflow-hidden"
       >
         {/* Animated Hero Gradient Aura */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-full max-h-[600px] pointer-events-none -z-10 blur-[120px] opacity-30">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-full max-h-[600px] pointer-events-none -z-10 blur-[100px] opacity-30">
           <motion.div
             animate={{
-              scale: [1, 1.2, 1],
-              rotate: [0, 90, 180, 270, 360],
-              background: [
-                'radial-gradient(circle, #3b82f6 0%, transparent 70%)',
-                'radial-gradient(circle, #8b5cf6 0%, transparent 70%)',
-                'radial-gradient(circle, #ec4899 0%, transparent 70%)',
-                'radial-gradient(circle, #3b82f6 0%, transparent 70%)'
-              ]
+              rotate: [0, 360],
             }}
-            transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-            className="w-full h-full"
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+            style={{ willChange: "transform" }}
+            className="w-full h-full bg-[radial-gradient(circle,#8b5cf6_0%,transparent_70%)]"
           />
         </div>
 
         <div className="max-w-6xl mx-auto w-full relative z-10 flex flex-col items-center text-center pt-8">
 
-          <h1 className="hero-text text-[44px] sm:text-6xl md:text-[85px] lg:text-[100px] font-['Poppins'] font-extrabold tracking-[-0.02em] text-[#0f172a] mb-8 md:mb-10 leading-[1] md:leading-[1.1]">
+          <h1 className="hero-text text-[40px] sm:text-5xl md:text-[75px] lg:text-[85px] font-['Poppins'] font-extrabold tracking-[-0.02em] text-[#0f172a] mb-8 md:mb-10 leading-[1] md:leading-[1.1]">
             Smart AI and <br className="hidden md:block" />
             <span className="bg-gradient-to-r from-blue-600 to-purple-500 bg-clip-text text-transparent font-[600]">Software Solutions</span>
             <br className="hidden md:block" /> for Your Business
@@ -136,7 +133,7 @@ export const HomePage = () => {
           {/* Row 1: Moving Right */}
           <div className="flex whitespace-nowrap">
             <div className="flex animate-marquee-right gap-2 md:gap-6 items-center pr-2 md:pr-6 hover:[animation-play-state:paused] w-max py-1.5 md:py-4 pointer-events-none" style={{ animationDuration: '60s', willChange: 'transform' }}>
-              {[...Array(4)].map((_, i) => (
+              {[...Array(2)].map((_, i) => (
                 <div key={i} className="flex gap-2 md:gap-6 items-center">
                   {[
                     { name: "ChatGPT", url: "openai.com" },
@@ -159,6 +156,8 @@ export const HomePage = () => {
                       <img
                         src={`https://img.logo.dev/${item.url}?token=${LOGO_DEV_PUBLIC_KEY}&size=128&format=png`}
                         alt={item.name}
+                        loading="lazy"
+                        decoding="async"
                         className="w-9 h-9 md:w-14 md:h-14 object-contain rounded-lg md:rounded-[12px] bg-white p-1 md:p-1.5"
                         onError={(e) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&size=64&background=2ec4b6&color=fff&bold=true` }}
                       />
@@ -172,7 +171,7 @@ export const HomePage = () => {
           {/* Row 2: Moving Left */}
           <div className="flex whitespace-nowrap">
             <div className="flex animate-marquee-left gap-2 md:gap-6 items-center pr-2 md:pr-6 hover:[animation-play-state:paused] w-max py-1.5 md:py-4 pointer-events-none" style={{ animationDuration: '60s', willChange: 'transform' }}>
-              {[...Array(4)].map((_, i) => (
+              {[...Array(2)].map((_, i) => (
                 <div key={i} className="flex gap-2 md:gap-6 items-center">
                   {[
                     { name: "Monday", url: "monday.com" },
@@ -195,6 +194,8 @@ export const HomePage = () => {
                       <img
                         src={`https://img.logo.dev/${item.url}?token=${LOGO_DEV_PUBLIC_KEY}&size=128&format=png`}
                         alt={item.name}
+                        loading="lazy"
+                        decoding="async"
                         className="w-9 h-9 md:w-14 md:h-14 object-contain rounded-lg md:rounded-[12px] bg-white p-1 md:p-1.5"
                         onError={(e) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&size=64&background=2ec4b6&color=fff&bold=true` }}
                       />
@@ -209,7 +210,7 @@ export const HomePage = () => {
           {/* Row 3: Moving Right */}
           <div className="flex whitespace-nowrap">
             <div className="flex animate-marquee-right gap-2 md:gap-6 items-center pr-2 md:pr-6 hover:[animation-play-state:paused] w-max py-1.5 md:py-4 pointer-events-none" style={{ animationDuration: '60s', willChange: 'transform' }}>
-              {[...Array(4)].map((_, i) => (
+              {[...Array(2)].map((_, i) => (
                 <div key={i} className="flex gap-2 md:gap-6 items-center">
                   {[
                     { name: "Figma", url: "figma.com" },
@@ -232,6 +233,8 @@ export const HomePage = () => {
                       <img
                         src={`https://img.logo.dev/${item.url}?token=${LOGO_DEV_PUBLIC_KEY}&size=128&format=png`}
                         alt={item.name}
+                        loading="lazy"
+                        decoding="async"
                         className="w-9 h-9 md:w-14 md:h-14 object-contain rounded-lg md:rounded-[12px] bg-white p-1 md:p-1.5"
                         onError={(e) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&size=64&background=2ec4b6&color=fff&bold=true` }}
                       />
