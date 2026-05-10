@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { SearchPanel } from '../components/SearchPanel';
 import { ProductCard } from '../components/ProductCard';
 import { products as staticProducts } from '../data/products';
@@ -37,6 +37,23 @@ export const StorePage = () => {
   const [showAll, setShowAll] = useState(false);
   
   const { products: allProducts, fetchProducts, loading } = useProductStore();
+
+  // RAF guard: prevents getBoundingClientRect + GSAP tween being created > 60x/sec
+  const statsRafRef = useRef<number | null>(null);
+
+  const handleStatsTilt = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (statsRafRef.current !== null) return;
+    const card = e.currentTarget as HTMLDivElement;
+    const clientX = e.clientX;
+    const clientY = e.clientY;
+    statsRafRef.current = requestAnimationFrame(() => {
+      const { left, top, width, height } = card.getBoundingClientRect();
+      const x = (clientX - left) / width - 0.5;
+      const y = (clientY - top) / height - 0.5;
+      gsap.to(card, { rotateY: x * 10, rotateX: -y * 10, duration: 0.5, ease: 'power2.out' });
+      statsRafRef.current = null;
+    });
+  }, []);
 
   useEffect(() => {
     fetchProducts();
@@ -82,18 +99,7 @@ export const StorePage = () => {
             viewport={{ once: true, margin: "-50px" }}
             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
             className="grid grid-cols-2 md:flex md:flex-nowrap items-center justify-center gap-0 w-full p-4 md:p-12 rounded-3xl md:rounded-[48px] bg-white border border-gray-200 backdrop-blur-md relative overflow-hidden shadow-[0_20px_40px_-15px_rgba(37,99,235,0.15)]"
-            onMouseMove={(e) => {
-              const card = e.currentTarget;
-              const { left, top, width, height } = card.getBoundingClientRect();
-              const x = (e.clientX - left) / width - 0.5;
-              const y = (e.clientY - top) / height - 0.5;
-              gsap.to(card, {
-                rotateY: x * 10,
-                rotateX: -y * 10,
-                duration: 0.5,
-                ease: "power2.out"
-              });
-            }}
+            onMouseMove={handleStatsTilt}
             onMouseLeave={(e) => {
               gsap.to(e.currentTarget, { rotateY: 0, rotateX: 0, duration: 0.8, ease: "power3.out" });
             }}

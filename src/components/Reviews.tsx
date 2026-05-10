@@ -132,7 +132,7 @@ export const Reviews = () => {
   const avgRating = (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1);
 
   return (
-    <section id="reviews-section" className="py-24 bg-gradient-to-b from-white to-gray-50/60 relative overflow-hidden border-t border-gray-100 font-sans scroll-mt-24">
+    <section id="reviews-section" className="py-24 bg-gradient-to-b from-white to-gray-50 relative overflow-hidden border-t border-gray-100 font-sans scroll-mt-24">
       {/* Subtle background decorations */}
       <div className="absolute top-0 left-0 w-[400px] h-[400px] bg-blue-50/60 rounded-full blur-[120px] -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
       <div className="absolute bottom-0 right-0 w-[350px] h-[350px] bg-purple-50/50 rounded-full blur-[100px] translate-x-1/3 translate-y-1/3 pointer-events-none" />
@@ -148,8 +148,6 @@ export const Reviews = () => {
           <div className="inline-flex items-center gap-2 bg-amber-50 border border-amber-100 rounded-full px-4 py-1.5 mb-6">
             <Star size={14} className="text-amber-500 fill-amber-500" />
             <span className="text-sm font-black text-amber-700">{avgRating} average rating</span>
-            <span className="text-gray-300 mx-1">·</span>
-            {/* <span className="text-[12px] font-semibold text-amber-600">{reviews.length} global reviews</span> */}
           </div>
 
           <h2 className="text-3xl md:text-5xl font-['Plus_Jakarta_Sans'] font-extrabold text-gray-900 tracking-tight mb-4">

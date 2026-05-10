@@ -61,12 +61,15 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
   });
 
   useEffect(() => {
+    let lastProgress = -1;
     const trigger = ScrollTrigger.create({
       start: "top -20",
       end: 200,
       onUpdate: (self) => {
-        const progress = self.progress;
-        
+        // Snap to 2% steps — prevents creating a new GSAP tween for every pixel scrolled
+        const progress = Math.round(self.progress * 50) / 50;
+        if (progress === lastProgress) return;
+        lastProgress = progress;
         gsap.to(navRef.current, {
           boxShadow: `0 ${4 + progress * 10}px ${6 + progress * 20}px -1px rgba(0, 0, 0, ${0.05 + progress * 0.05})`,
           y: progress * 5,
@@ -75,7 +78,6 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
         });
       }
     });
-
     return () => trigger.kill();
   }, []);
 
@@ -92,17 +94,17 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
   }, [location.pathname, location.hash]);
 
   return (
-    <div className="min-h-screen transition-colors duration-500 flex flex-col font-sans selection:bg-blue-500/20 antialiased overflow-x-hidden">
+    <div className="min-h-screen flex flex-col font-sans selection:bg-blue-500/20 antialiased overflow-x-hidden">
       {/* Scroll Progress Bar */}
       <motion.div
         className="fixed top-0 left-0 right-0 h-[2px] bg-blue-600 z-[120] origin-left"
         style={{ scaleX }}
       />
 
-      {/* Background Glows */}
+      {/* Background Glows — static, no animation to avoid GPU recomposite on every frame */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-600/10 blur-[150px] rounded-full animate-pulse" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-purple-600/10 blur-[150px] rounded-full animate-pulse" style={{ animationDelay: '2s' }} />
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-600/10 blur-[150px] rounded-full opacity-100" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-purple-600/10 blur-[150px] rounded-full opacity-100" />
       </div>
 
       {/* Header - Pill Design */}

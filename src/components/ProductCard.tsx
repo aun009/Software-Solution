@@ -4,6 +4,7 @@ import { ArrowRight, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Product } from '../types';
 import gsap from 'gsap';
+import { useGeoLocation } from '../hooks/useGeoLocation';
 
 interface ProductCardProps {
   product: Product;
@@ -22,6 +23,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const glowRef = useRef<HTMLDivElement>(null);
   const rating = useMemo(() => getRating(product.id), [product.id]);
+  const { isIndia } = useGeoLocation();
+
+  // Geo-aware price: show USD for international, INR for India
+  const displayPrice = useMemo(() => {
+    const anyProduct = product as any;
+    if (!isIndia && anyProduct.price_usd) {
+      return { symbol: '$', value: Number(anyProduct.price_usd), locale: 'en-US' };
+    }
+    return { symbol: '₹', value: Number(anyProduct.price || 999), locale: 'en-IN' };
+  }, [isIndia, product]);
 
   useEffect(() => {
     if (!cardRef.current || window.innerWidth < 768) return;
@@ -123,7 +134,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
 
         {/* Image — centered logo on white background */}
         <Link to={`/product/${product.id}`} className="block overflow-hidden relative border-b border-gray-200">
-          <div className="w-full h-[160px] md:h-[200px] relative flex items-center justify-center bg-white overflow-hidden">
+          <div className="w-full h-[130px] md:h-[200px] relative flex items-center justify-center bg-white overflow-hidden">
             {/* Main centered logo */}
             <img
               src={product.image?.includes('unsplash.com') ? `${product.image.split('?')[0]}?w=600&h=360&fit=crop&q=75&auto=format` : product.image}
@@ -180,7 +191,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
           {/* Price + CTA — stacked */}
           <div className="mt-auto pt-3 md:pt-4 border-t border-gray-100 flex flex-col gap-2 md:gap-3">
             <span className="text-lg md:text-[28px] font-extrabold text-gray-900 tracking-tight leading-none">
-              ₹{Number(product.price || 82917).toLocaleString('en-IN')}
+              {displayPrice.symbol}{displayPrice.value.toLocaleString(displayPrice.locale)}
             </span>
             <Link
               to={`/product/${product.id}`}

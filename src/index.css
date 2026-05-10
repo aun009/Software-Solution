@@ -13,16 +13,14 @@
   }
 
   body {
-    @apply antialiased transition-colors duration-500 bg-[#FAFAFC] text-[#111827];
+    @apply antialiased bg-[#FAFAFC] text-[#111827];
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     letter-spacing: 0.01em;
     word-spacing: 0.05em;
-    background: 
+    background:
       radial-gradient(circle at 10% 0%, rgba(200, 220, 255, 0.4) 0%, transparent 50%),
       radial-gradient(circle at 90% 100%, rgba(240, 210, 255, 0.3) 0%, transparent 50%),
       #FAFAFC;
-    background-attachment: fixed;
-    animation: backgroundShiftLight 15s infinite alternate ease-in-out;
   }
 
   .dot-grid {
@@ -31,12 +29,7 @@
   }
 }
 
-@keyframes backgroundShiftLight {
-  0% { background-color: #FAFAFC; }
-  33% { background-color: #F8F9FF; }
-  66% { background-color: #FCF8FF; }
-  100% { background-color: #FAFAFC; }
-}
+
 
 /* Hide scrollbar utility */
 .scrollbar-none {

@@ -58,44 +58,20 @@ export const HomePage = () => {
 
   return (
     <div ref={containerRef} className="w-full relative z-10 overflow-hidden selection:bg-blue-500/30">
-      {/* Background Decorative Mesh */}
-      <div className="absolute top-0 left-0 w-full h-[100vh] pointer-events-none opacity-40 -z-[1]">
-        <motion.div
-          animate={{ x: [0, 80, 0], y: [0, 40, 0] }}
-          transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
-          style={{ willChange: "transform" }}
-          className="absolute top-[-20%] left-[-10%] w-[70%] h-[70%] bg-blue-300/40 blur-[120px] rounded-full"
-        />
-        <motion.div
-          animate={{ x: [0, -60, 0], y: [0, -70, 0] }}
-          transition={{ duration: 18, repeat: Infinity, ease: "linear", delay: 2 }}
-          style={{ willChange: "transform" }}
-          className="absolute bottom-[10%] right-[-10%] w-[60%] h-[60%] bg-purple-300/40 blur-[120px] rounded-full"
-        />
-        <motion.div
-          animate={{ x: [0, 90, 0], y: [0, -60, 0] }}
-          transition={{ duration: 15, repeat: Infinity, ease: "linear", delay: 4 }}
-          style={{ willChange: "transform" }}
-          className="absolute top-[40%] left-[40%] w-[40%] h-[40%] bg-pink-300/30 blur-[120px] rounded-full"
-        />
-      </div>
+
 
       {/* Hero Section */}
       <section
         id="home"
         ref={heroRef}
-        className="relative min-h-[calc(100svh-4rem)] md:min-h-[calc(100vh-5rem)] flex flex-col items-center justify-center px-6 pt-24 pb-16 overflow-hidden"
+        className="relative min-h-[calc(100svh-4rem)] md:min-h-[calc(100vh-5rem)] flex flex-col items-center justify-center px-6 pt-24 pb-16 overflow-hidden bg-[#FAFAFC]"
       >
-        {/* Animated Hero Gradient Aura */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-full max-h-[600px] pointer-events-none -z-10 blur-[100px] opacity-30">
-          <motion.div
-            animate={{
-              rotate: [0, 360],
-            }}
-            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            style={{ willChange: "transform" }}
-            className="w-full h-full bg-[radial-gradient(circle,#8b5cf6_0%,transparent_70%)]"
-          />
+        {/* Hero gradient mesh — pure CSS transforms, same look as before, zero JS, 100% GPU composited */}
+        <div aria-hidden="true" className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="hero-blob-blue" />
+          <div className="hero-blob-purple" />
+          <div className="hero-blob-pink" />
+          <div className="hero-aura" />
         </div>
 
         <div className="max-w-6xl mx-auto w-full relative z-10 flex flex-col items-center text-center pt-8">
@@ -321,6 +297,78 @@ export const HomePage = () => {
           animation: marquee-left 30s linear infinite;
           will-change: transform;
           backface-visibility: hidden;
+        }
+
+        /* Hero gradient mesh — solid colour + filter:blur matches original bg-blue-300/40 blur-[120px] look */
+        /* blur value never changes = GPU caches texture once; only transform animates via compositor */
+        .hero-blob-blue {
+          position: absolute;
+          top: -20%; left: -10%;
+          width: 70%; height: 70%;
+          background: rgba(147, 197, 253, 0.42);
+          border-radius: 9999px;
+          filter: blur(120px);
+          will-change: transform;
+          animation: hero-drift-blue 12s ease-in-out infinite;
+        }
+        .hero-blob-purple {
+          position: absolute;
+          bottom: 10%; right: -10%;
+          width: 60%; height: 60%;
+          background: rgba(216, 180, 254, 0.36);
+          border-radius: 9999px;
+          filter: blur(120px);
+          will-change: transform;
+          animation: hero-drift-purple 18s ease-in-out infinite;
+          animation-delay: 2s;
+        }
+        .hero-blob-pink {
+          position: absolute;
+          top: 40%; left: 40%;
+          width: 40%; height: 40%;
+          background: rgba(249, 168, 212, 0.28);
+          border-radius: 9999px;
+          filter: blur(120px);
+          will-change: transform;
+          animation: hero-drift-pink 15s ease-in-out infinite;
+          animation-delay: 4s;
+        }
+        /* Rotating violet aura — matches original #8b5cf6 circle */
+        .hero-aura {
+          position: absolute;
+          top: 50%; left: 50%;
+          width: 100%; max-width: 896px;
+          height: 600px;
+          background: radial-gradient(circle, rgba(139,92,246,0.3) 0%, transparent 70%);
+          filter: blur(100px);
+          opacity: 0.25;
+          will-change: transform;
+          animation: hero-spin-aura 20s linear infinite;
+        }
+        @keyframes hero-drift-blue {
+          0%, 100% { transform: translate3d(0, 0, 0); }
+          33%       { transform: translate3d(80px, 40px, 0); }
+          66%       { transform: translate3d(-20px, 80px, 0); }
+        }
+        @keyframes hero-drift-purple {
+          0%, 100% { transform: translate3d(0, 0, 0); }
+          33%       { transform: translate3d(-60px, -70px, 0); }
+          66%       { transform: translate3d(30px, -40px, 0); }
+        }
+        @keyframes hero-drift-pink {
+          0%, 100% { transform: translate3d(0, 0, 0); }
+          33%       { transform: translate3d(90px, -60px, 0); }
+          66%       { transform: translate3d(-30px, 50px, 0); }
+        }
+        @keyframes hero-spin-aura {
+          0%   { transform: translate(-50%, -50%) rotate(0deg); }
+          100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .hero-blob-blue, .hero-blob-purple, .hero-blob-pink, .hero-aura {
+            animation: none;
+          }
+          .hero-aura { transform: translate(-50%, -50%); }
         }
       `}</style>
     </div>
