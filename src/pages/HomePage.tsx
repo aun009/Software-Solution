@@ -85,19 +85,9 @@ export const HomePage = () => {
             </span>
             
             <div className="flex flex-col items-center mt-0 md:mt-1 gap-4 w-full">
-              <div className="flex items-center justify-center gap-6 md:gap-10 w-full px-4">
-                <div className="h-[2px] md:h-[3px] w-16 sm:w-24 md:w-40 bg-[#0f172a]/40 rounded-full"></div>
-                <span className="text-[35px] sm:text-5xl md:text-[65px] lg:text-[75px] text-[#0f172a] font-bold tracking-wide whitespace-nowrap leading-[1.1] pb-1">
-                  for Your Business
-                </span>
-                <div className="h-[2px] md:h-[3px] w-16 sm:w-24 md:w-40 bg-[#0f172a]/40 rounded-full"></div>
-              </div>
-              
-              <div className="flex items-center justify-center gap-4 w-full max-w-[200px] sm:max-w-[300px] md:max-w-[450px] mt-2">
-                <div className="h-[2px] md:h-[3px] flex-1 bg-[#0f172a]/30 rounded-full"></div>
-                <div className="w-3 h-3 md:w-4 md:h-4 border-b-2 border-r-2 md:border-b-[3px] md:border-r-[3px] border-[#0f172a]/30 rotate-45 -translate-y-1"></div>
-                <div className="h-[2px] md:h-[3px] flex-1 bg-[#0f172a]/30 rounded-full"></div>
-              </div>
+              <span className="text-[35px] sm:text-5xl md:text-[65px] lg:text-[75px] text-[#0f172a] font-bold tracking-wide whitespace-nowrap leading-[1.1] pb-1">
+                for Your Business
+              </span>
             </div>
           </h1>
 
