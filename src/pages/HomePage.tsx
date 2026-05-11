@@ -76,10 +76,29 @@ export const HomePage = () => {
 
         <div className="max-w-6xl mx-auto w-full relative z-10 flex flex-col items-center text-center pt-8">
 
-          <h1 className="hero-text text-[40px] sm:text-5xl md:text-[75px] lg:text-[85px] font-['Poppins'] font-extrabold tracking-[-0.02em] text-[#0f172a] mb-8 md:mb-10 leading-[1] md:leading-[1.1]">
-            Smart AI and <br className="hidden md:block" />
-            <span className="bg-gradient-to-r from-blue-600 to-purple-500 bg-clip-text text-transparent font-[600]">Software Solutions</span>
-            <br className="hidden md:block" /> for Your Business
+          <h1 className="hero-text flex flex-col items-center tracking-[-0.02em] text-[#0f172a] mb-8 md:mb-12" style={{ fontFamily: "'Playfair Display', serif" }}>
+            <span className="text-[40px] sm:text-5xl md:text-[75px] lg:text-[85px] font-bold leading-[1.2] md:leading-[1.2] text-[#0f172a]">
+              Smart AI and
+            </span>
+            <span className="text-[40px] sm:text-5xl md:text-[75px] lg:text-[85px] font-semibold leading-[1.2] md:leading-[1.2] bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-500 bg-clip-text text-transparent pb-2">
+              Software Solutions
+            </span>
+            
+            <div className="flex flex-col items-center mt-0 md:mt-1 gap-4 w-full">
+              <div className="flex items-center justify-center gap-6 md:gap-10 w-full px-4">
+                <div className="h-[2px] md:h-[3px] w-16 sm:w-24 md:w-40 bg-[#0f172a]/40 rounded-full"></div>
+                <span className="text-[35px] sm:text-5xl md:text-[65px] lg:text-[75px] text-[#0f172a] font-bold tracking-wide whitespace-nowrap leading-[1.1] pb-1">
+                  for Your Business
+                </span>
+                <div className="h-[2px] md:h-[3px] w-16 sm:w-24 md:w-40 bg-[#0f172a]/40 rounded-full"></div>
+              </div>
+              
+              <div className="flex items-center justify-center gap-4 w-full max-w-[200px] sm:max-w-[300px] md:max-w-[450px] mt-2">
+                <div className="h-[2px] md:h-[3px] flex-1 bg-[#0f172a]/30 rounded-full"></div>
+                <div className="w-3 h-3 md:w-4 md:h-4 border-b-2 border-r-2 md:border-b-[3px] md:border-r-[3px] border-[#0f172a]/30 rotate-45 -translate-y-1"></div>
+                <div className="h-[2px] md:h-[3px] flex-1 bg-[#0f172a]/30 rounded-full"></div>
+              </div>
+            </div>
           </h1>
 
           <p className="hero-text text-lg md:text-2xl text-gray-600 max-w-3xl mb-12 md:mb-16 leading-relaxed font-['Poppins'] font-normal tracking-wide">

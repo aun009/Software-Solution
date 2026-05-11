@@ -120,8 +120,9 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
             <span 
               ref={brandTextRef}
               className="text-base md:text-lg font-black tracking-wide text-gray-900 hidden lg:block whitespace-nowrap"
+              style={{ fontFamily: "'Playfair Display', serif" }}
             >
-              SP Tech Solutions
+              Tech Solutions
             </span>
           </Link>
 
