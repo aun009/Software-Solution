@@ -77,21 +77,21 @@ export const HomePage = () => {
         <div className="max-w-6xl mx-auto w-full relative z-10 flex flex-col items-center text-center pt-8 md:pt-0">
 
           <h1 className="hero-text flex flex-col items-center tracking-[-0.02em] text-[#0f172a] mb-6 md:mb-0" style={{ fontFamily: "'Playfair Display', serif" }}>
-            <span className="text-[40px] sm:text-5xl md:text-[75px] lg:text-[85px] font-bold leading-[1.2] md:leading-[1.05] text-[#0f172a]">
+            <span className="text-[40px] sm:text-5xl md:text-[60px] lg:text-[70px] xl:text-[85px] font-bold leading-[1.2] md:leading-[1.05] text-[#0f172a]">
               Smart AI and
             </span>
-            <span className="text-[40px] sm:text-5xl md:text-[75px] lg:text-[85px] font-semibold leading-[1.2] md:leading-[1.05] bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-500 bg-clip-text text-transparent pb-2 md:pb-0">
+            <span className="text-[40px] sm:text-5xl md:text-[60px] lg:text-[70px] xl:text-[85px] font-semibold leading-[1.2] md:leading-[1.05] bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-500 bg-clip-text text-transparent pb-2 md:pb-0">
               Software Solutions
             </span>
 
             <div className="flex flex-col items-center mt-0 md:mt-2 gap-4 md:gap-0 w-full">
-              <span className="text-[35px] sm:text-5xl md:text-[65px] lg:text-[75px] text-[#0f172a] font-bold tracking-wide whitespace-nowrap leading-[1.1] md:leading-[1.05] pb-1 md:pb-0">
+              <span className="text-[35px] sm:text-[45px] md:text-[50px] lg:text-[60px] xl:text-[75px] text-[#0f172a] font-bold tracking-wide whitespace-nowrap leading-[1.1] md:leading-[1.05] pb-1 md:pb-0">
                 for Your Business
               </span>
             </div>
           </h1>
 
-          <p className="hero-text mt-0 md:mt-10 text-lg md:text-2xl text-gray-600 max-w-3xl mb-8 md:mb-10 leading-relaxed font-['Poppins'] font-normal tracking-wide">
+          <p className="hero-text mt-0 md:mt-10 text-lg md:text-xl xl:text-2xl text-gray-600 max-w-3xl mb-8 md:mb-10 leading-relaxed font-['Poppins'] font-normal tracking-wide">
             Delivering trusted AI tools and smart software solutions to help you build, innovate, and grow faster.
           </p>
 
