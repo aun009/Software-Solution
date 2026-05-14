@@ -80,7 +80,7 @@ export const HomePage = () => {
             <span className="text-[40px] sm:text-5xl md:text-[60px] lg:text-[70px] xl:text-[85px] font-bold leading-[1.2] md:leading-[1.05] text-[#0f172a]">
               Smart AI and
             </span>
-            <span className="text-[40px] sm:text-5xl md:text-[60px] lg:text-[70px] xl:text-[85px] font-semibold leading-[1.2] md:leading-[1.05] bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-500 bg-clip-text text-transparent pb-2 md:pb-0">
+            <span className="text-[32px] sm:text-5xl md:text-[60px] lg:text-[70px] xl:text-[85px] font-semibold leading-[1.2] md:leading-[1.05] bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-500 bg-clip-text text-transparent pb-2 md:pb-0 whitespace-nowrap">
               Software Solutions
             </span>
 
