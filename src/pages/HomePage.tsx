@@ -80,12 +80,12 @@ export const HomePage = () => {
             <span className="text-[40px] sm:text-5xl md:text-[60px] lg:text-[70px] xl:text-[85px] font-bold leading-[1.2] md:leading-[1.05] text-[#0f172a]">
               Smart AI and
             </span>
-            <span className="text-[32px] sm:text-5xl md:text-[60px] lg:text-[70px] xl:text-[85px] font-semibold leading-[1.2] md:leading-[1.05] bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-500 bg-clip-text text-transparent pb-2 md:pb-0 whitespace-nowrap">
+            <span className="text-[40px] sm:text-5xl md:text-[60px] lg:text-[70px] xl:text-[85px] font-semibold leading-[1.2] md:leading-[1.05] bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-500 bg-clip-text text-transparent pb-2 md:pb-0 whitespace-nowrap">
               Software Solutions
             </span>
 
             <div className="flex flex-col items-center mt-0 md:mt-2 gap-4 md:gap-0 w-full">
-              <span className="text-[35px] sm:text-[45px] md:text-[50px] lg:text-[60px] xl:text-[75px] text-[#0f172a] font-bold tracking-wide whitespace-nowrap leading-[1.1] md:leading-[1.05] pb-1 md:pb-0">
+              <span className="text-[40px] sm:text-[45px] md:text-[50px] lg:text-[60px] xl:text-[75px] text-[#0f172a] font-bold tracking-wide whitespace-nowrap leading-[1.1] md:leading-[1.05] pb-1 md:pb-0">
                 for Your Business
               </span>
             </div>
