@@ -127,14 +127,27 @@ export const AdminPage = () => {
 
   const fetchProducts = async () => {
     try {
+      // Try sort_order first so Reorder Hub and Inventory both reflect saved order
       const { data, error } = await supabase
         .from('products')
         .select('*')
+        .order('sort_order', { ascending: true, nullsFirst: false })
         .order('created_at', { ascending: false });
-      if (error) throw error;
-      const loaded = data || [];
-      setProducts(loaded);
-      setReorderItems(loaded);
+
+      if (data && !error) {
+        setProducts(data);
+        setReorderItems(data);
+      } else {
+        // Fallback if sort_order column doesn't exist yet
+        const { data: fallback, error: fbErr } = await supabase
+          .from('products')
+          .select('*')
+          .order('created_at', { ascending: false });
+        if (fbErr) throw fbErr;
+        const loaded = fallback || [];
+        setProducts(loaded);
+        setReorderItems(loaded);
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
