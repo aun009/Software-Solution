@@ -108,7 +108,7 @@ export const AdminPage = () => {
     price_1y_usd: '',
     price_lifetime: '',
     price_lifetime_usd: '',
-    image: 'https://images.unsplash.com/photo-1618477388954-7852f32655ec?auto=format&fit=crop&q=80&w=1000',
+    image: '',
     videoUrl: '',
     url: '',
     is_trending: false,
@@ -128,12 +128,11 @@ export const AdminPage = () => {
       const { data, error } = await supabase
         .from('products')
         .select('*')
-        .order('sort_order', { ascending: true, nullsFirst: false })
         .order('created_at', { ascending: false });
       if (error) throw error;
       const loaded = data || [];
       setProducts(loaded);
-      setReorderItems(loaded); // seed the reorder list
+      setReorderItems(loaded);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -155,7 +154,6 @@ export const AdminPage = () => {
   const saveOrder = async () => {
     setSavingOrder(true);
     try {
-      // Write sort_order 1,2,3... for each item in the current drag order
       await Promise.all(
         reorderItems.map((item, index) =>
           supabase.from('products').update({ sort_order: index + 1 }).eq('id', item.id)
@@ -164,7 +162,12 @@ export const AdminPage = () => {
       setOrderSaved(true);
       setTimeout(() => setOrderSaved(false), 3000);
     } catch (err: any) {
-      setError(err.message);
+      const msg: string = err?.message || '';
+      if (msg.toLowerCase().includes('sort_order')) {
+        setError('Run this SQL in Supabase → SQL Editor first: ALTER TABLE products ADD COLUMN sort_order integer;');
+      } else {
+        setError(msg);
+      }
     } finally {
       setSavingOrder(false);
     }
