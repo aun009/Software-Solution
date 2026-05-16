@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
+import { useProductStore } from '../store/useProductStore';
 import { Plus, Trash2, Package, CheckCircle2, Loader2, AlertCircle, Sparkles, Edit2, X, DollarSign, Image as ImageIcon, Video, Trash, ArrowRight, UploadCloud, Link as LinkIcon, Clock, Infinity, GripVertical, LayoutGrid, ArrowUpDown, Save, CheckCheck } from 'lucide-react';
 import { Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
@@ -73,6 +74,7 @@ const SortableProductRow = ({ product, index }: { product: any; index: number; k
 
 export const AdminPage = () => {
   const { isAdmin, loading: authLoading } = useAuth();
+  const { fetchProducts: refreshGlobalStore } = useProductStore();
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -153,21 +155,30 @@ export const AdminPage = () => {
 
   const saveOrder = async () => {
     setSavingOrder(true);
+    setError('');
     try {
-      await Promise.all(
+      const results = await Promise.all(
         reorderItems.map((item, index) =>
           supabase.from('products').update({ sort_order: index + 1 }).eq('id', item.id)
         )
       );
+      // Supabase returns errors in response objects, doesn't throw
+      const firstError = results.find(r => r.error)?.error;
+      if (firstError) {
+        const msg = firstError.message || '';
+        if (msg.toLowerCase().includes('sort_order') || msg.toLowerCase().includes('column')) {
+          setError('⚠️ Column missing — run in Supabase SQL Editor: ALTER TABLE products ADD COLUMN sort_order integer;');
+        } else {
+          setError(msg);
+        }
+        return;
+      }
       setOrderSaved(true);
       setTimeout(() => setOrderSaved(false), 3000);
+      // Refresh the global product store so StorePage reflects the new order immediately
+      await refreshGlobalStore();
     } catch (err: any) {
-      const msg: string = err?.message || '';
-      if (msg.toLowerCase().includes('sort_order')) {
-        setError('Run this SQL in Supabase → SQL Editor first: ALTER TABLE products ADD COLUMN sort_order integer;');
-      } else {
-        setError(msg);
-      }
+      setError(err?.message || 'Failed to save order');
     } finally {
       setSavingOrder(false);
     }
