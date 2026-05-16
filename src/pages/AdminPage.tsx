@@ -1,9 +1,75 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
-import { Plus, Trash2, Package, CheckCircle2, Loader2, AlertCircle, Sparkles, Edit2, X, DollarSign, Image as ImageIcon, Video, Trash, ArrowRight, UploadCloud, Link as LinkIcon, Clock, Infinity } from 'lucide-react';
+import { Plus, Trash2, Package, CheckCircle2, Loader2, AlertCircle, Sparkles, Edit2, X, DollarSign, Image as ImageIcon, Video, Trash, ArrowRight, UploadCloud, Link as LinkIcon, Clock, Infinity, GripVertical, LayoutGrid, ArrowUpDown, Save, CheckCheck } from 'lucide-react';
 import { Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
+// ── Sortable row used in the Reorder tab ─────────────────────────────────────
+const SortableProductRow = ({ product, index }: { product: any; index: number; key?: string }) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: product.id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 50 : undefined,
+    opacity: isDragging ? 0.85 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`flex items-center gap-4 p-4 bg-white border rounded-2xl shadow-sm transition-shadow ${isDragging ? 'shadow-2xl border-blue-400' : 'border-gray-100 hover:border-gray-200'}`}
+    >
+      {/* Drag handle */}
+      <button
+        {...attributes}
+        {...listeners}
+        className="p-2 text-gray-300 hover:text-gray-600 cursor-grab active:cursor-grabbing touch-none transition-colors rounded-xl hover:bg-gray-50"
+        aria-label="Drag to reorder"
+      >
+        <GripVertical size={18} />
+      </button>
+
+      {/* Position badge */}
+      <div className="w-7 h-7 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0">
+        <span className="text-[10px] font-black text-blue-600">{index + 1}</span>
+      </div>
+
+      {/* Thumbnail */}
+      <div className="w-10 h-10 rounded-xl overflow-hidden bg-gray-50 border border-gray-100 shrink-0">
+        <img src={product.image} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer"
+          onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+      </div>
+
+      {/* Info */}
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-black text-gray-900 tracking-tight truncate">{product.title}</p>
+        <p className="text-[10px] font-semibold text-blue-600 uppercase tracking-wider">{product.category}</p>
+      </div>
+
+      {/* Price */}
+      <div className="text-xs font-black text-gray-400 shrink-0">₹{product.price || '—'}</div>
+    </div>
+  );
+};
 
 export const AdminPage = () => {
   const { isAdmin, loading: authLoading } = useAuth();
@@ -15,6 +81,15 @@ export const AdminPage = () => {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [useCustomCategory, setUseCustomCategory] = useState(false);
+  const [activeTab, setActiveTab] = useState<'inventory' | 'reorder'>('inventory');
+  const [reorderItems, setReorderItems] = useState<any[]>([]);
+  const [savingOrder, setSavingOrder] = useState(false);
+  const [orderSaved, setOrderSaved] = useState(false);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
 
   // Form state
   const [formData, setFormData] = useState({
@@ -50,13 +125,48 @@ export const AdminPage = () => {
 
   const fetchProducts = async () => {
     try {
-      const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('sort_order', { ascending: true, nullsFirst: false })
+        .order('created_at', { ascending: false });
       if (error) throw error;
-      setProducts(data || []);
+      const loaded = data || [];
+      setProducts(loaded);
+      setReorderItems(loaded); // seed the reorder list
     } catch (err: any) {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    setReorderItems((items) => {
+      const oldIndex = items.findIndex((i) => i.id === active.id);
+      const newIndex = items.findIndex((i) => i.id === over.id);
+      return arrayMove(items, oldIndex, newIndex);
+    });
+    setOrderSaved(false);
+  };
+
+  const saveOrder = async () => {
+    setSavingOrder(true);
+    try {
+      // Write sort_order 1,2,3... for each item in the current drag order
+      await Promise.all(
+        reorderItems.map((item, index) =>
+          supabase.from('products').update({ sort_order: index + 1 }).eq('id', item.id)
+        )
+      );
+      setOrderSaved(true);
+      setTimeout(() => setOrderSaved(false), 3000);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setSavingOrder(false);
     }
   };
 
@@ -235,7 +345,87 @@ export const AdminPage = () => {
            </div>
         </div>
 
-        {/* Active Inventory Grid - Full Width */}
+        {/* ── Tab Switcher ───────────────────────────────────────────────── */}
+        <div className="flex items-center gap-3 mb-8">
+          <button
+            onClick={() => setActiveTab('inventory')}
+            className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all ${
+              activeTab === 'inventory'
+                ? 'bg-gray-900 text-white shadow-lg'
+                : 'bg-white border border-gray-200 text-gray-500 hover:border-gray-400'
+            }`}
+          >
+            <LayoutGrid size={14} /> Inventory
+          </button>
+          <button
+            onClick={() => { setActiveTab('reorder'); setReorderItems([...products]); }}
+            className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all ${
+              activeTab === 'reorder'
+                ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
+                : 'bg-white border border-gray-200 text-gray-500 hover:border-gray-400'
+            }`}
+          >
+            <ArrowUpDown size={14} /> Reorder Hub
+          </button>
+        </div>
+
+        {/* ── Reorder Hub Tab ─────────────────────────────────────────────── */}
+        {activeTab === 'reorder' && (
+          <div className="bg-white rounded-[40px] border border-gray-100 shadow-[0_4px_20px_rgb(0,0,0,0.02)] overflow-hidden">
+            <div className="p-8 border-b border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-black text-gray-900 tracking-widest uppercase flex items-center gap-3">
+                  <ArrowUpDown size={18} className="text-blue-600" /> Reorder Hub
+                </h2>
+                <p className="text-[11px] text-gray-400 mt-1 font-medium">Drag rows to set display order. Hit Save to push changes live.</p>
+              </div>
+              <button
+                onClick={saveOrder}
+                disabled={savingOrder}
+                className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all shadow-md active:scale-95 disabled:opacity-60 ${
+                  orderSaved
+                    ? 'bg-emerald-600 text-white shadow-emerald-600/30'
+                    : 'bg-blue-600 text-white hover:bg-blue-700 shadow-blue-600/30'
+                }`}
+              >
+                {savingOrder ? (
+                  <><Loader2 size={14} className="animate-spin" /> Saving...</>
+                ) : orderSaved ? (
+                  <><CheckCheck size={14} /> Saved!</>
+                ) : (
+                  <><Save size={14} /> Save Order</>
+                )}
+              </button>
+            </div>
+            <div className="p-6">
+              {loading ? (
+                <div className="space-y-3">
+                  {[...Array(5)].map((_, i) => (
+                    <div key={i} className="h-16 bg-gray-50 animate-pulse rounded-2xl border border-gray-100" />
+                  ))}
+                </div>
+              ) : reorderItems.length > 0 ? (
+                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                  <SortableContext items={reorderItems.map(p => p.id)} strategy={verticalListSortingStrategy}>
+                    <div className="space-y-2">
+                      {reorderItems.map((product, index) => (
+                        <SortableProductRow key={product.id} product={product} index={index} />
+                      ))}
+                    </div>
+                  </SortableContext>
+                </DndContext>
+              ) : (
+                <div className="py-24 text-center flex flex-col items-center">
+                  <Package size={40} className="text-gray-300 mb-4" />
+                  <p className="text-gray-400 font-black uppercase tracking-[0.3em] text-xs">No products to reorder</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ── Inventory Tab ────────────────────────────────────────────────── */}
+        {activeTab === 'inventory' && (
         <div className="bg-white rounded-[40px] border border-gray-100 shadow-[0_4px_20px_rgb(0,0,0,0.02)] overflow-hidden">
            <div className="p-8 border-b border-gray-100 flex items-center justify-between">
               <h2 className="text-xl font-black text-gray-900 tracking-widest uppercase flex items-center gap-4">
@@ -316,6 +506,7 @@ export const AdminPage = () => {
               )}
            </div>
         </div>
+        )} {/* end inventory tab */}
       </div>
 
       {/* Stunning Create/Edit Modal */}
