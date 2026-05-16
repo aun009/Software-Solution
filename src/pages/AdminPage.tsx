@@ -175,8 +175,8 @@ export const AdminPage = () => {
       }
       setOrderSaved(true);
       setTimeout(() => setOrderSaved(false), 3000);
-      // Refresh the global product store so StorePage reflects the new order immediately
-      await refreshGlobalStore();
+      // Refresh global store (StorePage) AND local admin list (Reorder Hub) in parallel
+      await Promise.all([refreshGlobalStore(), fetchProducts()]);
     } catch (err: any) {
       setError(err?.message || 'Failed to save order');
     } finally {
