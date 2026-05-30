@@ -1,13 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import {
-  ArrowRight, X
-} from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { X } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { StorePage } from './StorePage';
 import { Reviews } from '../components/Reviews';
+import { FloatingIconsHero } from '../components/FloatingIconsHero';
 
 const LOGO_DEV_PUBLIC_KEY = import.meta.env.VITE_LOGO_DEV_PUBLIC_KEY;
 
@@ -15,7 +13,6 @@ gsap.registerPlugin(ScrollTrigger);
 
 export const HomePage = () => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const heroRef = useRef<HTMLDivElement>(null);
   const [showChatBubble, setShowChatBubble] = useState(true);
 
   useEffect(() => {
@@ -26,15 +23,6 @@ export const HomePage = () => {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Hero Entrance
-      gsap.from('.hero-text', {
-        y: 60,
-        opacity: 0,
-        duration: 1.2,
-        stagger: 0.2,
-        ease: 'power3.out'
-      });
-
       // Simple, smooth reveal for sections
       const sections = document.querySelectorAll('.fade-up-section');
       sections.forEach(section => {
@@ -61,54 +49,12 @@ export const HomePage = () => {
 
 
       {/* Hero Section */}
-      <section
-        id="home"
-        ref={heroRef}
-        className="relative min-h-[calc(100svh-4rem)] md:min-h-[calc(100vh-5rem)] flex flex-col items-center justify-center px-6 pt-24 pb-16 overflow-hidden bg-[#FAFAFC]"
-      >
-        {/* Hero gradient mesh — pure CSS transforms, same look as before, zero JS, 100% GPU composited */}
-        <div aria-hidden="true" className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="hero-blob-blue" />
-          <div className="hero-blob-purple" />
-          <div className="hero-blob-pink" />
-          <div className="hero-aura" />
-        </div>
-
-        <div className="max-w-6xl mx-auto w-full relative z-10 flex flex-col items-center text-center pt-8 md:pt-0">
-
-          <h1 className="hero-text flex flex-col items-center tracking-[-0.02em] text-[#0f172a] mb-6 md:mb-0" style={{ fontFamily: "'Playfair Display', serif" }}>
-            <span className="text-[40px] sm:text-5xl md:text-[60px] lg:text-[70px] xl:text-[85px] font-bold leading-[1.0] md:leading-[1.05] text-[#0f172a]">
-              Smart AI and
-            </span>
-            <span className="text-[40px] sm:text-5xl md:text-[60px] lg:text-[70px] xl:text-[85px] font-semibold leading-[1.0] md:leading-[1.05] bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-500 bg-clip-text text-transparent pb-0 whitespace-nowrap">
-              Software Solutions
-            </span>
-
-            <span className="mt-1 md:mt-2 text-[40px] sm:text-5xl md:text-[60px] lg:text-[70px] xl:text-[85px] text-[#0f172a] font-bold whitespace-nowrap leading-[1.0] md:leading-[1.05]">
-              for Your Business
-            </span>
-          </h1>
-
-          <p className="hero-text mt-0 md:mt-10 text-lg md:text-xl xl:text-2xl text-gray-600 max-w-3xl mb-8 md:mb-10 leading-relaxed font-['Poppins'] font-normal tracking-wide">
-            Delivering trusted AI tools and smart software solutions to help you build, innovate, and grow faster.
-          </p>
-
-
-          <div className="hero-text flex flex-col sm:flex-row gap-4 justify-center items-center w-full">
-            <button
-              onClick={() => {
-                const el = document.getElementById('store');
-                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-              }}
-              className="group overflow-hidden relative px-8 py-4 md:px-10 md:py-5 bg-blue-600 text-white rounded-xl md:rounded-2xl font-black text-xs md:text-sm uppercase tracking-widest flex items-center gap-3 hover:bg-blue-500 transition-all duration-300 hover:scale-[1.03] active:scale-95 shadow-[0_0_30px_rgba(37,99,235,0.3)] hover:shadow-[0_0_40px_rgba(37,99,235,0.5)] cursor-pointer"
-            >
-              <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out" />
-              <span className="relative z-10 block transition-transform duration-300 group-hover:-translate-x-1">Explore Softwares</span>
-              <ArrowRight size={18} className="relative z-10 transition-transform duration-300 group-hover:translate-x-1 group-hover:scale-110" />
-            </button>
-          </div>
-        </div>
-      </section>
+      <FloatingIconsHero
+        onExplore={() => {
+          const el = document.getElementById('store');
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }}
+      />
 
       {/* Partner Marquee Rows */}
       <section className="py-5 md:py-16 overflow-hidden border-y border-white/10 bg-gradient-to-br from-blue-950 via-slate-900 to-indigo-950 relative">
@@ -241,7 +187,7 @@ export const HomePage = () => {
       <Reviews />
 
       {/* Persistent WhatsApp Floating Widget */}
-      <div className="fixed bottom-20 right-4 md:bottom-8 md:right-8 z-[150] flex flex-col items-end gap-4 pointer-events-none">
+      <div className="fixed bottom-4 right-4 md:bottom-8 md:right-8 z-[150] flex flex-col items-end gap-4 pointer-events-none">
 
         {/* Animated Help Bubble */}
         <AnimatePresence>
@@ -250,7 +196,7 @@ export const HomePage = () => {
               initial={{ opacity: 0, y: 10, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-              className="relative bg-white pl-5 pr-10 py-3 rounded-2xl shadow-xl shadow-black/10 border border-black/5 animate-bounce pointer-events-auto hidden sm:block"
+              className="relative bg-white pl-5 pr-10 py-3 rounded-2xl shadow-xl shadow-black/10 border border-black/5 animate-bounce pointer-events-auto hidden xl:block"
             >
               <div className="flex items-center gap-2.5">
                 <span className="flex h-2.5 w-2.5 relative">
@@ -305,78 +251,6 @@ export const HomePage = () => {
           animation: marquee-left 30s linear infinite;
           will-change: transform;
           backface-visibility: hidden;
-        }
-
-        /* Hero gradient mesh — solid colour + filter:blur matches original bg-blue-300/40 blur-[120px] look */
-        /* blur value never changes = GPU caches texture once; only transform animates via compositor */
-        .hero-blob-blue {
-          position: absolute;
-          top: -20%; left: -10%;
-          width: 70%; height: 70%;
-          background: rgba(147, 197, 253, 0.42);
-          border-radius: 9999px;
-          filter: blur(120px);
-          will-change: transform;
-          animation: hero-drift-blue 12s ease-in-out infinite;
-        }
-        .hero-blob-purple {
-          position: absolute;
-          bottom: 10%; right: -10%;
-          width: 60%; height: 60%;
-          background: rgba(216, 180, 254, 0.36);
-          border-radius: 9999px;
-          filter: blur(120px);
-          will-change: transform;
-          animation: hero-drift-purple 18s ease-in-out infinite;
-          animation-delay: 2s;
-        }
-        .hero-blob-pink {
-          position: absolute;
-          top: 40%; left: 40%;
-          width: 40%; height: 40%;
-          background: rgba(249, 168, 212, 0.28);
-          border-radius: 9999px;
-          filter: blur(120px);
-          will-change: transform;
-          animation: hero-drift-pink 15s ease-in-out infinite;
-          animation-delay: 4s;
-        }
-        /* Rotating violet aura — matches original #8b5cf6 circle */
-        .hero-aura {
-          position: absolute;
-          top: 50%; left: 50%;
-          width: 100%; max-width: 896px;
-          height: 600px;
-          background: radial-gradient(circle, rgba(139,92,246,0.3) 0%, transparent 70%);
-          filter: blur(100px);
-          opacity: 0.25;
-          will-change: transform;
-          animation: hero-spin-aura 20s linear infinite;
-        }
-        @keyframes hero-drift-blue {
-          0%, 100% { transform: translate3d(0, 0, 0); }
-          33%       { transform: translate3d(80px, 40px, 0); }
-          66%       { transform: translate3d(-20px, 80px, 0); }
-        }
-        @keyframes hero-drift-purple {
-          0%, 100% { transform: translate3d(0, 0, 0); }
-          33%       { transform: translate3d(-60px, -70px, 0); }
-          66%       { transform: translate3d(30px, -40px, 0); }
-        }
-        @keyframes hero-drift-pink {
-          0%, 100% { transform: translate3d(0, 0, 0); }
-          33%       { transform: translate3d(90px, -60px, 0); }
-          66%       { transform: translate3d(-30px, 50px, 0); }
-        }
-        @keyframes hero-spin-aura {
-          0%   { transform: translate(-50%, -50%) rotate(0deg); }
-          100% { transform: translate(-50%, -50%) rotate(360deg); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .hero-blob-blue, .hero-blob-purple, .hero-blob-pink, .hero-aura {
-            animation: none;
-          }
-          .hero-aura { transform: translate(-50%, -50%); }
         }
       `}</style>
     </div>
