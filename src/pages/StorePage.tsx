@@ -71,7 +71,7 @@ export const StorePage = () => {
   return (
     <div className="pb-24 font-sans bg-[#0b162c] bg-[radial-gradient(ellipse_at_center,rgba(30,58,138,0.25)_0%,rgba(11,22,44,1)_80%)] text-white selection:bg-blue-500/30">
       {/* Light Theme Top Section */}
-      <div className="pt-32 md:pt-48 pb-16 md:pb-24 bg-gray-50 text-gray-900 relative z-10 border-b border-gray-200 bg-[radial-gradient(ellipse_at_top,rgba(59,130,246,0.08)_0%,rgba(249,250,251,1)_70%)]">
+      <div className="pt-32 md:pt-48 pb-16 md:pb-24 bg-gray-50 text-gray-900 relative z-20 border-b border-gray-200 bg-[radial-gradient(ellipse_at_top,rgba(59,130,246,0.08)_0%,rgba(249,250,251,1)_70%)]">
         {/* Search Section */}
         <section className="max-w-7xl mx-auto px-4 md:px-6 relative z-20">
           <motion.div

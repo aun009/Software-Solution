@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   BookOpenCheck,
   Brush,
@@ -93,6 +93,23 @@ export const SearchPanel = ({
   const [wordIndex, setWordIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: Event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    if (isDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [isDropdownOpen]);
 
   useEffect(() => {
     let typingSpeed = isDeleting ? 30 : 80;
@@ -143,7 +160,7 @@ export const SearchPanel = ({
       </div>
 
       {/* Mobile Category Dropdown Selector (Compact & space-saving) */}
-      <div className="relative w-full md:hidden px-2 z-30">
+      <div ref={dropdownRef} className="relative w-full md:hidden px-2 z-30">
         <button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           className="w-full flex items-center justify-between p-4 bg-white border-2 rounded-2xl transition-all duration-300 shadow-[0_4px_15px_rgba(0,0,0,0.02)] select-none cursor-pointer"
@@ -185,64 +202,56 @@ export const SearchPanel = ({
 
         <AnimatePresence>
           {isDropdownOpen && (
-            <>
-              {/* Transparent backdrop for outside clicks */}
-              <div 
-                className="fixed inset-0 z-40 bg-transparent"
-                onClick={() => setIsDropdownOpen(false)}
-              />
-              
-              <motion.div
-                initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                transition={{ duration: 0.18, ease: 'easeOut' }}
-                className="absolute left-2 right-2 mt-2 p-2 bg-white/95 backdrop-blur-xl border border-slate-200 rounded-2xl shadow-[0_20px_40px_rgba(15,23,42,0.15)] z-50 overflow-hidden max-h-[280px] overflow-y-auto scrollbar-none"
-              >
-                {CATEGORIES.map((category) => {
-                  const meta = CATEGORY_META[category];
-                  const Icon = meta.Icon;
-                  const isSelected = selectedCategory === category;
+            <motion.div
+              initial={{ opacity: 0, y: -10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.95 }}
+              transition={{ duration: 0.18, ease: 'easeOut' }}
+              className="absolute left-2 right-2 mt-2 p-2 bg-white border border-slate-200 rounded-2xl shadow-[0_20px_40px_rgba(15,23,42,0.15)] z-50 overflow-hidden max-h-[280px] overflow-y-auto scrollbar-none"
+            >
+              {CATEGORIES.map((category) => {
+                const meta = CATEGORY_META[category];
+                const Icon = meta.Icon;
+                const isSelected = selectedCategory === category;
 
-                  return (
-                    <button
-                      key={category}
-                      onClick={() => {
-                        setSelectedCategory(category);
-                        setIsDropdownOpen(false);
-                      }}
-                      className={cn(
-                        "w-full flex items-center justify-between p-3 rounded-xl transition-all text-left mb-1 last:mb-0 cursor-pointer select-none",
-                        isSelected 
-                          ? "bg-slate-50 font-black text-slate-900" 
-                          : "hover:bg-slate-50 text-slate-600 hover:text-slate-900"
-                      )}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div
-                          className="grid place-items-center w-8 h-8 rounded-lg"
-                          style={{
-                            background: meta.background,
-                            color: meta.color
-                          }}
-                        >
-                          <Icon size={16} strokeWidth={2.2} />
-                        </div>
-                        <span className="text-[12px] font-bold uppercase tracking-[0.08em]">
-                          {category === 'SEO & Marketing' ? 'Marketing' : category === 'Stock & Media' ? 'Media' : category}
-                        </span>
+                return (
+                  <button
+                    key={category}
+                    onClick={() => {
+                      setSelectedCategory(category);
+                      setIsDropdownOpen(false);
+                    }}
+                    className={cn(
+                      "w-full flex items-center justify-between p-3 rounded-xl transition-all text-left mb-1 last:mb-0 cursor-pointer select-none",
+                      isSelected 
+                        ? "bg-slate-50 font-black text-slate-900" 
+                        : "hover:bg-slate-50 text-slate-600 hover:text-slate-900"
+                    )}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="grid place-items-center w-8 h-8 rounded-lg"
+                        style={{
+                          background: meta.background,
+                          color: meta.color
+                        }}
+                      >
+                        <Icon size={16} strokeWidth={2.2} />
                       </div>
-                      {isSelected && (
-                        <div 
-                          className="w-2.5 h-2.5 rounded-full"
-                          style={{ backgroundColor: meta.color }}
-                        />
-                      )}
-                    </button>
-                  );
-                })}
-              </motion.div>
-            </>
+                      <span className="text-[12px] font-bold uppercase tracking-[0.08em]">
+                        {category === 'SEO & Marketing' ? 'Marketing' : category === 'Stock & Media' ? 'Media' : category}
+                      </span>
+                    </div>
+                    {isSelected && (
+                      <div 
+                        className="w-2.5 h-2.5 rounded-full"
+                        style={{ backgroundColor: meta.color }}
+                      />
+                    )}
+                  </button>
+                );
+              })}
+            </motion.div>
           )}
         </AnimatePresence>
       </div>
