@@ -311,7 +311,7 @@ export const FloatingIconsHero = ({ onExplore }: FloatingIconsHeroProps) => {
       ref={heroRef}
       onPointerMove={handlePointerMove}
       onPointerLeave={clearPointer}
-      className="relative min-h-[calc(85vh-4.5rem)] md:min-h-[calc(100vh-5rem)] flex flex-col items-center justify-start md:justify-center px-5 sm:px-6 pt-32 md:pt-24 pb-6 md:pb-16 overflow-hidden bg-[#FAFAFC]"
+      className="relative min-h-[calc(85vh-4.5rem)] md:min-h-[calc(100vh-5rem)] flex flex-col items-center justify-start md:justify-center px-5 sm:px-6 pt-36 md:pt-24 pb-6 md:pb-16 overflow-hidden bg-[#FAFAFC]"
     >
       <div aria-hidden="true" className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div
@@ -357,7 +357,7 @@ export const FloatingIconsHero = ({ onExplore }: FloatingIconsHeroProps) => {
         variants={heroContentVariants}
       >
         <motion.div
-          className="hero-text mb-7 md:mb-4 inline-flex items-center gap-2 rounded-lg border border-blue-200/80 bg-white/85 px-4 py-2 text-[10.5px] md:text-[12px] font-black uppercase tracking-[0.16em] md:tracking-[0.18em] text-blue-700 shadow-[0_6px_18px_rgba(37,99,235,0.12)] backdrop-blur-md"
+          className="hero-text mb-7 md:mb-4 inline-flex items-center gap-2 rounded-lg border border-blue-200/80 bg-white/85 px-4 py-2 text-[10.5px] md:text-[12px] font-semibold uppercase tracking-[0.16em] md:tracking-[0.18em] text-blue-700 shadow-[0_6px_18px_rgba(37,99,235,0.12)] backdrop-blur-md"
           variants={reduceMotion ? reducedHeroItemVariants : heroItemVariants}
         >
           <Sparkles size={15} className="text-violet-600" />

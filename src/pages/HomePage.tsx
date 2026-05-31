@@ -117,10 +117,10 @@ export const HomePage = () => {
     return () => ctx.revert();
   }, []);
 
-  // Select sliced partner lists dynamically based on screen layout to halve mobile DOM count
-  const row1Items = isMobile ? ROW1_PARTNERS.slice(0, 6) : ROW1_PARTNERS;
-  const row2Items = isMobile ? ROW2_PARTNERS.slice(0, 6) : ROW2_PARTNERS;
-  const row3Items = isMobile ? ROW3_PARTNERS.slice(0, 6) : ROW3_PARTNERS;
+  // Keep full logo arrays on all viewports so there are no empty gaps in the infinite marquee loop
+  const row1Items = ROW1_PARTNERS;
+  const row2Items = ROW2_PARTNERS;
+  const row3Items = ROW3_PARTNERS;
 
   return (
     <div ref={containerRef} className="w-full relative z-10 overflow-hidden selection:bg-blue-500/30">
@@ -137,7 +137,6 @@ export const HomePage = () => {
       <section 
         ref={marqueeRef}
         className={`py-5 md:py-16 overflow-hidden border-y border-white/10 bg-gradient-to-br from-blue-950 via-slate-900 to-indigo-950 relative z-10 ${isMarqueeVisible ? '' : 'paused-marquee'}`}
-        style={{ contentVisibility: 'auto', containIntrinsicSize: '280px' }}
       >
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(59,130,246,0.15)_0%,transparent_60%)]" />
         <div className="flex flex-col gap-2 md:gap-6 relative z-10 max-w-[100vw]">
@@ -155,7 +154,7 @@ export const HomePage = () => {
                       <img
                         src={`https://img.logo.dev/${item.url}?token=${LOGO_DEV_PUBLIC_KEY}&size=128&format=png`}
                         alt={item.name}
-                        loading="lazy"
+                        loading="eager"
                         decoding="async"
                         className="w-9 h-9 md:w-14 md:h-14 object-contain rounded-lg md:rounded-[12px] bg-white p-1 md:p-1.5"
                         onError={(e) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&size=64&background=2ec4b6&color=fff&bold=true` }}
@@ -181,7 +180,7 @@ export const HomePage = () => {
                       <img
                         src={`https://img.logo.dev/${item.url}?token=${LOGO_DEV_PUBLIC_KEY}&size=128&format=png`}
                         alt={item.name}
-                        loading="lazy"
+                        loading="eager"
                         decoding="async"
                         className="w-9 h-9 md:w-14 md:h-14 object-contain rounded-lg md:rounded-[12px] bg-white p-1 md:p-1.5"
                         onError={(e) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&size=64&background=2ec4b6&color=fff&bold=true` }}
@@ -207,7 +206,7 @@ export const HomePage = () => {
                       <img
                         src={`https://img.logo.dev/${item.url}?token=${LOGO_DEV_PUBLIC_KEY}&size=128&format=png`}
                         alt={item.name}
-                        loading="lazy"
+                        loading="eager"
                         decoding="async"
                         className="w-9 h-9 md:w-14 md:h-14 object-contain rounded-lg md:rounded-[12px] bg-white p-1 md:p-1.5"
                         onError={(e) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&size=64&background=2ec4b6&color=fff&bold=true` }}

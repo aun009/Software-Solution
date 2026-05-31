@@ -84,15 +84,20 @@ const CATEGORY_META: Record<Category, { Icon: LucideIcon; color: string; backgro
   },
 };
 
-const MOBILE_ITEMS = [
+const GRID_ITEMS = [
+  { label: 'All', category: 'All' as Category, Icon: LayoutGrid, color: '#0f172a', background: 'rgba(15, 23, 42, 0.08)' },
   { label: 'AI & Writing', category: 'AI & Writing' as Category, Icon: WandSparkles, color: '#8b5cf6', background: 'rgba(139, 92, 246, 0.08)' },
   { label: 'Graphic Design', category: 'Graphic Design' as Category, Icon: Brush, color: '#2563eb', background: 'rgba(37, 99, 235, 0.08)' },
   { label: 'Video Editing', category: 'Video Editing' as Category, Icon: Clapperboard, color: '#f43f5e', background: 'rgba(244, 63, 94, 0.08)' },
   { label: 'Marketing', category: 'SEO & Marketing' as Category, Icon: Megaphone, color: '#ea580c', background: 'rgba(234, 88, 12, 0.08)' },
-  { label: 'Productivity', category: 'Productivity' as Category, Icon: CheckCircle2, color: '#10b981', background: 'rgba(16, 185, 129, 0.08)' },
   { label: 'Learning', category: 'Learning' as Category, Icon: BookOpenCheck, color: '#6366f1', background: 'rgba(99, 102, 241, 0.08)' },
   { label: 'Media', category: 'Stock & Media' as Category, Icon: Camera, color: '#d946ef', background: 'rgba(217, 70, 239, 0.08)' },
-  { label: 'More', category: 'All' as Category, Icon: MoreHorizontal, color: '#64748b', background: 'rgba(100, 116, 139, 0.08)' }
+  { label: 'More', category: 'More' as Category, Icon: MoreHorizontal, color: '#64748b', background: 'rgba(100, 116, 139, 0.08)' }
+];
+
+const DROPDOWN_ITEMS = [
+  { label: 'Productivity', category: 'Productivity' as Category, Icon: CheckCircle2, color: '#10b981', background: 'rgba(16, 185, 129, 0.08)' },
+  { label: 'Entertainment', category: 'Entertainment' as Category, Icon: Gamepad2, color: '#d946ef', background: 'rgba(217, 70, 239, 0.08)' }
 ];
 
 const PLACEHOLDERS = [
@@ -301,10 +306,10 @@ export const SearchPanel = ({
       {/* Mobile Category Grid Selector (Premium Grid style - 4 in a row) */}
       <div className="w-full md:hidden px-2 z-30">
         <div className="grid grid-cols-4 gap-2 w-full max-w-sm mx-auto">
-          {MOBILE_ITEMS.map((item) => {
+          {GRID_ITEMS.map((item) => {
             const isActiveCategory = selectedCategory === item.category;
             const isMoreItem = item.label === 'More';
-            const isMoreActive = isMoreItem && (selectedCategory === 'All' || selectedCategory === 'Entertainment');
+            const isMoreActive = isMoreItem && (selectedCategory === 'Productivity' || selectedCategory === 'Entertainment');
             const isSelected = isMoreItem ? isMoreActive : isActiveCategory;
             const Icon = item.Icon;
 
@@ -341,8 +346,8 @@ export const SearchPanel = ({
                 {/* Title text */}
                 <span 
                   className={cn(
-                    "text-[9px] font-bold tracking-tight leading-tight text-center transition-colors duration-300",
-                    isSelected ? "text-slate-900 font-extrabold" : "text-slate-600"
+                    "text-[9px] font-medium tracking-tight leading-tight text-center transition-colors duration-300",
+                    isSelected ? "text-slate-900 font-semibold" : "text-slate-600"
                   )}
                 >
                   {item.label}
@@ -352,7 +357,7 @@ export const SearchPanel = ({
           })}
         </div>
 
-        {/* Dropdown popup for "More" categories */}
+        {/* Mobile-only Dropdown popup for "More" categories */}
         <AnimatePresence>
           {isDropdownOpen && (
             <div ref={dropdownRef} className="relative w-full max-w-sm mx-auto mt-2">
@@ -363,10 +368,7 @@ export const SearchPanel = ({
                 transition={{ duration: 0.18, ease: 'easeOut' }}
                 className="absolute left-0 right-0 p-2 bg-white border border-slate-200 rounded-2xl z-50 shadow-[0_20px_40px_rgba(15,23,42,0.15)] overflow-hidden"
               >
-                {[
-                  { label: 'All Categories', category: 'All' as Category, Icon: LayoutGrid, color: '#0f172a', bg: 'rgba(15, 23, 42, 0.08)' },
-                  { label: 'Entertainment', category: 'Entertainment' as Category, Icon: Gamepad2, color: '#ea580c', bg: 'rgba(234, 88, 12, 0.12)' }
-                ].map((other) => {
+                {DROPDOWN_ITEMS.map((other) => {
                   const isSelected = selectedCategory === other.category;
                   const Icon = other.Icon;
                   return (
@@ -379,7 +381,7 @@ export const SearchPanel = ({
                       className={cn(
                         "w-full flex items-center justify-between p-2.5 rounded-xl transition-all text-left mb-1 last:mb-0 cursor-pointer select-none",
                         isSelected 
-                          ? "bg-slate-50 font-black text-slate-900" 
+                          ? "bg-slate-50 text-slate-900" 
                           : "hover:bg-slate-50 text-slate-600 hover:text-slate-900"
                       )}
                     >
@@ -387,13 +389,13 @@ export const SearchPanel = ({
                         <div
                           className="grid place-items-center w-7 h-7 rounded-lg"
                           style={{
-                            background: other.bg,
+                            background: other.background,
                             color: other.color
                           }}
                         >
                           <Icon size={14} strokeWidth={2.2} />
                         </div>
-                        <span className="text-[12px] font-bold">
+                        <span className="text-[12px] font-medium text-slate-800">
                           {other.label}
                         </span>
                       </div>
@@ -413,67 +415,134 @@ export const SearchPanel = ({
       </div>
 
       {/* Desktop/Tablet Category Grid Cards (Wrapped in a beautiful mockup-style enclosing card) */}
-      <motion.div 
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ staggerChildren: 0.04 }}
-        className="hidden md:grid md:grid-cols-4 gap-4 w-full max-w-3xl mx-auto p-5 bg-white border border-slate-100/90 rounded-[32px] shadow-[0_20px_50px_rgba(15,23,42,0.04)] px-5"
-      >
-        {CATEGORIES.map((category, idx) => {
-          const meta = CATEGORY_META[category];
-          const Icon = meta.Icon;
-          const isActive = selectedCategory === category;
+      <div className="hidden md:block relative w-full">
+        <motion.div 
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ staggerChildren: 0.04 }}
+          className="grid grid-cols-4 gap-4 w-full max-w-3xl mx-auto p-5 bg-white border border-slate-100/90 rounded-[32px] shadow-[0_20px_50px_rgba(15,23,42,0.04)] px-5"
+        >
+          {GRID_ITEMS.map((item, idx) => {
+            const isActiveCategory = selectedCategory === item.category;
+            const isMoreItem = item.label === 'More';
+            const isMoreActive = isMoreItem && (selectedCategory === 'Productivity' || selectedCategory === 'Entertainment');
+            const isSelected = isMoreItem ? isMoreActive : isActiveCategory;
+            const Icon = item.Icon;
 
-          return (
-            <motion.button
-              initial={{ opacity: 0, scale: 0.9, y: 15 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: idx * 0.03 + 0.1, type: "spring", stiffness: 180, damping: 18 }}
-              key={category}
-              onClick={() => setSelectedCategory(category)}
-              className={cn(
-                "relative group overflow-hidden flex flex-col items-center justify-center p-4 rounded-[24px] border-2 transition-all duration-300 w-full h-28 cursor-pointer select-none",
-                isActive
-                  ? "bg-white border-slate-950 shadow-[0_12px_30px_rgba(15,23,42,0.08)] scale-[1.03] z-10"
-                  : "bg-white border-slate-100 hover:border-slate-200 hover:shadow-[0_10px_25px_rgba(15,23,42,0.04)] hover:-translate-y-0.5 hover:scale-[1.01]"
-              )}
-            >
-              {/* Soft radial background glow on active/hover */}
-              <div 
-                className={cn(
-                  "absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none",
-                  isActive && "opacity-100"
-                )}
-                style={{
-                  background: `radial-gradient(circle at center, ${meta.color}0d 0%, transparent 70%)`
+            return (
+              <motion.button
+                initial={{ opacity: 0, scale: 0.9, y: 15 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: idx * 0.03 + 0.1, type: "spring", stiffness: 180, damping: 18 }}
+                key={item.label}
+                onClick={() => {
+                  if (isMoreItem) {
+                    setIsDropdownOpen(!isDropdownOpen);
+                  } else {
+                    setSelectedCategory(item.category);
+                    setIsDropdownOpen(false);
+                  }
                 }}
-              />
-
-              {/* Icon Container with glowing background */}
-              <div
-                className="relative grid place-items-center w-11 h-11 rounded-2xl mb-2.5 transition-all duration-300 group-hover:scale-110"
-                style={{
-                  background: isActive ? `${meta.color}25` : meta.background,
-                  color: meta.color,
-                  boxShadow: isActive ? `0 0 20px -2px ${meta.color}25` : 'none'
-                }}
-              >
-                <Icon size={20} strokeWidth={isActive ? 2.8 : 2.4} className="relative z-10" />
-              </div>
-
-              {/* Title Text */}
-              <span 
                 className={cn(
-                  "text-[11px] sm:text-xs font-black tracking-[0.08em] uppercase transition-colors duration-300 leading-tight text-center px-1",
-                  isActive ? "text-slate-900" : "text-slate-500 group-hover:text-slate-800"
+                  "relative group overflow-hidden flex flex-col items-center justify-center p-4 rounded-[24px] border-2 transition-all duration-300 w-full h-28 cursor-pointer select-none",
+                  isSelected
+                    ? "bg-white border-slate-950 shadow-[0_12px_30px_rgba(15,23,42,0.08)] scale-[1.03] z-10"
+                    : "bg-white border-slate-100 hover:border-slate-200 hover:shadow-[0_10px_25px_rgba(15,23,42,0.04)] hover:-translate-y-0.5 hover:scale-[1.01]"
                 )}
               >
-                {category === 'SEO & Marketing' ? 'MARKETING' : category === 'Stock & Media' ? 'MEDIA' : category === 'Entertainment' ? 'ENTERTAINMENT' : category.toUpperCase()}
-              </span>
-            </motion.button>
-          );
-        })}
-      </motion.div>
+                {/* Soft radial background glow on active/hover */}
+                <div 
+                  className={cn(
+                    "absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none",
+                    isSelected && "opacity-100"
+                  )}
+                  style={{
+                    background: `radial-gradient(circle at center, ${item.color}0d 0%, transparent 70%)`
+                  }}
+                />
+
+                {/* Icon Container with glowing background */}
+                <div
+                  className="relative grid place-items-center w-11 h-11 rounded-2xl mb-2.5 transition-all duration-300 group-hover:scale-110"
+                  style={{
+                    background: isSelected ? `${item.color}25` : item.background,
+                    color: item.color,
+                    boxShadow: isSelected ? `0 0 20px -2px ${item.color}25` : 'none'
+                  }}
+                >
+                  <Icon size={20} strokeWidth={isSelected ? 2.8 : 2.4} className="relative z-10" />
+                </div>
+
+                {/* Title Text */}
+                <span 
+                  className={cn(
+                    "text-[11px] sm:text-xs font-medium tracking-[0.08em] uppercase transition-colors duration-300 leading-tight text-center px-1",
+                    isSelected ? "text-slate-900 font-semibold" : "text-slate-500 group-hover:text-slate-800"
+                  )}
+                >
+                  {item.label === 'More' ? 'MORE' : item.label.toUpperCase()}
+                </span>
+              </motion.button>
+            );
+          })}
+        </motion.div>
+
+        {/* Desktop Dropdown popup for "More" categories */}
+        <AnimatePresence>
+          {isDropdownOpen && (
+            <div ref={dropdownRef} className="absolute left-1/2 -translate-x-1/2 w-full max-w-sm mt-3 z-50">
+              <motion.div
+                initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                transition={{ duration: 0.18, ease: 'easeOut' }}
+                className="p-2 bg-white border border-slate-200 rounded-2xl shadow-[0_20px_40px_rgba(15,23,42,0.15)] overflow-hidden"
+              >
+                {DROPDOWN_ITEMS.map((other) => {
+                  const isSelected = selectedCategory === other.category;
+                  const Icon = other.Icon;
+                  return (
+                    <button
+                      key={other.category}
+                      onClick={() => {
+                        setSelectedCategory(other.category);
+                        setIsDropdownOpen(false);
+                      }}
+                      className={cn(
+                        "w-full flex items-center justify-between p-2.5 rounded-xl transition-all text-left mb-1 last:mb-0 cursor-pointer select-none",
+                        isSelected 
+                          ? "bg-slate-50 text-slate-900 font-semibold" 
+                          : "hover:bg-slate-50 text-slate-600 hover:text-slate-900 font-medium"
+                      )}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="grid place-items-center w-7 h-7 rounded-lg"
+                          style={{
+                            background: other.background,
+                            color: other.color
+                          }}
+                        >
+                          <Icon size={14} strokeWidth={2.2} />
+                        </div>
+                        <span className="text-[12px] text-slate-800">
+                          {other.label}
+                        </span>
+                      </div>
+                      {isSelected && (
+                        <div 
+                          className="w-2 h-2 rounded-full"
+                          style={{ backgroundColor: other.color }}
+                        />
+                      )}
+                    </button>
+                  );
+                })}
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 };

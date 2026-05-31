@@ -7,7 +7,7 @@ import { supabase } from '../lib/supabase';
 import { Category } from '../types';
 import { useProductStore } from '../store/useProductStore';
 import { motion, AnimatePresence } from 'motion/react';
-import { Loader2, PackageSearch, TrendingUp, ArrowRight } from 'lucide-react';
+import { Loader2, PackageSearch, TrendingUp, ArrowRight, ShieldCheck, Star, Headset, Zap } from 'lucide-react';
 import gsap from 'gsap';
 
 const TypewriterLabel = ({ text, delay }: { text: string, delay: number }) => {
@@ -102,42 +102,58 @@ export const StorePage = () => {
             </p>
           </motion.div>
 
-        {/* Stats Bar — 2x2 on mobile, row on desktop */}
-        <div className="flex justify-center mt-6 mb-6 md:mb-24 px-2 md:px-4">
+        {/* Trust Badges Stats Bar */}
+        <div className="flex justify-center mt-6 mb-12 md:mb-20 px-1 md:px-4">
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, y: 15 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-            className="grid grid-cols-2 md:flex md:flex-nowrap items-center justify-center gap-0 w-full p-4 md:p-12 rounded-3xl md:rounded-[48px] bg-white border border-gray-200 backdrop-blur-md relative overflow-hidden shadow-[0_20px_40px_-15px_rgba(37,99,235,0.15)]"
-            onMouseMove={handleStatsTilt}
-            onMouseLeave={(e) => {
-              gsap.to(e.currentTarget, { rotateY: 0, rotateX: 0, duration: 0.8, ease: "power3.out" });
-            }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="grid grid-cols-4 w-full max-w-4xl p-3 md:p-8 rounded-[24px] md:rounded-[32px] bg-white border border-gray-100/80 shadow-[0_15px_45px_rgba(15,23,42,0.03)]"
           >
             {[
-              { label: 'VERIFIED TOOLS', value: '100', suffix: '%', delay: 0.2 },
-              { label: 'AVERAGE RATING', value: '4.8', suffix: '★', delay: 0.4 },
-              { label: 'SUPPORT', value: '24/7', suffix: '', delay: 0.6 },
-              { label: 'ACTIVE SOFTWARES', value: `${allProducts.length}`, suffix: '+', delay: 0.8 }
-            ].map((stat, i) => (
-              <React.Fragment key={i}>
-                <div className="flex flex-col items-center px-4 md:px-16 py-4 md:py-0 text-center group">
-                  <motion.div
-                    initial={{ scale: 0.5, opacity: 0 }}
-                    whileInView={{ scale: 1, opacity: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: stat.delay, type: "spring", stiffness: 200 }}
-                    className="text-2xl md:text-6xl font-black text-gray-900 mb-1 md:mb-2 tracking-tighter group-hover:text-blue-600 transition-colors flex items-baseline gap-1"
-                  >
-                    {stat.value}
-                    {stat.suffix && <span className="text-base md:text-2xl text-blue-600">{stat.suffix}</span>}
-                  </motion.div>
-                  <TypewriterLabel text={stat.label} delay={stat.delay + 0.5} />
+              { 
+                Icon: ShieldCheck, 
+                line1: '100%', 
+                line2: 'Verified', 
+                color: '#2563eb',
+                borderClass: 'border-r border-slate-100/80'
+              },
+              { 
+                Icon: Star, 
+                line1: 'Top Rated', 
+                line2: 'Software', 
+                color: '#4f46e5',
+                borderClass: 'border-r border-slate-100/80'
+              },
+              { 
+                Icon: Headset, 
+                line1: '24/7', 
+                line2: 'Support', 
+                color: '#6366f1',
+                borderClass: 'border-r border-slate-100/80'
+              },
+              { 
+                Icon: Zap, 
+                line1: 'Instant', 
+                line2: 'Delivery', 
+                color: '#8b5cf6',
+                borderClass: ''
+              }
+            ].map((stat, i) => {
+              const Icon = stat.Icon;
+              return (
+                <div key={i} className={`flex flex-col items-center text-center py-1 px-1 md:py-2 md:px-3 ${stat.borderClass}`}>
+                  <div className="grid place-items-center w-9 h-9 md:w-14 md:h-14 rounded-full mb-1.5 md:mb-3 bg-gradient-to-tr from-blue-50/20 to-indigo-50/20 border border-slate-100/60 shadow-[inset_0_2px_4px_rgba(255,255,255,0.7)]" style={{ color: stat.color }}>
+                    <Icon className="w-4 h-4 md:w-6 md:h-6" strokeWidth={1.8} />
+                  </div>
+                  <div className="flex flex-col text-slate-800 font-bold text-[8.5px] sm:text-[10px] md:text-[15px] leading-tight tracking-tight">
+                    <span>{stat.line1}</span>
+                    <span>{stat.line2}</span>
+                  </div>
                 </div>
-                {i < 3 && <div className="hidden md:block w-px h-16 bg-gray-200" />}
-              </React.Fragment>
-            ))}
+              );
+            })}
           </motion.div>
         </div>
 
