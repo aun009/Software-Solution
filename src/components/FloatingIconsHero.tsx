@@ -226,9 +226,9 @@ const FloatingHeroIcon: FC<FloatingHeroIconProps> = ({
             reduceMotion
               ? { opacity: [0.78, 1, 0.78] }
               : {
-                  y: [0, -config.drift, 0, config.drift * 0.72, 0],
-                  rotate: [config.rotate, config.rotate + 2, config.rotate, config.rotate - 2, config.rotate],
-                }
+                y: [0, -config.drift, 0, config.drift * 0.72, 0],
+                rotate: [config.rotate, config.rotate + 2, config.rotate, config.rotate - 2, config.rotate],
+              }
           }
           transition={{
             duration: reduceMotion ? 6 : config.duration,
@@ -311,7 +311,7 @@ export const FloatingIconsHero = ({ onExplore }: FloatingIconsHeroProps) => {
       ref={heroRef}
       onPointerMove={handlePointerMove}
       onPointerLeave={clearPointer}
-      className="relative min-h-[520px] sm:min-h-[580px] md:min-h-[calc(100vh-5rem)] flex flex-col items-center justify-center px-5 sm:px-6 pt-28 md:pt-24 pb-6 md:pb-16 overflow-hidden bg-[#FAFAFC]"
+      className="relative min-h-[calc(100vh-4.5rem)] md:min-h-[calc(100vh-5rem)] flex flex-col items-center justify-center px-5 sm:px-6 pt-20 md:pt-24 pb-12 md:pb-16 overflow-hidden bg-[#FAFAFC]"
     >
       <div aria-hidden="true" className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div

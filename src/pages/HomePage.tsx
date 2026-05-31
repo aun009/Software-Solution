@@ -57,7 +57,7 @@ export const HomePage = () => {
       />
 
       {/* Partner Marquee Rows */}
-      <section className="py-5 md:py-16 overflow-hidden border-y border-white/10 bg-gradient-to-br from-blue-950 via-slate-900 to-indigo-950 relative">
+      <section className="py-5 md:py-16 overflow-hidden border-y border-white/10 bg-gradient-to-br from-blue-950 via-slate-900 to-indigo-950 relative z-10">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(59,130,246,0.15)_0%,transparent_60%)]" />
         <div className="flex flex-col gap-2 md:gap-6 relative z-10 max-w-[100vw]">
           {/* Row 1: Moving Right */}
@@ -177,6 +177,7 @@ export const HomePage = () => {
           </div>
         </div>
       </section>
+
 
       {/* Embedded Store Panel */}
       <div id="store" className="scroll-mt-24 relative z-20 w-full">
