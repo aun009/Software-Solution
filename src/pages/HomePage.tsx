@@ -9,11 +9,60 @@ import { FloatingIconsHero } from '../components/FloatingIconsHero';
 
 const LOGO_DEV_PUBLIC_KEY = import.meta.env.VITE_LOGO_DEV_PUBLIC_KEY;
 
+// Keep static data outside the component render cycle to prevent memory thrashing
+const ROW1_PARTNERS = [
+  { name: "ChatGPT", url: "openai.com" },
+  { name: "Claude", url: "anthropic.com" },
+  { name: "Midjourney", url: "midjourney.com" },
+  { name: "Gemini", url: "google.com" },
+  { name: "Notion AI", url: "notion.so" },
+  { name: "Cohere", url: "cohere.com" },
+  { name: "Hugging Face", url: "huggingface.co" },
+  { name: "Meta AI", url: "meta.com" },
+  { name: "Grok", url: "x.com" },
+  { name: "Perplexity", url: "perplexity.ai" },
+  { name: "Runway", url: "runwayml.com" },
+  { name: "Pika", url: "pika.art" }
+];
+
+const ROW2_PARTNERS = [
+  { name: "Monday", url: "monday.com" },
+  { name: "ClickUp", url: "clickup.com" },
+  { name: "Asana", url: "asana.com" },
+  { name: "HubSpot", url: "hubspot.com" },
+  { name: "Intercom", url: "intercom.com" },
+  { name: "Zendesk", url: "zendesk.com" },
+  { name: "Grammarly", url: "grammarly.com" },
+  { name: "QuillBot", url: "quillbot.com" },
+  { name: "GitHub", url: "github.com" },
+  { name: "Vercel", url: "vercel.com" },
+  { name: "Stripe", url: "stripe.com" },
+  { name: "Canva", url: "canva.com" }
+];
+
+const ROW3_PARTNERS = [
+  { name: "Figma", url: "figma.com" },
+  { name: "Linear", url: "linear.app" },
+  { name: "Slack", url: "slack.com" },
+  { name: "Zoom", url: "zoom.us" },
+  { name: "Supabase", url: "supabase.com" },
+  { name: "Shopify", url: "shopify.com" },
+  { name: "Salesforce", url: "salesforce.com" },
+  { name: "Adobe", url: "adobe.com" },
+  { name: "Discord", url: "discord.com" },
+  { name: "Vimeo", url: "vimeo.com" },
+  { name: "Typeform", url: "typeform.com" },
+  { name: "Loom", url: "loom.com" }
+];
+
 gsap.registerPlugin(ScrollTrigger);
 
 export const HomePage = () => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const marqueeRef = useRef<HTMLElement>(null);
   const [showChatBubble, setShowChatBubble] = useState(true);
+  const [isMarqueeVisible, setIsMarqueeVisible] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     // Auto-hide chat bubble after 8 seconds so it doesn't annoy users
@@ -21,19 +70,43 @@ export const HomePage = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  // Performance Optimization: Check viewport size reactively for item reduction
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile, { passive: true });
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Performance Optimization: Pause marquee off-screen using lightweight Intersection Observer
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsMarqueeVisible(entry.isIntersecting);
+      },
+      { threshold: 0.02 } // Trigger as soon as 2% of the marquee is visible in the viewport
+    );
+    if (marqueeRef.current) {
+      observer.observe(marqueeRef.current);
+    }
+    return () => observer.disconnect();
+  }, []);
+
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Simple, smooth reveal for sections
+      // Simple, smooth reveal for sections - optimized using will-change and transform
       const sections = document.querySelectorAll('.fade-up-section');
       sections.forEach(section => {
         gsap.from(section, {
-          y: 40,
+          y: 30,
           opacity: 0,
-          duration: 1,
-          ease: 'power2.out',
+          duration: 0.8,
+          ease: 'power1.out',
           scrollTrigger: {
             trigger: section,
-            start: 'top 85%',
+            start: 'top 90%',
             toggleActions: 'play none none reverse'
           }
         });
@@ -44,9 +117,13 @@ export const HomePage = () => {
     return () => ctx.revert();
   }, []);
 
+  // Select sliced partner lists dynamically based on screen layout to halve mobile DOM count
+  const row1Items = isMobile ? ROW1_PARTNERS.slice(0, 6) : ROW1_PARTNERS;
+  const row2Items = isMobile ? ROW2_PARTNERS.slice(0, 6) : ROW2_PARTNERS;
+  const row3Items = isMobile ? ROW3_PARTNERS.slice(0, 6) : ROW3_PARTNERS;
+
   return (
     <div ref={containerRef} className="w-full relative z-10 overflow-hidden selection:bg-blue-500/30">
-
 
       {/* Hero Section */}
       <FloatingIconsHero
@@ -57,28 +134,20 @@ export const HomePage = () => {
       />
 
       {/* Partner Marquee Rows */}
-      <section className="py-5 md:py-16 overflow-hidden border-y border-white/10 bg-gradient-to-br from-blue-950 via-slate-900 to-indigo-950 relative z-10">
+      <section 
+        ref={marqueeRef}
+        className={`py-5 md:py-16 overflow-hidden border-y border-white/10 bg-gradient-to-br from-blue-950 via-slate-900 to-indigo-950 relative z-10 ${isMarqueeVisible ? '' : 'paused-marquee'}`}
+        style={{ contentVisibility: 'auto', containIntrinsicSize: '280px' }}
+      >
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(59,130,246,0.15)_0%,transparent_60%)]" />
         <div className="flex flex-col gap-2 md:gap-6 relative z-10 max-w-[100vw]">
+          
           {/* Row 1: Moving Right */}
           <div className="flex whitespace-nowrap">
             <div className="flex animate-marquee-right gap-2 md:gap-6 items-center pr-2 md:pr-6 hover:[animation-play-state:paused] w-max py-1.5 md:py-4 pointer-events-none" style={{ animationDuration: '60s', willChange: 'transform' }}>
               {[...Array(2)].map((_, i) => (
                 <div key={i} className="flex gap-2 md:gap-6 items-center">
-                  {[
-                    { name: "ChatGPT", url: "openai.com" },
-                    { name: "Claude", url: "anthropic.com" },
-                    { name: "Midjourney", url: "midjourney.com" },
-                    { name: "Gemini", url: "google.com" },
-                    { name: "Notion AI", url: "notion.so" },
-                    { name: "Cohere", url: "cohere.com" },
-                    { name: "Hugging Face", url: "huggingface.co" },
-                    { name: "Meta AI", url: "meta.com" },
-                    { name: "Grok", url: "x.com" },
-                    { name: "Perplexity", url: "perplexity.ai" },
-                    { name: "Runway", url: "runwayml.com" },
-                    { name: "Pika", url: "pika.art" }
-                  ].map((item, idx) => (
+                  {row1Items.map((item, idx) => (
                     <div
                       key={idx}
                       className="shrink-0 flex flex-col items-center gap-1 md:gap-[8px] bg-white/5 border border-white/10 rounded-xl md:rounded-[16px] px-3 md:px-5 py-2 md:py-4 min-w-[76px] md:min-w-[130px] cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:scale-[1.10] hover:shadow-2xl hover:z-50 relative group hover:bg-white/10 pointer-events-auto"
@@ -98,25 +167,13 @@ export const HomePage = () => {
               ))}
             </div>
           </div>
+          
           {/* Row 2: Moving Left */}
           <div className="flex whitespace-nowrap">
             <div className="flex animate-marquee-left gap-2 md:gap-6 items-center pr-2 md:pr-6 hover:[animation-play-state:paused] w-max py-1.5 md:py-4 pointer-events-none" style={{ animationDuration: '60s', willChange: 'transform' }}>
               {[...Array(2)].map((_, i) => (
                 <div key={i} className="flex gap-2 md:gap-6 items-center">
-                  {[
-                    { name: "Monday", url: "monday.com" },
-                    { name: "ClickUp", url: "clickup.com" },
-                    { name: "Asana", url: "asana.com" },
-                    { name: "HubSpot", url: "hubspot.com" },
-                    { name: "Intercom", url: "intercom.com" },
-                    { name: "Zendesk", url: "zendesk.com" },
-                    { name: "Grammarly", url: "grammarly.com" },
-                    { name: "QuillBot", url: "quillbot.com" },
-                    { name: "GitHub", url: "github.com" },
-                    { name: "Vercel", url: "vercel.com" },
-                    { name: "Stripe", url: "stripe.com" },
-                    { name: "Canva", url: "canva.com" }
-                  ].map((item, idx) => (
+                  {row2Items.map((item, idx) => (
                     <div
                       key={idx}
                       className="shrink-0 flex flex-col items-center gap-1 md:gap-[8px] bg-white/5 border border-white/10 rounded-xl md:rounded-[16px] px-3 md:px-5 py-2 md:py-4 min-w-[76px] md:min-w-[130px] cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:scale-[1.10] hover:shadow-2xl hover:z-50 relative group hover:bg-white/10 pointer-events-auto"
@@ -142,20 +199,7 @@ export const HomePage = () => {
             <div className="flex animate-marquee-right gap-2 md:gap-6 items-center pr-2 md:pr-6 hover:[animation-play-state:paused] w-max py-1.5 md:py-4 pointer-events-none" style={{ animationDuration: '60s', willChange: 'transform' }}>
               {[...Array(2)].map((_, i) => (
                 <div key={i} className="flex gap-2 md:gap-6 items-center">
-                  {[
-                    { name: "Figma", url: "figma.com" },
-                    { name: "Linear", url: "linear.app" },
-                    { name: "Slack", url: "slack.com" },
-                    { name: "Zoom", url: "zoom.us" },
-                    { name: "Supabase", url: "supabase.com" },
-                    { name: "Shopify", url: "shopify.com" },
-                    { name: "Salesforce", url: "salesforce.com" },
-                    { name: "Adobe", url: "adobe.com" },
-                    { name: "Discord", url: "discord.com" },
-                    { name: "Vimeo", url: "vimeo.com" },
-                    { name: "Typeform", url: "typeform.com" },
-                    { name: "Loom", url: "loom.com" }
-                  ].map((item, idx) => (
+                  {row3Items.map((item, idx) => (
                     <div
                       key={idx}
                       className="shrink-0 flex flex-col items-center gap-1 md:gap-[8px] bg-white/5 border border-white/10 rounded-xl md:rounded-[16px] px-3 md:px-5 py-2 md:py-4 min-w-[76px] md:min-w-[130px] cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:scale-[1.10] hover:shadow-2xl hover:z-50 relative group hover:bg-white/10 pointer-events-auto"
@@ -178,14 +222,15 @@ export const HomePage = () => {
         </div>
       </section>
 
-
       {/* Embedded Store Panel */}
-      <div id="store" className="scroll-mt-24 relative z-20 w-full">
+      <div id="store" className="scroll-mt-24 relative z-20 w-full" style={{ contentVisibility: 'auto', containIntrinsicSize: '600px' }}>
         <StorePage />
       </div>
 
       {/* Reviews Section */}
-      <Reviews />
+      <div className="fade-up-section" style={{ contentVisibility: 'auto', containIntrinsicSize: '500px' }}>
+        <Reviews />
+      </div>
 
       {/* Persistent WhatsApp Floating Widget */}
       <div className="fixed bottom-4 right-4 md:bottom-8 md:right-8 z-[150] flex flex-col items-end gap-4 pointer-events-none">
@@ -194,9 +239,9 @@ export const HomePage = () => {
         <AnimatePresence>
           {showChatBubble && (
             <motion.div
-              initial={{ opacity: 0, y: 10, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+              initial={{ opacity: 0, scale: 0.8, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.8, y: 20 }}
               className="relative bg-white pl-5 pr-10 py-3 rounded-2xl shadow-xl shadow-black/10 border border-black/5 animate-bounce pointer-events-auto hidden xl:block"
             >
               <div className="flex items-center gap-2.5">
@@ -236,12 +281,12 @@ export const HomePage = () => {
 
       <style>{`
         @keyframes marquee-right {
-          0% { transform: translateX(-50%) translateZ(0); }
-          100% { transform: translateX(0%) translateZ(0); }
+          0% { transform: translate3d(-50%, 0, 0); }
+          100% { transform: translate3d(0%, 0, 0); }
         }
         @keyframes marquee-left {
-          0% { transform: translateX(0%) translateZ(0); }
-          100% { transform: translateX(-50%) translateZ(0); }
+          0% { transform: translate3d(0%, 0, 0); }
+          100% { transform: translate3d(-50%, 0, 0); }
         }
         .animate-marquee-right {
           animation: marquee-right 30s linear infinite;
@@ -252,6 +297,10 @@ export const HomePage = () => {
           animation: marquee-left 30s linear infinite;
           will-change: transform;
           backface-visibility: hidden;
+        }
+        .paused-marquee .animate-marquee-right,
+        .paused-marquee .animate-marquee-left {
+          animation-play-state: paused !important;
         }
       `}</style>
     </div>

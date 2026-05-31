@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import { SearchPanel } from '../components/SearchPanel';
 import { ProductCard } from '../components/ProductCard';
 import { products as staticProducts } from '../data/products';
@@ -32,11 +33,21 @@ const TypewriterLabel = ({ text, delay }: { text: string, delay: number }) => {
 };
 
 export const StorePage = () => {
+  const location = useLocation();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<Category | 'All'>('All');
   const [showAll, setShowAll] = useState(false);
   
   const { products: allProducts, fetchProducts, loading } = useProductStore();
+
+  // Populate search query on URL match
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const searchParam = params.get('search');
+    if (searchParam) {
+      setSearchTerm(searchParam);
+    }
+  }, [location.search]);
 
   // RAF guard: prevents getBoundingClientRect + GSAP tween being created > 60x/sec
   const statsRafRef = useRef<number | null>(null);

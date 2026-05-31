@@ -15,6 +15,7 @@ const ProfilePage     = lazy(() => import('./pages/ProfilePage').then(m => ({ de
 const PrivacyPolicyPage   = lazy(() => import('./pages/PrivacyPolicyPage').then(m => ({ default: m.PrivacyPolicyPage })));
 const TermsOfServicePage  = lazy(() => import('./pages/TermsOfServicePage').then(m => ({ default: m.TermsOfServicePage })));
 const DisclaimerPage      = lazy(() => import('./pages/DisclaimerPage').then(m => ({ default: m.DisclaimerPage })));
+const NotFoundPage        = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 
 const PageLoader = () => (
   <div className="h-[60vh] flex items-center justify-center">
@@ -38,6 +39,7 @@ export default function App() {
                 <Route path="/privacy"    element={<PrivacyPolicyPage />} />
                 <Route path="/terms"      element={<TermsOfServicePage />} />
                 <Route path="/disclaimer" element={<DisclaimerPage />} />
+                <Route path="*"           element={<NotFoundPage />} />
               </Routes>
             </Suspense>
           </Layout>
