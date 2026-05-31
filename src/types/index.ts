@@ -10,4 +10,5 @@ export interface Product {
   ctaText: string;
 }
 
-export type Category = 'All' | 'AI & Writing' | 'Graphic Design' | 'Video Editing' | 'SEO & Marketing' | 'Learning' | 'Stock & Media' | 'Entertainment';
+export type Category = 'All' | 'AI & Writing' | 'Graphic Design' | 'Video Editing' | 'SEO & Marketing' | 'Learning' | 'Stock & Media' | 'Entertainment' | 'Productivity';
+

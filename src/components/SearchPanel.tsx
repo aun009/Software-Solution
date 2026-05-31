@@ -9,6 +9,9 @@ import {
   Image,
   Gamepad2,
   Search,
+  CheckCircle2,
+  Camera,
+  MoreHorizontal,
   type LucideIcon,
 } from 'lucide-react';
 import { Category } from '../types';
@@ -22,7 +25,7 @@ interface SearchPanelProps {
   setSelectedCategory: (val: Category) => void;
 }
 
-const CATEGORIES: Category[] = ['All', 'AI & Writing', 'Graphic Design', 'Video Editing', 'SEO & Marketing', 'Learning', 'Stock & Media', 'Entertainment'];
+const CATEGORIES: Category[] = ['All', 'AI & Writing', 'Graphic Design', 'Video Editing', 'SEO & Marketing', 'Learning', 'Stock & Media', 'Entertainment', 'Productivity'];
 
 const CATEGORY_META: Record<Category, { Icon: LucideIcon; color: string; background: string; hoverGlow: string }> = {
   'All': {
@@ -57,15 +60,15 @@ const CATEGORY_META: Record<Category, { Icon: LucideIcon; color: string; backgro
   },
   'Learning': {
     Icon: BookOpenCheck,
-    color: '#10b981',
-    background: 'rgba(16, 185, 129, 0.12)',
-    hoverGlow: 'rgba(16, 185, 129, 0.2)'
-  },
-  'Stock & Media': {
-    Icon: Image,
     color: '#6366f1',
     background: 'rgba(99, 102, 241, 0.12)',
     hoverGlow: 'rgba(99, 102, 241, 0.2)'
+  },
+  'Stock & Media': {
+    Icon: Camera,
+    color: '#d946ef',
+    background: 'rgba(217, 70, 239, 0.12)',
+    hoverGlow: 'rgba(217, 70, 239, 0.2)'
   },
   'Entertainment': {
     Icon: Gamepad2,
@@ -73,7 +76,24 @@ const CATEGORY_META: Record<Category, { Icon: LucideIcon; color: string; backgro
     background: 'rgba(217, 70, 239, 0.12)',
     hoverGlow: 'rgba(217, 70, 239, 0.2)'
   },
+  'Productivity': {
+    Icon: CheckCircle2,
+    color: '#10b981',
+    background: 'rgba(16, 185, 129, 0.12)',
+    hoverGlow: 'rgba(16, 185, 129, 0.2)'
+  },
 };
+
+const MOBILE_ITEMS = [
+  { label: 'AI & Writing', category: 'AI & Writing' as Category, Icon: WandSparkles, color: '#8b5cf6', background: 'rgba(139, 92, 246, 0.08)' },
+  { label: 'Graphic Design', category: 'Graphic Design' as Category, Icon: Brush, color: '#2563eb', background: 'rgba(37, 99, 235, 0.08)' },
+  { label: 'Video Editing', category: 'Video Editing' as Category, Icon: Clapperboard, color: '#f43f5e', background: 'rgba(244, 63, 94, 0.08)' },
+  { label: 'Marketing', category: 'SEO & Marketing' as Category, Icon: Megaphone, color: '#ea580c', background: 'rgba(234, 88, 12, 0.08)' },
+  { label: 'Productivity', category: 'Productivity' as Category, Icon: CheckCircle2, color: '#10b981', background: 'rgba(16, 185, 129, 0.08)' },
+  { label: 'Learning', category: 'Learning' as Category, Icon: BookOpenCheck, color: '#6366f1', background: 'rgba(99, 102, 241, 0.08)' },
+  { label: 'Media', category: 'Stock & Media' as Category, Icon: Camera, color: '#d946ef', background: 'rgba(217, 70, 239, 0.08)' },
+  { label: 'More', category: 'All' as Category, Icon: MoreHorizontal, color: '#64748b', background: 'rgba(100, 116, 139, 0.08)' }
+];
 
 const PLACEHOLDERS = [
   "Search AI research...",
@@ -175,7 +195,8 @@ export const SearchPanel = ({
         </div>
       </div>
 
-      {/* Mobile Category Dropdown Selector (Compact & space-saving) */}
+      {/* Mobile Category Dropdown Selector (Compact & space-saving) -- COMMENTED OUT BY CLIENT REQUEST */}
+      {/*
       <div ref={dropdownRef} className="relative w-full max-w-[280px] mx-auto md:hidden px-2 z-30">
         <button
           onClick={toggleDropdown}
@@ -183,7 +204,6 @@ export const SearchPanel = ({
           style={{ borderColor: activeMeta.color }}
         >
           <div className="flex items-center gap-3">
-            {/* Selection Icon Container */}
             <div
               className="relative grid place-items-center w-9 h-9 rounded-xl transition-all duration-300"
               style={{
@@ -273,6 +293,121 @@ export const SearchPanel = ({
                 );
               })}
             </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+      */}
+
+      {/* Mobile Category Grid Selector (Premium Grid style - 4 in a row) */}
+      <div className="w-full md:hidden px-2 z-30">
+        <div className="grid grid-cols-4 gap-2 w-full max-w-sm mx-auto">
+          {MOBILE_ITEMS.map((item) => {
+            const isActiveCategory = selectedCategory === item.category;
+            const isMoreItem = item.label === 'More';
+            const isMoreActive = isMoreItem && (selectedCategory === 'All' || selectedCategory === 'Entertainment');
+            const isSelected = isMoreItem ? isMoreActive : isActiveCategory;
+            const Icon = item.Icon;
+
+            return (
+              <button
+                key={item.label}
+                onClick={() => {
+                  if (isMoreItem) {
+                    setIsDropdownOpen(!isDropdownOpen);
+                  } else {
+                    setSelectedCategory(item.category);
+                    setIsDropdownOpen(false);
+                  }
+                }}
+                className={cn(
+                  "relative group overflow-hidden flex flex-col items-center justify-center p-1 rounded-xl border transition-all duration-300 w-full h-[76px] cursor-pointer select-none",
+                  isSelected
+                    ? "bg-white border-slate-900 shadow-[0_8px_20px_rgba(15,23,42,0.06)] scale-[1.03] z-10"
+                    : "bg-white border-slate-100 hover:border-slate-200 active:scale-95 shadow-[0_2px_8px_rgba(15,23,42,0.02)]"
+                )}
+              >
+                {/* Icon Container with soft background circle */}
+                <div
+                  className="grid place-items-center w-8 h-8 rounded-full mb-1 transition-all duration-300"
+                  style={{
+                    background: isSelected ? `${item.color}15` : item.background,
+                    color: item.color,
+                    boxShadow: isSelected ? `0 0 12px -2px ${item.color}25` : 'none'
+                  }}
+                >
+                  <Icon size={15} strokeWidth={isSelected ? 2.8 : 2.4} />
+                </div>
+
+                {/* Title text */}
+                <span 
+                  className={cn(
+                    "text-[9px] font-bold tracking-tight leading-tight text-center transition-colors duration-300",
+                    isSelected ? "text-slate-900 font-extrabold" : "text-slate-600"
+                  )}
+                >
+                  {item.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Dropdown popup for "More" categories */}
+        <AnimatePresence>
+          {isDropdownOpen && (
+            <div ref={dropdownRef} className="relative w-full max-w-sm mx-auto mt-2">
+              <motion.div
+                initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                transition={{ duration: 0.18, ease: 'easeOut' }}
+                className="absolute left-0 right-0 p-2 bg-white border border-slate-200 rounded-2xl z-50 shadow-[0_20px_40px_rgba(15,23,42,0.15)] overflow-hidden"
+              >
+                {[
+                  { label: 'All Categories', category: 'All' as Category, Icon: LayoutGrid, color: '#0f172a', bg: 'rgba(15, 23, 42, 0.08)' },
+                  { label: 'Entertainment', category: 'Entertainment' as Category, Icon: Gamepad2, color: '#ea580c', bg: 'rgba(234, 88, 12, 0.12)' }
+                ].map((other) => {
+                  const isSelected = selectedCategory === other.category;
+                  const Icon = other.Icon;
+                  return (
+                    <button
+                      key={other.category}
+                      onClick={() => {
+                        setSelectedCategory(other.category);
+                        setIsDropdownOpen(false);
+                      }}
+                      className={cn(
+                        "w-full flex items-center justify-between p-2.5 rounded-xl transition-all text-left mb-1 last:mb-0 cursor-pointer select-none",
+                        isSelected 
+                          ? "bg-slate-50 font-black text-slate-900" 
+                          : "hover:bg-slate-50 text-slate-600 hover:text-slate-900"
+                      )}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="grid place-items-center w-7 h-7 rounded-lg"
+                          style={{
+                            background: other.bg,
+                            color: other.color
+                          }}
+                        >
+                          <Icon size={14} strokeWidth={2.2} />
+                        </div>
+                        <span className="text-[12px] font-bold">
+                          {other.label}
+                        </span>
+                      </div>
+                      {isSelected && (
+                        <div 
+                          className="w-2 h-2 rounded-full"
+                          style={{ backgroundColor: other.color }}
+                        />
+                      )}
+                    </button>
+                  );
+                })}
+              </motion.div>
+            </div>
           )}
         </AnimatePresence>
       </div>

@@ -311,7 +311,7 @@ export const FloatingIconsHero = ({ onExplore }: FloatingIconsHeroProps) => {
       ref={heroRef}
       onPointerMove={handlePointerMove}
       onPointerLeave={clearPointer}
-      className="relative min-h-[calc(100vh-4.5rem)] md:min-h-[calc(100vh-5rem)] flex flex-col items-center justify-center px-5 sm:px-6 pt-20 md:pt-24 pb-12 md:pb-16 overflow-hidden bg-[#FAFAFC]"
+      className="relative min-h-[calc(85vh-4.5rem)] md:min-h-[calc(100vh-5rem)] flex flex-col items-center justify-start md:justify-center px-5 sm:px-6 pt-32 md:pt-24 pb-6 md:pb-16 overflow-hidden bg-[#FAFAFC]"
     >
       <div aria-hidden="true" className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div
@@ -357,7 +357,7 @@ export const FloatingIconsHero = ({ onExplore }: FloatingIconsHeroProps) => {
         variants={heroContentVariants}
       >
         <motion.div
-          className="hero-text mb-4 inline-flex items-center gap-2 rounded-lg border border-blue-200/80 bg-white/85 px-4 py-2 text-[10.5px] md:text-[12px] font-black uppercase tracking-[0.16em] md:tracking-[0.18em] text-blue-700 shadow-[0_6px_18px_rgba(37,99,235,0.12)] backdrop-blur-md"
+          className="hero-text mb-7 md:mb-4 inline-flex items-center gap-2 rounded-lg border border-blue-200/80 bg-white/85 px-4 py-2 text-[10.5px] md:text-[12px] font-black uppercase tracking-[0.16em] md:tracking-[0.18em] text-blue-700 shadow-[0_6px_18px_rgba(37,99,235,0.12)] backdrop-blur-md"
           variants={reduceMotion ? reducedHeroItemVariants : heroItemVariants}
         >
           <Sparkles size={15} className="text-violet-600" />
@@ -384,19 +384,19 @@ export const FloatingIconsHero = ({ onExplore }: FloatingIconsHeroProps) => {
         </motion.h1>
 
         <motion.p
-          className="hero-text mt-5 text-[15px] sm:text-base md:text-lg text-slate-600 max-w-[21rem] sm:max-w-md md:max-w-xl leading-relaxed font-['Poppins'] font-normal"
+          className="hero-text mt-4 md:mt-5 text-[14px] sm:text-base md:text-lg text-slate-600 max-w-[21rem] sm:max-w-md md:max-w-xl leading-relaxed font-['Poppins'] font-normal"
           variants={reduceMotion ? reducedHeroItemVariants : heroItemVariants}
         >
           Discover powerful softwares and AI tools built for creators, marketers, students, and entrepreneurs.
         </motion.p>
 
         <motion.div
-          className="hero-text mt-8 flex flex-col sm:flex-row gap-4 justify-center items-center w-full"
+          className="hero-text mt-5 md:mt-8 flex flex-col sm:flex-row gap-4 justify-center items-center w-full"
           variants={reduceMotion ? reducedHeroItemVariants : heroItemVariants}
         >
           <button
             onClick={onExplore}
-            className="group overflow-hidden relative px-8 py-4 md:px-10 md:py-4 bg-blue-600 text-white rounded-xl font-black text-xs md:text-sm uppercase tracking-widest flex items-center gap-3 hover:bg-blue-500 transition-all duration-300 hover:scale-[1.03] active:scale-95 shadow-[0_0_30px_rgba(37,99,235,0.28)] hover:shadow-[0_0_40px_rgba(37,99,235,0.42)] cursor-pointer"
+            className="group overflow-hidden relative px-6 py-3 md:px-10 md:py-4 bg-blue-600 text-white rounded-xl font-black text-xs md:text-sm uppercase tracking-widest flex items-center gap-3 hover:bg-blue-500 transition-all duration-300 hover:scale-[1.03] active:scale-95 shadow-[0_0_30px_rgba(37,99,235,0.28)] hover:shadow-[0_0_40px_rgba(37,99,235,0.42)] cursor-pointer"
           >
             <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out" />
             <span className="relative z-10 block transition-transform duration-300 group-hover:-translate-x-1">Explore Softwares</span>
