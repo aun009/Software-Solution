@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import { useProductStore } from '../store/useProductStore';
-import { Plus, Trash2, Package, CheckCircle2, Loader2, AlertCircle, Sparkles, Edit2, X, Image as ImageIcon, Video, Trash, ArrowRight, GripVertical, LayoutGrid, ArrowUpDown, Save, CheckCheck } from 'lucide-react';
+import { Plus, Trash2, Package, CheckCircle2, Loader2, AlertCircle, Sparkles, Edit2, X, Image as ImageIcon, Video, Trash, ArrowRight, GripVertical, LayoutGrid, ArrowUpDown, Save, CheckCheck, WandSparkles } from 'lucide-react';
 import { Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -57,6 +57,40 @@ type Subcategory = {
   parent_category: string;
 };
 
+const normalizeDomain = (value: string) => {
+  const trimmed = value.trim();
+  if (!trimmed) return '';
+  try {
+    const withProtocol = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+    return new URL(withProtocol).hostname.replace(/^www\./, '');
+  } catch {
+    return trimmed.replace(/^https?:\/\//i, '').replace(/^www\./, '').split('/')[0];
+  }
+};
+
+const avatarUrl = (title: string) =>
+  `https://ui-avatars.com/api/?name=${encodeURIComponent(title || 'SP')}&background=2563eb&color=fff&bold=true&size=256&format=svg`;
+
+const logoUrlFromDomain = (domain: string) => {
+  const normalized = normalizeDomain(domain);
+  if (!normalized) return '';
+  const token = import.meta.env.VITE_LOGO_DEV_PUBLIC_KEY;
+  return token
+    ? `https://img.logo.dev/${normalized}?token=${token}&size=256&format=png`
+    : `https://www.google.com/s2/favicons?domain=${encodeURIComponent(normalized)}&sz=256`;
+};
+
+const productImageUrl = (product: any) => {
+  if (product.image) return product.image;
+  if (product.url) return logoUrlFromDomain(product.url);
+  return avatarUrl(product.title);
+};
+
+const isMissingSchema = (err: any) => {
+  const message = `${err?.message || ''} ${err?.details || ''} ${err?.hint || ''}`.toLowerCase();
+  return err?.code === 'PGRST204' || err?.code === 'PGRST205' || message.includes('schema cache') || message.includes('could not find the table') || message.includes('could not find the');
+};
+
 // ── Sortable row used in the Reorder tab ─────────────────────────────────────
 const SortableProductRow = ({ product, index }: { product: any; index: number; key?: string }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: product.id });
@@ -90,8 +124,16 @@ const SortableProductRow = ({ product, index }: { product: any; index: number; k
 
       {/* Thumbnail */}
       <div className="w-10 h-10 rounded-xl overflow-hidden bg-gray-50 border border-gray-100 shrink-0">
-        <img src={product.image} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer"
-          onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+        <img
+          src={productImageUrl(product)}
+          alt=""
+          className="w-full h-full object-cover"
+          referrerPolicy="no-referrer"
+          onError={(e) => {
+            e.currentTarget.onerror = null;
+            e.currentTarget.src = avatarUrl(product.title);
+          }}
+        />
       </div>
 
       {/* Info */}
@@ -113,6 +155,7 @@ export const AdminPage = () => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -128,6 +171,8 @@ export const AdminPage = () => {
   const [managerSubcategoryName, setManagerSubcategoryName] = useState('');
   const [modalSubcategoryName, setModalSubcategoryName] = useState('');
   const [isCreatingSubcategory, setIsCreatingSubcategory] = useState(false);
+  const [subcategoriesReady, setSubcategoriesReady] = useState(true);
+  const [imagePreviewBroken, setImagePreviewBroken] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -148,6 +193,30 @@ export const AdminPage = () => {
     }));
   };
 
+  const formChecks = [
+    { label: 'Name', done: formData.title.trim().length > 1 },
+    { label: 'Category', done: formData.category.trim().length > 0 },
+    { label: 'Price', done: formData.price.toString().trim().length > 0 },
+    { label: 'Image', done: !!formData.image.trim() || !!formData.url.trim() },
+  ];
+
+  const applyLogoFromDomain = () => {
+    const generated = logoUrlFromDomain(formData.url);
+    if (!generated) {
+      setNotice('Enter a product domain first, then use the logo helper.');
+      return;
+    }
+    setImagePreviewBroken(false);
+    setFormData(prev => ({ ...prev, image: generated }));
+    setNotice('Logo URL generated from the product domain.');
+  };
+
+  const applyFallbackImage = () => {
+    setImagePreviewBroken(false);
+    setFormData(prev => ({ ...prev, image: avatarUrl(prev.title) }));
+    setNotice('Fallback initials image added.');
+  };
+
   const fetchSubcategories = async () => {
     setLoadingSubcategories(true);
     try {
@@ -157,9 +226,16 @@ export const AdminPage = () => {
         .order('name', { ascending: true });
       if (error) throw error;
       setSubcategories(data || []);
+      setSubcategoriesReady(true);
     } catch (err) {
-      console.error('Error fetching subcategories:', err);
-      setError('Could not load subcategories. Check the Supabase subcategories table and policies.');
+      if (isMissingSchema(err)) {
+        setSubcategories([]);
+        setSubcategoriesReady(false);
+        setNotice('Subcategory setup is not installed in Supabase yet. Products can still be saved without subcategories.');
+      } else {
+        console.error('Error fetching subcategories:', err);
+        setError('Could not load subcategories. Check the Supabase subcategories table and policies.');
+      }
     } finally {
       setLoadingSubcategories(false);
     }
@@ -169,6 +245,10 @@ export const AdminPage = () => {
     const name = rawName.trim().replace(/\s+/g, ' ');
     const parent = parentCategory.trim();
     if (!name || !parent) return;
+    if (!subcategoriesReady) {
+      setNotice('Subcategories are disabled until the Supabase schema migration is applied.');
+      return;
+    }
 
     const existing = subcategories.find(
       sub => sub.parent_category === parent && sub.name.toLowerCase() === name.toLowerCase()
@@ -206,13 +286,22 @@ export const AdminPage = () => {
         }
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to create subcategory');
+      if (isMissingSchema(err)) {
+        setSubcategoriesReady(false);
+        setNotice('Subcategories are not installed in Supabase yet. Apply the schema migration, then refresh.');
+      } else {
+        setError(err.message || 'Failed to create subcategory');
+      }
     } finally {
       setIsCreatingSubcategory(false);
     }
   };
 
   const handleDeleteSubcategory = async (id: string) => {
+    if (!subcategoriesReady) {
+      setNotice('Subcategories are disabled until the Supabase schema migration is applied.');
+      return;
+    }
     if (!confirm('Are you sure you want to delete this subcategory?')) return;
     try {
       const { error } = await supabase
@@ -226,7 +315,12 @@ export const AdminPage = () => {
       }
       await fetchSubcategories();
     } catch (err: any) {
-      setError(err.message || 'Failed to delete subcategory');
+      if (isMissingSchema(err)) {
+        setSubcategoriesReady(false);
+        setNotice('Subcategories are not installed in Supabase yet. Apply the schema migration, then refresh.');
+      } else {
+        setError(err.message || 'Failed to delete subcategory');
+      }
     }
   };
 
@@ -236,6 +330,10 @@ export const AdminPage = () => {
       fetchSubcategories();
     }
   }, [isAdmin]);
+
+  useEffect(() => {
+    setImagePreviewBroken(false);
+  }, [formData.image]);
 
   const fetchProducts = async () => {
     try {
@@ -314,6 +412,7 @@ export const AdminPage = () => {
     e.preventDefault();
     setSubmitting(true);
     setError('');
+    setNotice('');
     
     try {
       const payload: any = { ...formData };
@@ -332,6 +431,9 @@ export const AdminPage = () => {
       if (!payload.category) {
         throw new Error('Please choose or enter a category.');
       }
+      if (!payload.image || imagePreviewBroken) {
+        payload.image = logoUrlFromDomain(payload.url) || avatarUrl(payload.title);
+      }
       if (payload.features.length === 0) {
         payload.features = ['Easy setup'];
       }
@@ -347,13 +449,26 @@ export const AdminPage = () => {
         }
       });
 
-      if (editingId) {
-        const { error } = await supabase.from('products').update(payload).eq('id', editingId);
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.from('products').insert([payload]);
-        if (error) throw error;
+      const savePayload = { ...payload };
+      if (!subcategoriesReady) delete savePayload.subcategory;
+
+      const saveProduct = async (dataToSave: any) => {
+        if (editingId) {
+          return supabase.from('products').update(dataToSave).eq('id', editingId);
+        }
+        return supabase.from('products').insert([dataToSave]);
+      };
+
+      let { error } = await saveProduct(savePayload);
+      if (error && isMissingSchema(error) && 'subcategory' in savePayload) {
+        const retryPayload = { ...savePayload };
+        delete retryPayload.subcategory;
+        setSubcategoriesReady(false);
+        setNotice('Product saved without subcategory because the Supabase column is not installed yet.');
+        const retry = await saveProduct(retryPayload);
+        error = retry.error;
       }
+      if (error) throw error;
 
       handleResetForm();
       await Promise.all([fetchProducts(), refreshGlobalStore()]);
@@ -369,6 +484,7 @@ export const AdminPage = () => {
     setIsModalOpen(false);
     setUseCustomCategory(false);
     setModalSubcategoryName('');
+    setImagePreviewBroken(false);
     setError('');
     setFormData(DEFAULT_FORM_DATA);
   };
@@ -377,7 +493,9 @@ export const AdminPage = () => {
     setEditingId(null);
     setUseCustomCategory(false);
     setModalSubcategoryName('');
+    setImagePreviewBroken(false);
     setError('');
+    setNotice('');
     setFormData(DEFAULT_FORM_DATA);
     setIsModalOpen(true);
   };
@@ -387,7 +505,9 @@ export const AdminPage = () => {
     const isCustom = !CATEGORY_OPTIONS.includes(product.category);
     setUseCustomCategory(isCustom);
     setModalSubcategoryName('');
+    setImagePreviewBroken(false);
     setError('');
+    setNotice('');
     setFormData({
       title: product.title || '',
       description: product.description || '',
@@ -605,7 +725,16 @@ export const AdminPage = () => {
                     <div key={product.id} className="p-6 bg-white border border-gray-100 rounded-2xl flex flex-col gap-6 group hover:border-blue-500/30 transition-all shadow-sm hover:shadow-md">
                       <div className="flex items-center gap-6">
                         <div className="w-16 h-16 rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 shrink-0">
-                          <img src={product.image} className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110" referrerPolicy="no-referrer" alt="" />
+                          <img
+                            src={productImageUrl(product)}
+                            className="w-full h-full object-contain p-2 transition-all duration-500 group-hover:scale-110"
+                            referrerPolicy="no-referrer"
+                            alt=""
+                            onError={(e) => {
+                              e.currentTarget.onerror = null;
+                              e.currentTarget.src = avatarUrl(product.title);
+                            }}
+                          />
                         </div>
                         <div className="min-w-0 flex-grow">
                           <div className="flex flex-wrap items-center gap-1.5 mb-1">
@@ -688,6 +817,12 @@ export const AdminPage = () => {
             <div className="p-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Creator Form */}
               <div className="lg:col-span-1 space-y-6">
+                {!subcategoriesReady && (
+                  <div className="p-4 rounded-2xl border border-amber-200 bg-amber-50 text-amber-800">
+                    <p className="text-xs font-black uppercase tracking-wider mb-1">Database setup needed</p>
+                    <p className="text-xs font-semibold leading-relaxed">Run supabase_schema.sql in Supabase SQL Editor to enable subcategories and product ordering.</p>
+                  </div>
+                )}
                 <div className="p-6 bg-gray-50/50 rounded-3xl border border-gray-100/80">
                   <h3 className="text-xs font-black uppercase tracking-wider text-gray-900 mb-4">Add Subcategory</h3>
                   <div className="space-y-4">
@@ -715,7 +850,7 @@ export const AdminPage = () => {
                     </div>
                     <button
                       onClick={() => handleCreateSubcategory(managerParentCategory, managerSubcategoryName)}
-                      disabled={isCreatingSubcategory || !managerSubcategoryName.trim()}
+                      disabled={isCreatingSubcategory || !managerSubcategoryName.trim() || !subcategoriesReady}
                       className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-md shadow-purple-600/10 active:scale-[0.98]"
                     >
                       {isCreatingSubcategory ? (
@@ -811,6 +946,23 @@ export const AdminPage = () => {
 
               <div className="p-5 md:p-7 max-h-[72vh] overflow-y-auto">
                 <form id="product-form" onSubmit={handleSaveProduct} className="space-y-8">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-3 bg-gray-50/80 border border-gray-100 rounded-2xl">
+                    {formChecks.map(check => (
+                      <div key={check.label} className="flex items-center gap-2 min-w-0">
+                        <span className={`w-5 h-5 rounded-lg flex items-center justify-center shrink-0 ${check.done ? 'bg-emerald-100 text-emerald-600' : 'bg-white text-gray-300 border border-gray-200'}`}>
+                          <CheckCircle2 size={12} />
+                        </span>
+                        <span className={`text-[10px] font-black uppercase tracking-wider truncate ${check.done ? 'text-gray-700' : 'text-gray-400'}`}>{check.label}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {notice && (
+                    <div className="p-4 bg-blue-50 border border-blue-100 rounded-2xl flex items-center gap-3 text-blue-700 text-xs font-bold">
+                      <AlertCircle size={16} className="shrink-0" />
+                      <span>{notice}</span>
+                    </div>
+                  )}
 
                   {/* ─── Section 1: Product Info ─── */}
                   <div>
@@ -824,8 +976,8 @@ export const AdminPage = () => {
                         <input required value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} placeholder="e.g. ChatGPT Plus"
                           className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1fr_1.25fr_1fr] gap-4">
+                        <div className="min-w-0">
                           <label className="block text-[11px] font-semibold text-gray-500 mb-1.5 ml-0.5">Category</label>
                           {!useCustomCategory ? (
                             <select value={formData.category}
@@ -852,13 +1004,18 @@ export const AdminPage = () => {
                             </div>
                           )}
                         </div>
-                        <div>
-                          <label className="block text-[11px] font-semibold text-gray-500 mb-1.5 ml-0.5">Subcategory</label>
+                        <div className="min-w-0">
+                          <div className="flex items-center justify-between gap-2 mb-1.5 ml-0.5">
+                            <label className="block text-[11px] font-semibold text-gray-500">Subcategory</label>
+                            {!subcategoriesReady && (
+                              <span className="text-[9px] font-black uppercase tracking-wider text-amber-600 bg-amber-50 border border-amber-100 px-2 py-0.5 rounded-full">Setup needed</span>
+                            )}
+                          </div>
                           <div className="space-y-2">
                             <select value={formData.subcategory}
                               onChange={e => setFormData({ ...formData, subcategory: e.target.value })}
-                              disabled={!formData.category}
-                              className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer">
+                              disabled={!formData.category || !subcategoriesReady}
+                              className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer disabled:bg-gray-50 disabled:text-gray-400">
                               <option value="">No subcategory</option>
                               {subcategoriesForCategory(formData.category).map(sub => (
                                 <option key={sub.id} value={sub.name}>{sub.name}</option>
@@ -866,20 +1023,20 @@ export const AdminPage = () => {
                             </select>
                             
                             {/* Quick Add Inline */}
-                            <div className="flex gap-2">
+                            <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
                               <input 
                                 type="text"
-                                placeholder={formData.category ? 'Add one for this category' : 'Choose category first'}
+                                placeholder={subcategoriesReady ? (formData.category ? 'Add one for this category' : 'Choose category first') : 'Apply schema first'}
                                 value={modalSubcategoryName}
                                 onChange={e => setModalSubcategoryName(e.target.value)}
-                                disabled={!formData.category}
+                                disabled={!formData.category || !subcategoriesReady}
                                 className="flex-1 bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-900 placeholder:text-gray-300 focus:outline-none focus:border-blue-500 transition-all disabled:bg-gray-50"
                               />
                               <button
                                 type="button"
                                 onClick={() => handleCreateSubcategory(formData.category, modalSubcategoryName, true)}
-                                disabled={isCreatingSubcategory || !modalSubcategoryName.trim() || !formData.category}
-                                className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold uppercase transition-all disabled:opacity-50 flex items-center justify-center gap-1"
+                                disabled={isCreatingSubcategory || !modalSubcategoryName.trim() || !formData.category || !subcategoriesReady}
+                                className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold uppercase transition-all disabled:opacity-50 flex items-center justify-center gap-1 whitespace-nowrap"
                               >
                                 {isCreatingSubcategory ? <Loader2 size={12} className="animate-spin" /> : <Plus size={12} />}
                                 Add
@@ -887,9 +1044,11 @@ export const AdminPage = () => {
                             </div>
                           </div>
                         </div>
-                        <div>
+                        <div className="min-w-0">
                           <label className="block text-[11px] font-semibold text-gray-500 mb-1.5 ml-0.5">Logo / Domain</label>
-                          <input type="text" value={formData.url} onChange={e => setFormData({ ...formData, url: e.target.value })} placeholder="e.g. openai.com"
+                          <input type="text" value={formData.url} onChange={e => setFormData({ ...formData, url: e.target.value })} onBlur={() => {
+                            if (!formData.image.trim() && formData.url.trim()) setFormData(prev => ({ ...prev, image: logoUrlFromDomain(prev.url) || prev.image }));
+                          }} placeholder="e.g. openai.com"
                             className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 font-mono placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
                         </div>
                       </div>
@@ -909,15 +1068,51 @@ export const AdminPage = () => {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-[11px] font-semibold text-gray-500 mb-1.5 ml-0.5">Cover Image URL</label>
+                        <div className="flex items-center justify-between gap-3 mb-1.5 ml-0.5">
+                          <label className="block text-[11px] font-semibold text-gray-500">Cover Image URL</label>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={applyLogoFromDomain}
+                              className="inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-wider text-blue-600 hover:text-blue-700"
+                            >
+                              <WandSparkles size={11} /> Use Logo
+                            </button>
+                            <button
+                              type="button"
+                              onClick={applyFallbackImage}
+                              className="text-[9px] font-black uppercase tracking-wider text-gray-500 hover:text-gray-800"
+                            >
+                              Use Initials
+                            </button>
+                          </div>
+                        </div>
                         <div className="relative">
                           <ImageIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
                           <input type="text" value={formData.image} onChange={e => setFormData({ ...formData, image: e.target.value })} placeholder="https://..."
                             className="w-full bg-white border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-sm text-gray-900 font-mono placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
                         </div>
-                        {formData.image && (
-                          <div className="mt-3 rounded-xl overflow-hidden border border-gray-100 shadow-sm">
-                            <img src={formData.image} className="w-full h-28 object-cover" alt="preview" onError={e => (e.currentTarget.style.display = 'none')} />
+                        {(formData.image || formData.url || formData.title) && (
+                          <div className={`mt-3 rounded-xl overflow-hidden border shadow-sm bg-gray-50 ${imagePreviewBroken ? 'border-amber-200' : 'border-gray-100'}`}>
+                            <div className="h-32 flex items-center justify-center p-4">
+                              <img
+                                src={formData.image || logoUrlFromDomain(formData.url) || avatarUrl(formData.title)}
+                                className="max-h-full max-w-full object-contain"
+                                alt="preview"
+                                referrerPolicy="no-referrer"
+                                onLoad={() => setImagePreviewBroken(false)}
+                                onError={e => {
+                                  e.currentTarget.onerror = null;
+                                  setImagePreviewBroken(true);
+                                  e.currentTarget.src = avatarUrl(formData.title);
+                                }}
+                              />
+                            </div>
+                            {imagePreviewBroken && (
+                              <div className="px-3 py-2 bg-amber-50 border-t border-amber-100 text-[10px] font-bold text-amber-700">
+                                Image URL did not load. A safe fallback will be saved.
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>

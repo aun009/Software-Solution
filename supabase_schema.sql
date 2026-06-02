@@ -11,6 +11,10 @@ WHERE category = 'SEO & Marketing';
 ALTER TABLE public.products 
 ADD COLUMN IF NOT EXISTS subcategory TEXT;
 
+-- 2b. Add 'sort_order' column for the admin drag-and-drop ordering
+ALTER TABLE public.products
+ADD COLUMN IF NOT EXISTS sort_order INTEGER;
+
 -- 3. Create the 'subcategories' table to store dynamic subcategory listings
 CREATE TABLE IF NOT EXISTS public.subcategories (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -24,6 +28,11 @@ CREATE TABLE IF NOT EXISTS public.subcategories (
 ALTER TABLE public.subcategories ENABLE ROW LEVEL SECURITY;
 
 -- 5. Row Level Security Policies for the 'subcategories' table
+
+DROP POLICY IF EXISTS "Allow public read access to subcategories" ON public.subcategories;
+DROP POLICY IF EXISTS "Allow authenticated users to insert subcategories" ON public.subcategories;
+DROP POLICY IF EXISTS "Allow authenticated users to update subcategories" ON public.subcategories;
+DROP POLICY IF EXISTS "Allow authenticated users to delete subcategories" ON public.subcategories;
 
 -- Policy: Allow read access to everyone (public/anonymous and authenticated)
 CREATE POLICY "Allow public read access to subcategories" 

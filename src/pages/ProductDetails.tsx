@@ -126,11 +126,31 @@ export const ProductDetails = () => {
   const isYouTube = (url: string) => url.includes('youtube.com') || url.includes('youtu.be');
   const isVimeo   = (url: string) => url.includes('vimeo.com');
 
-  const getLogoUrl = (url: string, name: string) => {
-    if (!url) return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&bold=true&size=128&format=svg&uppercase=true`;
-    if (url.includes('/') || url.startsWith('http')) return url;
-    return `https://img.logo.dev/${url}?token=${import.meta.env.VITE_LOGO_DEV_PUBLIC_KEY}&size=128&format=png`;
+  const avatarUrl = (name: string) =>
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(name || 'SP')}&background=2563eb&color=fff&bold=true&size=256&format=svg`;
+
+  const normalizeDomain = (value: string) => {
+    const trimmed = value?.trim();
+    if (!trimmed) return '';
+    try {
+      const withProtocol = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+      return new URL(withProtocol).hostname.replace(/^www\./, '');
+    } catch {
+      return trimmed.replace(/^https?:\/\//i, '').replace(/^www\./, '').split('/')[0];
+    }
   };
+
+  const getLogoUrl = (url: string, name: string) => {
+    if (!url) return avatarUrl(name);
+    const token = import.meta.env.VITE_LOGO_DEV_PUBLIC_KEY;
+    const domain = normalizeDomain(url);
+    if (!domain) return avatarUrl(name);
+    return token
+      ? `https://img.logo.dev/${domain}?token=${token}&size=128&format=png`
+      : `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=128`;
+  };
+
+  const getProductImageUrl = () => product.image || getLogoUrl(product.url, product.title) || avatarUrl(product.title);
 
   // Only the plans that actually have a price filled in (for current currency)
   const availablePlans = VALIDITY_PLANS.filter(p => getPlanPrice(p.key) !== null);
@@ -162,10 +182,14 @@ export const ProductDetails = () => {
       ) : (
         <>
           <img
-            src={product.image}
+            src={getProductImageUrl()}
             alt="Product Preview"
             className="absolute inset-0 w-full h-full object-cover opacity-70"
             referrerPolicy="no-referrer"
+            onError={e => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = avatarUrl(product.title);
+            }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
@@ -208,7 +232,8 @@ export const ProductDetails = () => {
                 alt={`${product.title} icon`}
                 className="w-14 h-14 md:w-[72px] md:h-[72px] rounded-2xl object-contain shadow-md border border-gray-100 bg-white shrink-0"
                 onError={e => {
-                  e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(product.title)}&background=random&bold=true&size=128&format=svg`;
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = avatarUrl(product.title);
                 }}
               />
               <div>

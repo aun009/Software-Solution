@@ -3,6 +3,10 @@ import { persist } from 'zustand/middleware';
 import { supabase } from '../lib/supabase';
 import { products as fallbackStatic } from '../data/products';
 
+const PRODUCT_COLUMNS_WITH_ORDER = 'id, title, description, price, price_usd, image, category, subcategory, url, features, benefits, videoUrl, is_trending, created_at, price_1m, price_3m, price_6m, price_1y, price_lifetime, price_1m_usd, price_3m_usd, price_6m_usd, price_1y_usd, price_lifetime_usd, sort_order';
+const PRODUCT_COLUMNS = 'id, title, description, price, price_usd, image, category, subcategory, url, features, benefits, videoUrl, is_trending, created_at, price_1m, price_3m, price_6m, price_1y, price_lifetime, price_1m_usd, price_3m_usd, price_6m_usd, price_1y_usd, price_lifetime_usd';
+const PRODUCT_COLUMNS_LEGACY = 'id, title, description, price, price_usd, image, category, url, features, benefits, videoUrl, is_trending, created_at, price_1m, price_3m, price_6m, price_1y, price_lifetime, price_1m_usd, price_3m_usd, price_6m_usd, price_1y_usd, price_lifetime_usd';
+
 interface ProductState {
   products: any[];
   setProducts: (items: any[]) => void;
@@ -23,19 +27,29 @@ export const useProductStore = create<ProductState>()(
           // Try fetching with sort_order first (works once column is added in Supabase)
           const { data, error } = await supabase
             .from('products')
-            .select('id, title, description, price, price_usd, image, category, subcategory, url, features, benefits, videoUrl, is_trending, created_at, price_1m, price_3m, price_6m, price_1y, price_lifetime, price_1m_usd, price_3m_usd, price_6m_usd, price_1y_usd, price_lifetime_usd, sort_order')
+            .select(PRODUCT_COLUMNS_WITH_ORDER)
             .order('sort_order', { ascending: true, nullsFirst: false })
             .order('created_at', { ascending: false });
 
           if (data && !error) {
             set({ products: data });
           } else if (error) {
-            // Fallback: sort_order column may not exist yet — fetch without it
-            const { data: fallbackData } = await supabase
+            // Fallback: sort_order column may not exist yet - fetch without it.
+            const { data: fallbackData, error: fallbackError } = await supabase
               .from('products')
-              .select('id, title, description, price, price_usd, image, category, subcategory, url, features, benefits, videoUrl, is_trending, created_at, price_1m, price_3m, price_6m, price_1y, price_lifetime, price_1m_usd, price_3m_usd, price_6m_usd, price_1y_usd, price_lifetime_usd')
+              .select(PRODUCT_COLUMNS)
               .order('created_at', { ascending: false });
-            if (fallbackData) set({ products: fallbackData });
+            if (fallbackData && !fallbackError) {
+              set({ products: fallbackData });
+            } else {
+              // Legacy fallback: subcategory column may not be deployed yet.
+              const { data: legacyData, error: legacyError } = await supabase
+                .from('products')
+                .select(PRODUCT_COLUMNS_LEGACY)
+                .order('created_at', { ascending: false });
+              if (legacyError) throw legacyError;
+              if (legacyData) set({ products: legacyData });
+            }
           }
         } catch (error) {
           console.error("Error fetching products:", error);

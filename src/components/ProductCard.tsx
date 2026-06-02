@@ -19,6 +19,36 @@ const getRating = (id: string) => {
   return ratings[Math.abs(hash) % ratings.length];
 };
 
+const avatarUrl = (name: string) =>
+  `https://ui-avatars.com/api/?name=${encodeURIComponent(name || 'SP')}&background=2563eb&color=fff&bold=true&size=256&format=svg`;
+
+const normalizeDomain = (value: string) => {
+  const trimmed = value?.trim();
+  if (!trimmed) return '';
+  try {
+    const withProtocol = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+    return new URL(withProtocol).hostname.replace(/^www\./, '');
+  } catch {
+    return trimmed.replace(/^https?:\/\//i, '').replace(/^www\./, '').split('/')[0];
+  }
+};
+
+const logoFromDomain = (domain: string) => {
+  const normalized = normalizeDomain(domain);
+  if (!normalized) return '';
+  const token = import.meta.env.VITE_LOGO_DEV_PUBLIC_KEY;
+  return token
+    ? `https://img.logo.dev/${normalized}?token=${token}&size=256&format=png`
+    : `https://www.google.com/s2/favicons?domain=${encodeURIComponent(normalized)}&sz=256`;
+};
+
+const resolveProductImage = (product: any) => {
+  const image = product.image || logoFromDomain(product.url || '');
+  if (!image) return avatarUrl(product.title);
+  if (image.includes('unsplash.com')) return `${image.split('?')[0]}?w=600&h=360&fit=crop&q=75&auto=format`;
+  return image;
+};
+
 export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const glowRef = useRef<HTMLDivElement>(null);
@@ -163,12 +193,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
           <div className="w-full h-[130px] md:h-[200px] relative flex items-center justify-center bg-white overflow-hidden">
             {/* Main centered logo */}
             <img
-              src={product.image?.includes('unsplash.com') ? `${product.image.split('?')[0]}?w=600&h=360&fit=crop&q=75&auto=format` : product.image}
+              src={resolveProductImage(product)}
               alt={product.title}
               loading="lazy"
               decoding="async"
               className="relative z-10 max-h-[120px] md:max-h-[150px] max-w-[75%] w-auto object-contain transition-transform duration-500"
               referrerPolicy="no-referrer"
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = avatarUrl(product.title);
+              }}
             />
           </div>
         </Link>
