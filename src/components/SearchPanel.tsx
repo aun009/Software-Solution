@@ -25,7 +25,7 @@ interface SearchPanelProps {
   setSelectedCategory: (val: Category) => void;
 }
 
-const CATEGORIES: Category[] = ['All', 'AI & Writing', 'Graphic Design', 'Video Editing', 'SEO & Marketing', 'Learning', 'Stock & Media', 'Entertainment', 'Productivity'];
+const CATEGORIES: Category[] = ['All', 'AI & Writing', 'Graphic Design', 'Video Editing', 'Marketing', 'Learning', 'Entertainment', 'Productivity'];
 
 const CATEGORY_META: Record<Category, { Icon: LucideIcon; color: string; background: string; hoverGlow: string }> = {
   'All': {
@@ -52,7 +52,7 @@ const CATEGORY_META: Record<Category, { Icon: LucideIcon; color: string; backgro
     background: 'rgba(244, 63, 94, 0.12)',
     hoverGlow: 'rgba(244, 63, 94, 0.2)'
   },
-  'SEO & Marketing': {
+  'Marketing': {
     Icon: Megaphone,
     color: '#ea580c',
     background: 'rgba(234, 88, 12, 0.12)',
@@ -63,12 +63,6 @@ const CATEGORY_META: Record<Category, { Icon: LucideIcon; color: string; backgro
     color: '#6366f1',
     background: 'rgba(99, 102, 241, 0.12)',
     hoverGlow: 'rgba(99, 102, 241, 0.2)'
-  },
-  'Stock & Media': {
-    Icon: Camera,
-    color: '#d946ef',
-    background: 'rgba(217, 70, 239, 0.12)',
-    hoverGlow: 'rgba(217, 70, 239, 0.2)'
   },
   'Entertainment': {
     Icon: Gamepad2,
@@ -89,15 +83,14 @@ const GRID_ITEMS = [
   { label: 'AI & Writing', category: 'AI & Writing' as Category, Icon: WandSparkles, color: '#8b5cf6', background: 'rgba(139, 92, 246, 0.08)' },
   { label: 'Graphic Design', category: 'Graphic Design' as Category, Icon: Brush, color: '#2563eb', background: 'rgba(37, 99, 235, 0.08)' },
   { label: 'Video Editing', category: 'Video Editing' as Category, Icon: Clapperboard, color: '#f43f5e', background: 'rgba(244, 63, 94, 0.08)' },
-  { label: 'Marketing', category: 'SEO & Marketing' as Category, Icon: Megaphone, color: '#ea580c', background: 'rgba(234, 88, 12, 0.08)' },
+  { label: 'Marketing', category: 'Marketing' as Category, Icon: Megaphone, color: '#ea580c', background: 'rgba(234, 88, 12, 0.08)' },
   { label: 'Learning', category: 'Learning' as Category, Icon: BookOpenCheck, color: '#6366f1', background: 'rgba(99, 102, 241, 0.08)' },
-  { label: 'Media', category: 'Stock & Media' as Category, Icon: Camera, color: '#d946ef', background: 'rgba(217, 70, 239, 0.08)' },
+  { label: 'Entertainment', category: 'Entertainment' as Category, Icon: Gamepad2, color: '#d946ef', background: 'rgba(217, 70, 239, 0.08)' },
   { label: 'More', category: 'More' as Category, Icon: MoreHorizontal, color: '#64748b', background: 'rgba(100, 116, 139, 0.08)' }
 ];
 
 const DROPDOWN_ITEMS = [
-  { label: 'Productivity', category: 'Productivity' as Category, Icon: CheckCircle2, color: '#10b981', background: 'rgba(16, 185, 129, 0.08)' },
-  { label: 'Entertainment', category: 'Entertainment' as Category, Icon: Gamepad2, color: '#d946ef', background: 'rgba(217, 70, 239, 0.08)' }
+  { label: 'Productivity', category: 'Productivity' as Category, Icon: CheckCircle2, color: '#10b981', background: 'rgba(16, 185, 129, 0.08)' }
 ];
 
 const PLACEHOLDERS = [
@@ -220,7 +213,7 @@ export const SearchPanel = ({
               <ActiveIcon size={18} strokeWidth={2.5} className="relative z-10" />
             </div>
             <span className="text-[13px] font-bold text-slate-800 pt-[1px]">
-              {selectedCategory === 'SEO & Marketing' ? 'Marketing' : selectedCategory === 'Stock & Media' ? 'Media' : selectedCategory === 'All' ? 'More' : selectedCategory}
+              {selectedCategory === 'Marketing' ? 'Marketing' : selectedCategory === 'All' ? 'More' : selectedCategory}
             </span>
           </div>
           <div className="flex items-center text-slate-400">
@@ -285,7 +278,7 @@ export const SearchPanel = ({
                         <Icon size={14} strokeWidth={2.2} />
                       </div>
                       <span className="text-[12px] font-bold">
-                        {category === 'SEO & Marketing' ? 'Marketing' : category === 'Stock & Media' ? 'Media' : category === 'All' ? 'More' : category}
+                        {category === 'Marketing' ? 'Marketing' : category === 'All' ? 'More' : category}
                       </span>
                     </div>
                     {isSelected && (
@@ -309,7 +302,7 @@ export const SearchPanel = ({
           {GRID_ITEMS.map((item) => {
             const isActiveCategory = selectedCategory === item.category;
             const isMoreItem = item.label === 'More';
-            const isMoreActive = isMoreItem && (selectedCategory === 'Productivity' || selectedCategory === 'Entertainment');
+            const isMoreActive = isMoreItem && (selectedCategory === 'Productivity');
             const isSelected = isMoreItem ? isMoreActive : isActiveCategory;
             const Icon = item.Icon;
 
@@ -425,7 +418,7 @@ export const SearchPanel = ({
           {GRID_ITEMS.map((item, idx) => {
             const isActiveCategory = selectedCategory === item.category;
             const isMoreItem = item.label === 'More';
-            const isMoreActive = isMoreItem && (selectedCategory === 'Productivity' || selectedCategory === 'Entertainment');
+            const isMoreActive = isMoreItem && (selectedCategory === 'Productivity');
             const isSelected = isMoreItem ? isMoreActive : isActiveCategory;
             const Icon = item.Icon;
 

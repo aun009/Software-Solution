@@ -109,7 +109,7 @@ export const StorePage = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-50px" }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="grid grid-cols-4 w-full max-w-4xl p-3 md:p-8 rounded-[24px] md:rounded-[32px] bg-white border border-gray-100/80 shadow-[0_15px_45px_rgba(15,23,42,0.03)]"
+            className="grid grid-cols-4 w-full max-w-5xl p-4 md:p-10 rounded-[28px] md:rounded-[40px] bg-white border border-slate-100/90 shadow-[0_20px_50px_rgba(15,23,42,0.04)] hover:shadow-[0_30px_70px_rgba(15,23,42,0.08)] hover:border-slate-200/80 transition-all duration-500 ease-in-out"
           >
             {[
               { 
@@ -117,6 +117,9 @@ export const StorePage = () => {
                 line1: '100%', 
                 line2: 'Verified', 
                 color: '#2563eb',
+                bgGradient: 'from-blue-500 to-blue-600',
+                shadowColor: 'shadow-blue-500/15 group-hover:shadow-blue-500/30',
+                textColor: 'text-blue-600',
                 borderClass: 'border-r border-slate-100/80'
               },
               { 
@@ -124,6 +127,9 @@ export const StorePage = () => {
                 line1: 'Top Rated', 
                 line2: 'Software', 
                 color: '#4f46e5',
+                bgGradient: 'from-indigo-500 to-indigo-600',
+                shadowColor: 'shadow-indigo-500/15 group-hover:shadow-indigo-500/30',
+                textColor: 'text-indigo-600',
                 borderClass: 'border-r border-slate-100/80'
               },
               { 
@@ -131,6 +137,9 @@ export const StorePage = () => {
                 line1: '24/7', 
                 line2: 'Support', 
                 color: '#6366f1',
+                bgGradient: 'from-violet-500 to-violet-600',
+                shadowColor: 'shadow-violet-500/15 group-hover:shadow-violet-500/30',
+                textColor: 'text-violet-600',
                 borderClass: 'border-r border-slate-100/80'
               },
               { 
@@ -138,18 +147,26 @@ export const StorePage = () => {
                 line1: 'Instant', 
                 line2: 'Delivery', 
                 color: '#8b5cf6',
+                bgGradient: 'from-purple-500 to-purple-600',
+                shadowColor: 'shadow-purple-500/15 group-hover:shadow-purple-500/30',
+                textColor: 'text-purple-600',
                 borderClass: ''
               }
             ].map((stat, i) => {
               const Icon = stat.Icon;
               return (
-                <div key={i} className={`flex flex-col items-center text-center py-1 px-1 md:py-2 md:px-3 ${stat.borderClass}`}>
-                  <div className="grid place-items-center w-9 h-9 md:w-14 md:h-14 rounded-full mb-1.5 md:mb-3 bg-gradient-to-tr from-blue-50/20 to-indigo-50/20 border border-slate-100/60 shadow-[inset_0_2px_4px_rgba(255,255,255,0.7)]" style={{ color: stat.color }}>
-                    <Icon className="w-4 h-4 md:w-6 md:h-6" strokeWidth={1.8} />
+                <div 
+                  key={i} 
+                  className={`flex flex-col items-center text-center py-2 px-1 md:py-4 md:px-4 group cursor-pointer transition-all duration-300 hover:-translate-y-1.5 ${stat.borderClass}`}
+                >
+                  <div 
+                    className={`grid place-items-center w-11 h-11 md:w-20 md:h-20 rounded-[14px] md:rounded-[24px] mb-2 md:mb-4 bg-gradient-to-tr ${stat.bgGradient} text-white shadow-md ${stat.shadowColor} transition-all duration-300 group-hover:scale-110`}
+                  >
+                    <Icon className="w-5 h-5 md:w-9 md:h-9" strokeWidth={2} />
                   </div>
-                  <div className="flex flex-col text-slate-800 font-bold text-[8.5px] sm:text-[10px] md:text-[15px] leading-tight tracking-tight">
-                    <span>{stat.line1}</span>
-                    <span>{stat.line2}</span>
+                  <div className="flex flex-col text-slate-800 font-black text-[9.5px] sm:text-[11.5px] md:text-[22px] leading-tight tracking-tight mt-0.5 md:mt-1">
+                    <span className={`${stat.textColor} transition-colors duration-300`}>{stat.line1}</span>
+                    <span className="text-slate-500 font-semibold text-[8px] sm:text-[9.5px] md:text-[13px] tracking-wider mt-0.5 uppercase">{stat.line2}</span>
                   </div>
                 </div>
               );

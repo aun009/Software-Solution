@@ -26,12 +26,38 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
   const { isIndia } = useGeoLocation();
 
   // Geo-aware price: show USD for international, INR for India
+  // Priority: 1. Monthly price (price_1m / price_1m_usd), 2. Admin base price (price / price_usd)
   const displayPrice = useMemo(() => {
     const anyProduct = product as any;
-    if (!isIndia && anyProduct.price_usd) {
-      return { symbol: '$', value: Number(anyProduct.price_usd), locale: 'en-US' };
+    if (!isIndia) {
+      // Users outside India - use prices in $
+      // 1. Monthly price in USD
+      if (anyProduct.price_1m_usd !== undefined && anyProduct.price_1m_usd !== null && anyProduct.price_1m_usd !== '') {
+        return { symbol: '$', value: Number(anyProduct.price_1m_usd), locale: 'en-US', suffix: '/mo' };
+      }
+      // 2. Monthly price in INR converted to USD (fallback)
+      if (anyProduct.price_1m !== undefined && anyProduct.price_1m !== null && anyProduct.price_1m !== '') {
+        const converted = Math.round((Number(anyProduct.price_1m) / 83) * 100) / 100;
+        return { symbol: '$', value: converted, locale: 'en-US', suffix: '/mo' };
+      }
+      // 3. Base price in USD
+      if (anyProduct.price_usd !== undefined && anyProduct.price_usd !== null && anyProduct.price_usd !== '') {
+        return { symbol: '$', value: Number(anyProduct.price_usd), locale: 'en-US', suffix: '' };
+      }
+      // 4. Base price in INR converted to USD (fallback)
+      const baseVal = anyProduct.price !== undefined && anyProduct.price !== null && anyProduct.price !== '' ? Number(anyProduct.price) : 999;
+      const converted = Math.round((baseVal / 83) * 100) / 100;
+      return { symbol: '$', value: converted, locale: 'en-US', suffix: '' };
+    } else {
+      // Users in India - use prices in ₹
+      // 1. Monthly price in INR
+      if (anyProduct.price_1m !== undefined && anyProduct.price_1m !== null && anyProduct.price_1m !== '') {
+        return { symbol: '₹', value: Number(anyProduct.price_1m), locale: 'en-IN', suffix: '/mo' };
+      }
+      // 2. Base price in INR
+      const baseVal = anyProduct.price !== undefined && anyProduct.price !== null && anyProduct.price !== '' ? Number(anyProduct.price) : 999;
+      return { symbol: '₹', value: baseVal, locale: 'en-IN', suffix: '' };
     }
-    return { symbol: '₹', value: Number(anyProduct.price || 999), locale: 'en-IN' };
   }, [isIndia, product]);
 
   useEffect(() => {
@@ -181,18 +207,31 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
 
           {/* Category pill */}
           {product.category && (
-            <div className="mt-1 mb-2 md:mt-2 md:mb-5">
+            <div className="mt-1 mb-2 md:mt-2 md:mb-5 flex flex-wrap gap-1.5 items-center">
               <span className="inline-block px-2 py-0.5 md:px-3 md:py-1 bg-blue-50 text-blue-600 rounded-full text-[9px] md:text-[10px] font-semibold tracking-wide">
-                {product.category}
+                {product.category === 'SEO & Marketing' ? 'Marketing' : product.category}
               </span>
+              {product.subcategory && (
+                <>
+                  <span className="text-gray-300 text-[10px] font-semibold select-none">/</span>
+                  <span className="inline-block px-2 py-0.5 md:px-3 md:py-1 bg-indigo-50/70 text-indigo-600 rounded-full text-[9px] md:text-[10px] font-semibold tracking-wide">
+                    {product.subcategory}
+                  </span>
+                </>
+              )}
             </div>
           )}
 
           {/* Price + CTA — stacked */}
           <div className="mt-auto pt-3 md:pt-4 border-t border-gray-100 flex flex-col gap-2 md:gap-3">
-            <span className="text-lg md:text-[28px] font-extrabold text-gray-900 tracking-tight leading-none">
-              {displayPrice.symbol}{displayPrice.value.toLocaleString(displayPrice.locale)}
-            </span>
+            <div className="flex items-baseline gap-1">
+              <span className="text-lg md:text-[28px] font-extrabold text-gray-900 tracking-tight leading-none">
+                {displayPrice.symbol}{displayPrice.value.toLocaleString(displayPrice.locale)}
+              </span>
+              {displayPrice.suffix && (
+                <span className="text-xs md:text-sm font-bold text-gray-400">{displayPrice.suffix}</span>
+              )}
+            </div>
             <Link
               to={`/product/${product.id}`}
               className="relative w-full overflow-hidden flex items-center justify-center gap-1.5 min-h-[44px] py-2 md:py-3 bg-blue-600 text-white rounded-lg text-[10px] md:text-xs font-bold uppercase tracking-wider hover:bg-blue-700 hover:scale-[1.03] hover:shadow-lg hover:shadow-blue-600/30 transition-all duration-200 active:scale-95 group/checkout"

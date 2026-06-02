@@ -83,10 +83,15 @@ export const AdminPage = () => {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [useCustomCategory, setUseCustomCategory] = useState(false);
-  const [activeTab, setActiveTab] = useState<'inventory' | 'reorder'>('inventory');
+  const [activeTab, setActiveTab] = useState<'inventory' | 'reorder' | 'subcategories'>('inventory');
   const [reorderItems, setReorderItems] = useState<any[]>([]);
   const [savingOrder, setSavingOrder] = useState(false);
   const [orderSaved, setOrderSaved] = useState(false);
+
+  const [subcategories, setSubcategories] = useState<any[]>([]);
+  const [loadingSubcategories, setLoadingSubcategories] = useState(false);
+  const [newSubcategoryName, setNewSubcategoryName] = useState('');
+  const [isCreatingSubcategory, setIsCreatingSubcategory] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -98,6 +103,7 @@ export const AdminPage = () => {
     title: '',
     description: '',
     category: 'AI & Writing',
+    subcategory: '',
     price: '',
     price_usd: '',
     price_1m: '',
@@ -119,9 +125,65 @@ export const AdminPage = () => {
     benefits: ['Accelerate growth', 'Simplify operations', 'Maximize revenue']
   });
 
+  const fetchSubcategories = async () => {
+    setLoadingSubcategories(true);
+    try {
+      const { data, error } = await supabase
+        .from('subcategories')
+        .select('*')
+        .order('name', { ascending: true });
+      if (data && !error) {
+        setSubcategories(data);
+      }
+    } catch (err) {
+      console.error('Error fetching subcategories:', err);
+    } finally {
+      setLoadingSubcategories(false);
+    }
+  };
+
+  const handleCreateSubcategory = async (parentCategory: string) => {
+    if (!newSubcategoryName.trim()) return;
+    try {
+      setIsCreatingSubcategory(true);
+      const { data, error } = await supabase
+        .from('subcategories')
+        .insert([{ name: newSubcategoryName.trim(), parent_category: parentCategory }])
+        .select();
+
+      if (error) throw error;
+
+      setNewSubcategoryName('');
+      await fetchSubcategories();
+      
+      if (data && data[0]) {
+        setFormData(prev => ({ ...prev, subcategory: data[0].name }));
+      }
+    } catch (err: any) {
+      alert(err.message || 'Failed to create subcategory');
+    } finally {
+      setIsCreatingSubcategory(false);
+    }
+  };
+
+  const handleDeleteSubcategory = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this subcategory?')) return;
+    try {
+      const { error } = await supabase
+        .from('subcategories')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+      await fetchSubcategories();
+    } catch (err: any) {
+      alert(err.message || 'Failed to delete subcategory');
+    }
+  };
+
   useEffect(() => {
     if (isAdmin) {
       fetchProducts();
+      fetchSubcategories();
     }
   }, [isAdmin]);
 
@@ -239,6 +301,7 @@ export const AdminPage = () => {
       title: '',
       description: '',
       category: 'AI & Writing',
+      subcategory: '',
       price: '',
       price_usd: '',
       price_1m: '',
@@ -263,13 +326,14 @@ export const AdminPage = () => {
 
   const startEdit = (product: any) => {
     setEditingId(product.id);
-    const presets = ['AI & Writing', 'Graphic Design', 'Video Editing', 'SEO & Marketing', 'Learning', 'Stock & Media', 'Entertainment'];
+    const presets = ['AI & Writing', 'Graphic Design', 'Video Editing', 'Marketing', 'Learning', 'Entertainment', 'Productivity'];
     const isCustom = !presets.includes(product.category);
     setUseCustomCategory(isCustom);
     setFormData({
       title: product.title,
       description: product.description,
       category: product.category,
+      subcategory: product.subcategory || '',
       price: product.price || '',
       price_usd: product.price_usd || '',
       price_1m: product.price_1m || '',
@@ -286,6 +350,7 @@ export const AdminPage = () => {
       videoUrl: product.videoUrl || product.video_url || '',
       url: product.url || '',
       ctaText: product.ctaText || product.cta_text || 'Deploy Now',
+      is_trending: !!product.is_trending,
       features: product.features || ['Infinite scaling', 'Real-time sync', 'Multi-tenant'],
       benefits: product.benefits || ['Accelerate growth', 'Simplify operations', 'Maximize revenue']
     });
@@ -394,6 +459,16 @@ export const AdminPage = () => {
           >
             <ArrowUpDown size={14} /> Reorder Hub
           </button>
+          <button
+            onClick={() => setActiveTab('subcategories')}
+            className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all ${
+              activeTab === 'subcategories'
+                ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30'
+                : 'bg-white border border-gray-200 text-gray-500 hover:border-gray-400'
+            }`}
+          >
+            <Plus size={14} /> Subcategories
+          </button>
         </div>
 
         {/* ── Reorder Hub Tab ─────────────────────────────────────────────── */}
@@ -476,8 +551,14 @@ export const AdminPage = () => {
                           <img src={product.image} className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110" referrerPolicy="no-referrer" alt="" />
                         </div>
                         <div className="min-w-0 flex-grow">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-[8px] font-black text-blue-600 uppercase tracking-[0.2em]">{product.category}</span>
+                          <div className="flex flex-wrap items-center gap-1.5 mb-1">
+                            <span className="text-[8px] font-black text-blue-600 uppercase tracking-[0.2em]">{product.category === 'SEO & Marketing' ? 'Marketing' : product.category}</span>
+                            {product.subcategory && (
+                              <>
+                                <span className="text-[8px] text-gray-300 font-semibold select-none">/</span>
+                                <span className="text-[8px] font-black text-indigo-600 uppercase tracking-[0.2em]">{product.subcategory}</span>
+                              </>
+                            )}
                             <span className="text-[8px] font-mono text-gray-400">#{product.id.slice(0, 4)}</span>
                           </div>
                           <h3 className="text-lg font-black text-gray-900 tracking-tighter truncate">{product.title}</h3>
@@ -534,6 +615,106 @@ export const AdminPage = () => {
            </div>
         </div>
         )} {/* end inventory tab */}
+
+        {/* ── Subcategories Tab ────────────────────────────────────────────── */}
+        {activeTab === 'subcategories' && (
+          <div className="bg-white rounded-[40px] border border-gray-100 shadow-[0_4px_20px_rgb(0,0,0,0.02)] overflow-hidden">
+            <div className="p-8 border-b border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-black text-gray-900 tracking-widest uppercase flex items-center gap-3">
+                  <Package size={18} className="text-purple-600" /> Subcategory Manager
+                </h2>
+                <p className="text-[11px] text-gray-400 mt-1 font-medium">Create and manage subcategories dynamically under parent categories.</p>
+              </div>
+            </div>
+            
+            <div className="p-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Creator Form */}
+              <div className="lg:col-span-1 space-y-6">
+                <div className="p-6 bg-gray-50/50 rounded-3xl border border-gray-100/80">
+                  <h3 className="text-xs font-black uppercase tracking-wider text-gray-900 mb-4">Add Subcategory</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Parent Category</label>
+                      <select 
+                        value={formData.category} 
+                        onChange={e => setFormData({ ...formData, category: e.target.value })}
+                        className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer"
+                      >
+                        {['AI & Writing', 'Graphic Design', 'Video Editing', 'Marketing', 'Learning', 'Entertainment', 'Productivity'].map(cat => (
+                          <option key={cat} value={cat}>{cat}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Subcategory Name</label>
+                      <input 
+                        type="text" 
+                        placeholder="e.g. Email Marketing"
+                        value={newSubcategoryName} 
+                        onChange={e => setNewSubcategoryName(e.target.value)}
+                        className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-xs text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                      />
+                    </div>
+                    <button
+                      onClick={() => handleCreateSubcategory(formData.category)}
+                      disabled={isCreatingSubcategory || !newSubcategoryName.trim()}
+                      className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-md shadow-purple-600/10 active:scale-[0.98]"
+                    >
+                      {isCreatingSubcategory ? (
+                        <Loader2 size={12} className="animate-spin" />
+                      ) : (
+                        <Plus size={12} />
+                      )}
+                      Create Subcategory
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Subcategories List grouped by Parent Category */}
+              <div className="lg:col-span-2 space-y-6">
+                {loadingSubcategories ? (
+                  <div className="space-y-4">
+                    {[...Array(2)].map((_, i) => (
+                      <div key={i} className="h-20 bg-gray-50 animate-pulse rounded-2xl border border-gray-100" />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {['AI & Writing', 'Graphic Design', 'Video Editing', 'Marketing', 'Learning', 'Entertainment', 'Productivity'].map(parentCat => {
+                      const subs = subcategories.filter(s => s.parent_category === parentCat);
+                      if (subs.length === 0) return null;
+                      return (
+                        <div key={parentCat} className="p-6 bg-white border border-gray-100 rounded-3xl space-y-3">
+                          <h4 className="text-[11px] font-black text-blue-600 uppercase tracking-widest">{parentCat}</h4>
+                          <div className="flex flex-wrap gap-2">
+                            {subs.map(sub => (
+                              <div key={sub.id} className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-xl text-xs font-semibold border border-gray-200/50 transition-colors group">
+                                <span>{sub.name}</span>
+                                <button 
+                                  onClick={() => handleDeleteSubcategory(sub.id)}
+                                  className="text-gray-400 hover:text-red-600 transition-colors cursor-pointer select-none text-[10px]"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                    {subcategories.length === 0 && (
+                      <div className="py-16 text-center bg-gray-50/50 rounded-3xl border border-dashed border-gray-200">
+                        <p className="text-gray-400 font-bold uppercase tracking-[0.2em] text-[10px]">No subcategories defined yet.</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Stunning Create/Edit Modal */}
@@ -584,14 +765,14 @@ export const AdminPage = () => {
                         <input required value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} placeholder="e.g. ChatGPT Plus"
                           className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                           <label className="block text-[11px] font-semibold text-gray-500 mb-1.5 ml-0.5">Category</label>
                           {!useCustomCategory ? (
                             <select value={formData.category}
                               onChange={e => { if (e.target.value === '__custom__') { setUseCustomCategory(true); setFormData({ ...formData, category: '' }); } else { setFormData({ ...formData, category: e.target.value }); } }}
                               className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer">
-                              {['AI & Writing', 'Graphic Design', 'Video Editing', 'SEO & Marketing', 'Learning', 'Stock & Media', 'Entertainment'].map(cat => (
+                              {['AI & Writing', 'Graphic Design', 'Video Editing', 'Marketing', 'Learning', 'Entertainment', 'Productivity'].map(cat => (
                                 <option key={cat} value={cat}>{cat}</option>
                               ))}
                               <option value="__custom__">✏️ Custom...</option>
@@ -604,6 +785,38 @@ export const AdminPage = () => {
                                 className="px-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-400 hover:text-gray-700 text-xs font-semibold transition-all">✕</button>
                             </div>
                           )}
+                        </div>
+                        <div>
+                          <label className="block text-[11px] font-semibold text-gray-500 mb-1.5 ml-0.5">Subcategory</label>
+                          <div className="space-y-1.5">
+                            <select value={formData.subcategory}
+                              onChange={e => setFormData({ ...formData, subcategory: e.target.value })}
+                              className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer">
+                              <option value="">None (No Subcategory)</option>
+                              {subcategories.filter(s => s.parent_category === formData.category).map(sub => (
+                                <option key={sub.id} value={sub.name}>{sub.name}</option>
+                              ))}
+                            </select>
+                            
+                            {/* Quick Add Inline */}
+                            <div className="flex gap-1">
+                              <input 
+                                type="text"
+                                placeholder="New subcategory..."
+                                value={newSubcategoryName}
+                                onChange={e => setNewSubcategoryName(e.target.value)}
+                                className="flex-1 bg-white border border-gray-200 rounded-xl px-2.5 py-1.5 text-xs text-gray-900 placeholder:text-gray-300 focus:outline-none focus:border-blue-500 transition-all"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => handleCreateSubcategory(formData.category)}
+                                disabled={isCreatingSubcategory || !newSubcategoryName.trim()}
+                                className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold uppercase transition-all disabled:opacity-50 flex items-center justify-center"
+                              >
+                                {isCreatingSubcategory ? '...' : '+'}
+                              </button>
+                            </div>
+                          </div>
                         </div>
                         <div>
                           <label className="block text-[11px] font-semibold text-gray-500 mb-1.5 ml-0.5">Logo / Domain</label>

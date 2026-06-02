@@ -36,6 +36,37 @@ export const ProductDetails = () => {
   const currencySymbol = isIndia ? '₹' : '$';
   const locale = isIndia ? 'en-IN' : 'en-US';
 
+  // Get price for a plan — currency-aware (INR for India, USD for international)
+  const getPlanPrice = (planKey: PlanKey): number | null => {
+    if (!product) return null;
+    const key = isIndia ? planKey : `${planKey}_usd`;
+    const val = product[key];
+    if (val !== undefined && val !== null && val !== '') return Number(val);
+    
+    // Fallback for USD: if USD field is empty/null, but INR is filled, convert it!
+    if (!isIndia) {
+      const inrVal = product[planKey];
+      if (inrVal !== undefined && inrVal !== null && inrVal !== '') {
+        return Math.round((Number(inrVal) / 83) * 100) / 100;
+      }
+    }
+    return null;
+  };
+
+  // Get base price based on currency
+  const getBasePrice = (): number => {
+    if (!product) return 999;
+    if (!isIndia) {
+      if (product.price_usd !== undefined && product.price_usd !== null && product.price_usd !== '') {
+        return Number(product.price_usd);
+      }
+      // Fallback: convert base INR price
+      const inrVal = product.price || 999;
+      return Math.round((Number(inrVal) / 83) * 100) / 100;
+    }
+    return Number(product.price || 999);
+  };
+
   useEffect(() => { window.scrollTo(0, 0); }, [id]);
 
   useEffect(() => {
@@ -50,15 +81,21 @@ export const ProductDetails = () => {
     }
   }, [id, products]);
 
-  // Auto-select the first available plan when product loads
+  // Auto-select the monthly plan (price_1m) by default if it has plans, else the first available, else null
   useEffect(() => {
     if (!product) return;
-    const firstAvailable = VALIDITY_PLANS.find(p => {
-      const val = product[p.key];
-      return val !== undefined && val !== null && val !== '';
-    });
-    setSelectedPlan(firstAvailable ? firstAvailable.key : null);
-  }, [product]);
+    const available = VALIDITY_PLANS.filter(p => getPlanPrice(p.key) !== null);
+    if (available.length > 0) {
+      const monthlyPlan = available.find(p => p.key === 'price_1m');
+      if (monthlyPlan) {
+        setSelectedPlan('price_1m');
+      } else {
+        setSelectedPlan(available[0].key);
+      }
+    } else {
+      setSelectedPlan(null);
+    }
+  }, [product, isIndia]);
 
   if (loading) return (
     <div className="h-screen flex items-center justify-center bg-[#F8FAFC]">
@@ -93,20 +130,6 @@ export const ProductDetails = () => {
     if (!url) return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&bold=true&size=128&format=svg&uppercase=true`;
     if (url.includes('/') || url.startsWith('http')) return url;
     return `https://img.logo.dev/${url}?token=${import.meta.env.VITE_LOGO_DEV_PUBLIC_KEY}&size=128&format=png`;
-  };
-
-  // Get price for a plan — currency-aware (INR for India, USD for international)
-  const getPlanPrice = (planKey: PlanKey): number | null => {
-    const key = isIndia ? planKey : `${planKey}_usd`;
-    const val = product[key];
-    if (val !== undefined && val !== null && val !== '') return Number(val);
-    return null;
-  };
-
-  // Get base price based on currency
-  const getBasePrice = (): number => {
-    if (!isIndia && product.price_usd) return Number(product.price_usd);
-    return Number(product.price || 999);
   };
 
   // Only the plans that actually have a price filled in (for current currency)
