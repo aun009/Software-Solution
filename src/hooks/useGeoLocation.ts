@@ -6,11 +6,15 @@ interface GeoData {
   loading: boolean;
 }
 
+const GEO_CACHE_KEY = 'sp_geo';
+const GEO_FALLBACK: GeoData = { isIndia: true, countryCode: 'IN', loading: false };
+let geoRequest: Promise<GeoData> | null = null;
+
 export const useGeoLocation = (): GeoData => {
   const [geo, setGeo] = useState<GeoData>({ isIndia: true, countryCode: '', loading: true });
 
   useEffect(() => {
-    const cached = sessionStorage.getItem('sp_geo');
+    const cached = sessionStorage.getItem(GEO_CACHE_KEY);
     if (cached) {
       try {
         const parsed = JSON.parse(cached);
@@ -19,20 +23,37 @@ export const useGeoLocation = (): GeoData => {
       } catch { /* ignore */ }
     }
 
-    fetch('https://ipapi.co/json/')
-      .then(r => r.json())
-      .then(data => {
-        const result = {
-          isIndia: data.country_code === 'IN',
-          countryCode: data.country_code || 'IN',
-          loading: false,
-        };
-        sessionStorage.setItem('sp_geo', JSON.stringify(result));
-        setGeo(result);
-      })
-      .catch(() => {
-        setGeo({ isIndia: true, countryCode: 'IN', loading: false });
+    if (!geoRequest) {
+      geoRequest = fetch('/api/geo')
+        .then(r => {
+          if (!r.ok) throw new Error('Location lookup failed');
+          if (!r.headers.get('content-type')?.includes('application/json')) {
+            throw new Error('Location lookup returned a non-JSON response');
+          }
+          return r.json();
+        })
+        .then(data => {
+          const countryCode = data.country_code || data.countryCode || 'IN';
+          const result = {
+            isIndia: countryCode === 'IN',
+            countryCode,
+            loading: false,
+          };
+          sessionStorage.setItem(GEO_CACHE_KEY, JSON.stringify(result));
+          return result;
+        })
+        .catch(() => {
+          sessionStorage.setItem(GEO_CACHE_KEY, JSON.stringify(GEO_FALLBACK));
+          return GEO_FALLBACK;
+        });
+    }
+
+    geoRequest.then(result => {
+      setGeo({
+        ...result,
+        loading: false,
       });
+    });
   }, []);
 
   return geo;

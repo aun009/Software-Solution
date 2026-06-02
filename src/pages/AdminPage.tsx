@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import { useProductStore } from '../store/useProductStore';
-import { Plus, Trash2, Package, CheckCircle2, Loader2, AlertCircle, Sparkles, Edit2, X, DollarSign, Image as ImageIcon, Video, Trash, ArrowRight, UploadCloud, Link as LinkIcon, Clock, Infinity, GripVertical, LayoutGrid, ArrowUpDown, Save, CheckCheck } from 'lucide-react';
+import { Plus, Trash2, Package, CheckCircle2, Loader2, AlertCircle, Sparkles, Edit2, X, Image as ImageIcon, Video, Trash, ArrowRight, GripVertical, LayoutGrid, ArrowUpDown, Save, CheckCheck } from 'lucide-react';
 import { Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -22,6 +22,40 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+
+const CATEGORY_OPTIONS = ['AI & Writing', 'Graphic Design', 'Video Editing', 'Marketing', 'Learning', 'Entertainment', 'Productivity'];
+
+const DEFAULT_FORM_DATA = {
+  title: '',
+  description: '',
+  category: 'AI & Writing',
+  subcategory: '',
+  price: '',
+  price_usd: '',
+  price_1m: '',
+  price_1m_usd: '',
+  price_3m: '',
+  price_3m_usd: '',
+  price_6m: '',
+  price_6m_usd: '',
+  price_1y: '',
+  price_1y_usd: '',
+  price_lifetime: '',
+  price_lifetime_usd: '',
+  image: '',
+  videoUrl: '',
+  url: '',
+  is_trending: false,
+  ctaText: 'Deploy Now',
+  features: ['Infinite scaling', 'Real-time sync', 'Multi-tenant'],
+  benefits: ['Accelerate growth', 'Simplify operations', 'Maximize revenue']
+};
+
+type Subcategory = {
+  id: string;
+  name: string;
+  parent_category: string;
+};
 
 // ── Sortable row used in the Reorder tab ─────────────────────────────────────
 const SortableProductRow = ({ product, index }: { product: any; index: number; key?: string }) => {
@@ -88,9 +122,11 @@ export const AdminPage = () => {
   const [savingOrder, setSavingOrder] = useState(false);
   const [orderSaved, setOrderSaved] = useState(false);
 
-  const [subcategories, setSubcategories] = useState<any[]>([]);
+  const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
   const [loadingSubcategories, setLoadingSubcategories] = useState(false);
-  const [newSubcategoryName, setNewSubcategoryName] = useState('');
+  const [managerParentCategory, setManagerParentCategory] = useState('AI & Writing');
+  const [managerSubcategoryName, setManagerSubcategoryName] = useState('');
+  const [modalSubcategoryName, setModalSubcategoryName] = useState('');
   const [isCreatingSubcategory, setIsCreatingSubcategory] = useState(false);
 
   const sensors = useSensors(
@@ -99,31 +135,18 @@ export const AdminPage = () => {
   );
 
   // Form state
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    category: 'AI & Writing',
-    subcategory: '',
-    price: '',
-    price_usd: '',
-    price_1m: '',
-    price_1m_usd: '',
-    price_3m: '',
-    price_3m_usd: '',
-    price_6m: '',
-    price_6m_usd: '',
-    price_1y: '',
-    price_1y_usd: '',
-    price_lifetime: '',
-    price_lifetime_usd: '',
-    image: '',
-    videoUrl: '',
-    url: '',
-    is_trending: false,
-    ctaText: 'Deploy Now',
-    features: ['Infinite scaling', 'Real-time sync', 'Multi-tenant'],
-    benefits: ['Accelerate growth', 'Simplify operations', 'Maximize revenue']
-  });
+  const [formData, setFormData] = useState(DEFAULT_FORM_DATA);
+
+  const subcategoriesForCategory = (category: string) =>
+    subcategories.filter(s => s.parent_category === category);
+
+  const changeProductCategory = (category: string) => {
+    setFormData(prev => ({
+      ...prev,
+      category,
+      subcategory: subcategoriesForCategory(category).some(s => s.name === prev.subcategory) ? prev.subcategory : ''
+    }));
+  };
 
   const fetchSubcategories = async () => {
     setLoadingSubcategories(true);
@@ -132,35 +155,58 @@ export const AdminPage = () => {
         .from('subcategories')
         .select('*')
         .order('name', { ascending: true });
-      if (data && !error) {
-        setSubcategories(data);
-      }
+      if (error) throw error;
+      setSubcategories(data || []);
     } catch (err) {
       console.error('Error fetching subcategories:', err);
+      setError('Could not load subcategories. Check the Supabase subcategories table and policies.');
     } finally {
       setLoadingSubcategories(false);
     }
   };
 
-  const handleCreateSubcategory = async (parentCategory: string) => {
-    if (!newSubcategoryName.trim()) return;
+  const handleCreateSubcategory = async (parentCategory: string, rawName: string, selectInForm = false) => {
+    const name = rawName.trim().replace(/\s+/g, ' ');
+    const parent = parentCategory.trim();
+    if (!name || !parent) return;
+
+    const existing = subcategories.find(
+      sub => sub.parent_category === parent && sub.name.toLowerCase() === name.toLowerCase()
+    );
+    if (existing) {
+      if (selectInForm) {
+        setFormData(prev => ({ ...prev, subcategory: existing.name }));
+        setModalSubcategoryName('');
+      } else {
+        setManagerSubcategoryName('');
+      }
+      setError('');
+      return;
+    }
+
     try {
       setIsCreatingSubcategory(true);
       const { data, error } = await supabase
         .from('subcategories')
-        .insert([{ name: newSubcategoryName.trim(), parent_category: parentCategory }])
+        .insert([{ name, parent_category: parent }])
         .select();
 
       if (error) throw error;
 
-      setNewSubcategoryName('');
+      if (selectInForm) {
+        setModalSubcategoryName('');
+      } else {
+        setManagerSubcategoryName('');
+      }
       await fetchSubcategories();
       
       if (data && data[0]) {
-        setFormData(prev => ({ ...prev, subcategory: data[0].name }));
+        if (selectInForm) {
+          setFormData(prev => ({ ...prev, subcategory: data[0].name }));
+        }
       }
     } catch (err: any) {
-      alert(err.message || 'Failed to create subcategory');
+      setError(err.message || 'Failed to create subcategory');
     } finally {
       setIsCreatingSubcategory(false);
     }
@@ -174,9 +220,13 @@ export const AdminPage = () => {
         .delete()
         .eq('id', id);
       if (error) throw error;
+      const deleted = subcategories.find(sub => sub.id === id);
+      if (deleted?.name === formData.subcategory) {
+        setFormData(prev => ({ ...prev, subcategory: '' }));
+      }
       await fetchSubcategories();
     } catch (err: any) {
-      alert(err.message || 'Failed to delete subcategory');
+      setError(err.message || 'Failed to delete subcategory');
     }
   };
 
@@ -223,6 +273,7 @@ export const AdminPage = () => {
     setReorderItems((items) => {
       const oldIndex = items.findIndex((i) => i.id === active.id);
       const newIndex = items.findIndex((i) => i.id === over.id);
+      if (oldIndex < 0 || newIndex < 0) return items;
       return arrayMove(items, oldIndex, newIndex);
     });
     setOrderSaved(false);
@@ -268,6 +319,26 @@ export const AdminPage = () => {
       const payload: any = { ...formData };
       delete payload.ctaText;
 
+      payload.title = payload.title.trim();
+      payload.description = payload.description.trim();
+      payload.category = payload.category.trim();
+      payload.subcategory = payload.subcategory.trim() || null;
+      payload.image = payload.image.trim();
+      payload.videoUrl = payload.videoUrl.trim() || null;
+      payload.url = payload.url.trim();
+      payload.features = payload.features.map((item: string) => item.trim()).filter(Boolean);
+      payload.benefits = payload.benefits.map((item: string) => item.trim()).filter(Boolean);
+
+      if (!payload.category) {
+        throw new Error('Please choose or enter a category.');
+      }
+      if (payload.features.length === 0) {
+        payload.features = ['Easy setup'];
+      }
+      if (payload.benefits.length === 0) {
+        payload.benefits = ['Simple to use'];
+      }
+
       // Convert empty pricing fields to null so they are truly unset in the DB
       const pricingKeys = ['price_usd', 'price_1m', 'price_1m_usd', 'price_3m', 'price_3m_usd', 'price_6m', 'price_6m_usd', 'price_1y', 'price_1y_usd', 'price_lifetime', 'price_lifetime_usd'];
       pricingKeys.forEach(key => {
@@ -285,7 +356,7 @@ export const AdminPage = () => {
       }
 
       handleResetForm();
-      fetchProducts();
+      await Promise.all([fetchProducts(), refreshGlobalStore()]);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -297,42 +368,30 @@ export const AdminPage = () => {
     setEditingId(null);
     setIsModalOpen(false);
     setUseCustomCategory(false);
-    setFormData({
-      title: '',
-      description: '',
-      category: 'AI & Writing',
-      subcategory: '',
-      price: '',
-      price_usd: '',
-      price_1m: '',
-      price_1m_usd: '',
-      price_3m: '',
-      price_3m_usd: '',
-      price_6m: '',
-      price_6m_usd: '',
-      price_1y: '',
-      price_1y_usd: '',
-      price_lifetime: '',
-      price_lifetime_usd: '',
-      image: '',
-      videoUrl: '',
-      url: '',
-      is_trending: false,
-      ctaText: 'Deploy Now',
-      features: ['Infinite scaling', 'Real-time sync', 'Multi-tenant'],
-      benefits: ['Accelerate growth', 'Simplify operations', 'Maximize revenue']
-    });
+    setModalSubcategoryName('');
+    setError('');
+    setFormData(DEFAULT_FORM_DATA);
+  };
+
+  const startCreate = () => {
+    setEditingId(null);
+    setUseCustomCategory(false);
+    setModalSubcategoryName('');
+    setError('');
+    setFormData(DEFAULT_FORM_DATA);
+    setIsModalOpen(true);
   };
 
   const startEdit = (product: any) => {
     setEditingId(product.id);
-    const presets = ['AI & Writing', 'Graphic Design', 'Video Editing', 'Marketing', 'Learning', 'Entertainment', 'Productivity'];
-    const isCustom = !presets.includes(product.category);
+    const isCustom = !CATEGORY_OPTIONS.includes(product.category);
     setUseCustomCategory(isCustom);
+    setModalSubcategoryName('');
+    setError('');
     setFormData({
-      title: product.title,
-      description: product.description,
-      category: product.category,
+      title: product.title || '',
+      description: product.description || '',
+      category: product.category || 'AI & Writing',
       subcategory: product.subcategory || '',
       price: product.price || '',
       price_usd: product.price_usd || '',
@@ -346,7 +405,7 @@ export const AdminPage = () => {
       price_1y_usd: product.price_1y_usd || '',
       price_lifetime: product.price_lifetime || '',
       price_lifetime_usd: product.price_lifetime_usd || '',
-      image: product.image,
+      image: product.image || '',
       videoUrl: product.videoUrl || product.video_url || '',
       url: product.url || '',
       ctaText: product.ctaText || product.cta_text || 'Deploy Now',
@@ -362,7 +421,7 @@ export const AdminPage = () => {
       const { error } = await supabase.from('products').delete().eq('id', id);
       if (error) throw error;
       setDeletingId(null);
-      fetchProducts();
+      await Promise.all([fetchProducts(), refreshGlobalStore()]);
     } catch (err: any) {
       setError(err.message);
     }
@@ -379,57 +438,55 @@ export const AdminPage = () => {
         <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(circle_at_100%_100%,rgba(168,85,247,0.05)_0%,transparent_50%)]" />
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 pt-32 md:pt-48 pb-24 relative z-10 w-full">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-28 md:pt-36 pb-24 relative z-10 w-full">
         {/* Admin Header */}
-        <div className="flex flex-col md:flex-row items-baseline justify-between mb-16 gap-6 p-10 bg-white border border-gray-200 rounded-[40px] relative overflow-hidden shadow-sm">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-10 gap-6 p-6 md:p-8 bg-white border border-gray-200 rounded-3xl relative overflow-hidden shadow-sm">
           <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/5 blur-[100px] rounded-full" />
           <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-3 mb-3">
               <Sparkles className="text-blue-600" size={20} />
-              <span className="text-[10px] font-black text-blue-600 uppercase tracking-[0.4em]">Administrative Terminal</span>
+              <span className="text-[10px] font-black text-blue-600 uppercase tracking-[0.3em]">Admin Dashboard</span>
             </div>
-            <h1 className="text-4xl md:text-7xl font-black text-gray-900 tracking-tighter">Inventory Control</h1>
+            <h1 className="text-3xl md:text-5xl font-black text-gray-900 tracking-tight">Product Manager</h1>
+            <p className="mt-2 text-sm text-gray-500 font-medium">Add products, set prices, choose categories, and control the store order.</p>
           </div>
-          <div className="relative z-10 flex items-center gap-4">
+          <div className="relative z-10 flex flex-wrap items-center gap-3">
             <button
-              onClick={() => {
-                 setEditingId(null);
-                 setIsModalOpen(true);
-              }}
-              className="px-8 py-4 rounded-2xl bg-gray-900 text-white font-black uppercase tracking-widest text-[10px] shadow-xl hover:bg-blue-600 transition-colors flex items-center gap-2"
+              onClick={startCreate}
+              className="px-5 py-3 rounded-2xl bg-gray-900 text-white font-black uppercase tracking-widest text-[10px] shadow-xl hover:bg-blue-600 transition-colors flex items-center gap-2"
             >
-              <Plus size={16} /> New Deployment
+              <Plus size={16} /> Add Product
             </button>
-            <div className="hidden md:flex px-5 py-3 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-black uppercase tracking-widest">
-              Level 1 Auth
+            <div className="hidden md:flex px-4 py-3 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-600 text-[10px] font-black uppercase tracking-widest">
+              Admin Access
             </div>
           </div>
         </div>
 
         {/* Top Level Dashboard Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-           <div className="p-8 bg-white border border-gray-100 rounded-[32px] shadow-sm flex items-center justify-between hover:border-gray-300 transition-colors">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10">
+           <div className="p-6 bg-white border border-gray-100 rounded-2xl shadow-sm flex items-center justify-between hover:border-gray-300 transition-colors">
               <div>
-                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Deployments</p>
+                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Products</p>
                  <h3 className="text-4xl font-black text-gray-900">{products.length}</h3>
               </div>
               <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 ring-4 ring-blue-50/50">
                  <Package size={24} />
               </div>
            </div>
-           <div className="p-8 bg-white border border-gray-100 rounded-[32px] shadow-sm flex items-center justify-between hover:border-gray-300 transition-colors">
+           <div className="p-6 bg-white border border-gray-100 rounded-2xl shadow-sm flex items-center justify-between hover:border-gray-300 transition-colors">
               <div>
-                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">System Health</p>
-                 <h3 className="text-4xl font-black text-emerald-600">99.9%</h3>
+                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Trending</p>
+                 <h3 className="text-4xl font-black text-emerald-600">{products.filter(product => product.is_trending).length}</h3>
               </div>
               <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600 ring-4 ring-emerald-50/50">
                  <CheckCircle2 size={24} />
               </div>
            </div>
-           <div className="p-8 bg-white border border-gray-100 rounded-[32px] shadow-sm flex items-center justify-between hover:border-gray-300 transition-colors">
+           <div className="p-6 bg-white border border-gray-100 rounded-2xl shadow-sm flex items-center justify-between hover:border-gray-300 transition-colors">
               <div>
-                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Active Queries</p>
-                 <h3 className="text-4xl font-black text-purple-600">4,281</h3>
+                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Subcategories</p>
+                 <h3 className="text-4xl font-black text-purple-600">{subcategories.length}</h3>
               </div>
               <div className="w-16 h-16 rounded-2xl bg-purple-50 flex items-center justify-center text-purple-600 ring-4 ring-purple-50/50">
                  <Sparkles size={24} />
@@ -438,7 +495,7 @@ export const AdminPage = () => {
         </div>
 
         {/* ── Tab Switcher ───────────────────────────────────────────────── */}
-        <div className="flex items-center gap-3 mb-8">
+        <div className="flex flex-wrap items-center gap-3 mb-6">
           <button
             onClick={() => setActiveTab('inventory')}
             className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all ${
@@ -447,7 +504,7 @@ export const AdminPage = () => {
                 : 'bg-white border border-gray-200 text-gray-500 hover:border-gray-400'
             }`}
           >
-            <LayoutGrid size={14} /> Inventory
+            <LayoutGrid size={14} /> Products
           </button>
           <button
             onClick={() => { setActiveTab('reorder'); setReorderItems([...products]); }}
@@ -457,7 +514,7 @@ export const AdminPage = () => {
                 : 'bg-white border border-gray-200 text-gray-500 hover:border-gray-400'
             }`}
           >
-            <ArrowUpDown size={14} /> Reorder Hub
+            <ArrowUpDown size={14} /> Sort Order
           </button>
           <button
             onClick={() => setActiveTab('subcategories')}
@@ -473,13 +530,13 @@ export const AdminPage = () => {
 
         {/* ── Reorder Hub Tab ─────────────────────────────────────────────── */}
         {activeTab === 'reorder' && (
-          <div className="bg-white rounded-[40px] border border-gray-100 shadow-[0_4px_20px_rgb(0,0,0,0.02)] overflow-hidden">
+          <div className="bg-white rounded-3xl border border-gray-100 shadow-[0_4px_20px_rgb(0,0,0,0.02)] overflow-hidden">
             <div className="p-8 border-b border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
                 <h2 className="text-xl font-black text-gray-900 tracking-widest uppercase flex items-center gap-3">
-                  <ArrowUpDown size={18} className="text-blue-600" /> Reorder Hub
+                  <ArrowUpDown size={18} className="text-blue-600" /> Product Order
                 </h2>
-                <p className="text-[11px] text-gray-400 mt-1 font-medium">Drag rows to set display order. Hit Save to push changes live.</p>
+                <p className="text-[11px] text-gray-400 mt-1 font-medium">Drag products into the order customers should see, then save.</p>
               </div>
               <button
                 onClick={saveOrder}
@@ -528,10 +585,10 @@ export const AdminPage = () => {
 
         {/* ── Inventory Tab ────────────────────────────────────────────────── */}
         {activeTab === 'inventory' && (
-        <div className="bg-white rounded-[40px] border border-gray-100 shadow-[0_4px_20px_rgb(0,0,0,0.02)] overflow-hidden">
+        <div className="bg-white rounded-3xl border border-gray-100 shadow-[0_4px_20px_rgb(0,0,0,0.02)] overflow-hidden">
            <div className="p-8 border-b border-gray-100 flex items-center justify-between">
               <h2 className="text-xl font-black text-gray-900 tracking-widest uppercase flex items-center gap-4">
-                Active Deployments
+                Products
                 {products.length > 0 && <span className="text-[10px] text-gray-600 bg-gray-100 px-3 py-1 rounded-full">{products.length}</span>}
               </h2>
            </div>
@@ -545,7 +602,7 @@ export const AdminPage = () => {
               ) : products.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {products.map((product) => (
-                    <div key={product.id} className="p-6 bg-white border border-gray-100 rounded-[32px] flex flex-col gap-6 group hover:border-blue-500/30 transition-all shadow-sm hover:shadow-md">
+                    <div key={product.id} className="p-6 bg-white border border-gray-100 rounded-2xl flex flex-col gap-6 group hover:border-blue-500/30 transition-all shadow-sm hover:shadow-md">
                       <div className="flex items-center gap-6">
                         <div className="w-16 h-16 rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 shrink-0">
                           <img src={product.image} className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110" referrerPolicy="no-referrer" alt="" />
@@ -572,7 +629,7 @@ export const AdminPage = () => {
                               onClick={() => handleDeleteProduct(product.id)}
                               className="flex-1 px-4 py-3 rounded-xl bg-red-600 text-white font-black uppercase tracking-widest text-[9px] hover:bg-red-700 transition-all shadow-md active:scale-95"
                             >
-                              Purge!
+                              Delete
                             </button>
                             <button
                               onClick={() => setDeletingId(null)}
@@ -588,14 +645,14 @@ export const AdminPage = () => {
                               <button
                                 onClick={() => startEdit(product)}
                                 className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-100 text-gray-600 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all shadow-sm active:scale-95"
-                                title="Edit Blueprint"
+                                title="Edit product"
                               >
                                 <Edit2 size={14} />
                               </button>
                               <button
                                 onClick={() => setDeletingId(product.id)}
                                 className="w-10 h-10 rounded-xl bg-red-50 border border-red-100 text-red-500 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all shadow-sm active:scale-95"
-                                title="Purge Solution"
+                                title="Delete product"
                               >
                                 <Trash2 size={14} />
                               </button>
@@ -609,7 +666,7 @@ export const AdminPage = () => {
               ) : (
                 <div className="py-32 text-center flex flex-col items-center justify-center">
                   <Package size={48} className="text-gray-300 mb-6" />
-                  <p className="text-gray-400 font-black uppercase tracking-[0.4em] text-xs">NO REMOTE DEPLOYMENTS DETECTED</p>
+                  <p className="text-gray-400 font-black uppercase tracking-[0.3em] text-xs">No products yet</p>
                 </div>
               )}
            </div>
@@ -618,13 +675,13 @@ export const AdminPage = () => {
 
         {/* ── Subcategories Tab ────────────────────────────────────────────── */}
         {activeTab === 'subcategories' && (
-          <div className="bg-white rounded-[40px] border border-gray-100 shadow-[0_4px_20px_rgb(0,0,0,0.02)] overflow-hidden">
+          <div className="bg-white rounded-3xl border border-gray-100 shadow-[0_4px_20px_rgb(0,0,0,0.02)] overflow-hidden">
             <div className="p-8 border-b border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
                 <h2 className="text-xl font-black text-gray-900 tracking-widest uppercase flex items-center gap-3">
-                  <Package size={18} className="text-purple-600" /> Subcategory Manager
+                  <Package size={18} className="text-purple-600" /> Subcategories
                 </h2>
-                <p className="text-[11px] text-gray-400 mt-1 font-medium">Create and manage subcategories dynamically under parent categories.</p>
+                <p className="text-[11px] text-gray-400 mt-1 font-medium">Pick a main category, then add the subcategory admins can choose from the product form.</p>
               </div>
             </div>
             
@@ -635,13 +692,13 @@ export const AdminPage = () => {
                   <h3 className="text-xs font-black uppercase tracking-wider text-gray-900 mb-4">Add Subcategory</h3>
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Parent Category</label>
+                      <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Main Category</label>
                       <select 
-                        value={formData.category} 
-                        onChange={e => setFormData({ ...formData, category: e.target.value })}
+                        value={managerParentCategory} 
+                        onChange={e => setManagerParentCategory(e.target.value)}
                         className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer"
                       >
-                        {['AI & Writing', 'Graphic Design', 'Video Editing', 'Marketing', 'Learning', 'Entertainment', 'Productivity'].map(cat => (
+                        {CATEGORY_OPTIONS.map(cat => (
                           <option key={cat} value={cat}>{cat}</option>
                         ))}
                       </select>
@@ -651,14 +708,14 @@ export const AdminPage = () => {
                       <input 
                         type="text" 
                         placeholder="e.g. Email Marketing"
-                        value={newSubcategoryName} 
-                        onChange={e => setNewSubcategoryName(e.target.value)}
+                        value={managerSubcategoryName} 
+                        onChange={e => setManagerSubcategoryName(e.target.value)}
                         className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-xs text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                       />
                     </div>
                     <button
-                      onClick={() => handleCreateSubcategory(formData.category)}
-                      disabled={isCreatingSubcategory || !newSubcategoryName.trim()}
+                      onClick={() => handleCreateSubcategory(managerParentCategory, managerSubcategoryName)}
+                      disabled={isCreatingSubcategory || !managerSubcategoryName.trim()}
                       className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-md shadow-purple-600/10 active:scale-[0.98]"
                     >
                       {isCreatingSubcategory ? (
@@ -682,33 +739,35 @@ export const AdminPage = () => {
                   </div>
                 ) : (
                   <div className="space-y-6">
-                    {['AI & Writing', 'Graphic Design', 'Video Editing', 'Marketing', 'Learning', 'Entertainment', 'Productivity'].map(parentCat => {
+                    {CATEGORY_OPTIONS.map(parentCat => {
                       const subs = subcategories.filter(s => s.parent_category === parentCat);
-                      if (subs.length === 0) return null;
                       return (
-                        <div key={parentCat} className="p-6 bg-white border border-gray-100 rounded-3xl space-y-3">
-                          <h4 className="text-[11px] font-black text-blue-600 uppercase tracking-widest">{parentCat}</h4>
-                          <div className="flex flex-wrap gap-2">
-                            {subs.map(sub => (
-                              <div key={sub.id} className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-xl text-xs font-semibold border border-gray-200/50 transition-colors group">
-                                <span>{sub.name}</span>
-                                <button 
-                                  onClick={() => handleDeleteSubcategory(sub.id)}
-                                  className="text-gray-400 hover:text-red-600 transition-colors cursor-pointer select-none text-[10px]"
-                                >
-                                  ✕
-                                </button>
-                              </div>
-                            ))}
+                        <div key={parentCat} className="p-5 bg-white border border-gray-100 rounded-2xl space-y-3">
+                          <div className="flex items-center justify-between gap-3">
+                            <h4 className="text-[11px] font-black text-blue-600 uppercase tracking-widest">{parentCat}</h4>
+                            <span className="text-[10px] font-bold text-gray-400">{subs.length}</span>
                           </div>
+                          {subs.length > 0 ? (
+                            <div className="flex flex-wrap gap-2">
+                              {subs.map(sub => (
+                                <div key={sub.id} className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-xl text-xs font-semibold border border-gray-200/50 transition-colors group">
+                                  <span>{sub.name}</span>
+                                  <button 
+                                    onClick={() => handleDeleteSubcategory(sub.id)}
+                                    className="text-gray-400 hover:text-red-600 transition-colors cursor-pointer select-none text-[10px]"
+                                    aria-label={`Delete ${sub.name}`}
+                                  >
+                                    x
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-[11px] text-gray-400 font-medium">No subcategories yet.</p>
+                          )}
                         </div>
                       );
                     })}
-                    {subcategories.length === 0 && (
-                      <div className="py-16 text-center bg-gray-50/50 rounded-3xl border border-dashed border-gray-200">
-                        <p className="text-gray-400 font-bold uppercase tracking-[0.2em] text-[10px]">No subcategories defined yet.</p>
-                      </div>
-                    )}
                   </div>
                 )}
               </div>
@@ -717,7 +776,7 @@ export const AdminPage = () => {
         )}
       </div>
 
-      {/* Stunning Create/Edit Modal */}
+      {/* Create/Edit Modal */}
       <AnimatePresence>
         {isModalOpen && (
           <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
@@ -733,24 +792,24 @@ export const AdminPage = () => {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-3xl my-auto bg-white border border-gray-200 rounded-[40px] shadow-2xl overflow-hidden"
+              className="relative w-full max-w-5xl my-auto bg-white border border-gray-200 rounded-3xl shadow-2xl overflow-hidden"
             >
-              <div className="sticky top-0 z-20 flex items-center justify-between p-8 border-b border-gray-100 bg-white/80 backdrop-blur-xl">
-                <h2 className="text-2xl md:text-3xl font-black text-gray-900 tracking-tighter uppercase flex items-center gap-4">
+              <div className="sticky top-0 z-20 flex items-center justify-between gap-4 p-5 md:p-7 border-b border-gray-100 bg-white/90 backdrop-blur-xl">
+                <h2 className="text-xl md:text-2xl font-black text-gray-900 tracking-tight uppercase flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-600/30">
                     {editingId ? <Edit2 size={20} /> : <Plus size={20} />}
                   </div>
-                  {editingId ? 'Edit Solution' : 'New Deployment'}
+                  {editingId ? 'Edit Product' : 'Add Product'}
                 </h2>
                 <button
                   onClick={handleResetForm}
-                  className="w-12 h-12 rounded-full border border-gray-200 text-gray-400 flex items-center justify-center hover:bg-gray-100 hover:text-gray-900 transition-all active:scale-95"
+                  className="w-11 h-11 rounded-full border border-gray-200 text-gray-400 flex items-center justify-center hover:bg-gray-100 hover:text-gray-900 transition-all active:scale-95 shrink-0"
                 >
                   <X size={20} />
                 </button>
               </div>
 
-              <div className="p-6 md:p-8 max-h-[70vh] overflow-y-auto">
+              <div className="p-5 md:p-7 max-h-[72vh] overflow-y-auto">
                 <form id="product-form" onSubmit={handleSaveProduct} className="space-y-8">
 
                   {/* ─── Section 1: Product Info ─── */}
@@ -765,55 +824,65 @@ export const AdminPage = () => {
                         <input required value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} placeholder="e.g. ChatGPT Plus"
                           className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         <div>
                           <label className="block text-[11px] font-semibold text-gray-500 mb-1.5 ml-0.5">Category</label>
                           {!useCustomCategory ? (
                             <select value={formData.category}
-                              onChange={e => { if (e.target.value === '__custom__') { setUseCustomCategory(true); setFormData({ ...formData, category: '' }); } else { setFormData({ ...formData, category: e.target.value }); } }}
+                              onChange={e => {
+                                if (e.target.value === '__custom__') {
+                                  setUseCustomCategory(true);
+                                  changeProductCategory('');
+                                } else {
+                                  changeProductCategory(e.target.value);
+                                }
+                              }}
                               className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer">
-                              {['AI & Writing', 'Graphic Design', 'Video Editing', 'Marketing', 'Learning', 'Entertainment', 'Productivity'].map(cat => (
+                              {CATEGORY_OPTIONS.map(cat => (
                                 <option key={cat} value={cat}>{cat}</option>
                               ))}
-                              <option value="__custom__">✏️ Custom...</option>
+                              <option value="__custom__">Custom category...</option>
                             </select>
                           ) : (
                             <div className="flex gap-2">
-                              <input required autoFocus value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} placeholder="Type custom category..."
+                              <input required autoFocus value={formData.category} onChange={e => changeProductCategory(e.target.value)} placeholder="Type custom category..."
                                 className="flex-1 bg-white border border-blue-400 rounded-xl px-4 py-3 text-sm text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
-                              <button type="button" onClick={() => { setUseCustomCategory(false); setFormData({ ...formData, category: 'AI & Writing' }); }}
-                                className="px-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-400 hover:text-gray-700 text-xs font-semibold transition-all">✕</button>
+                              <button type="button" onClick={() => { setUseCustomCategory(false); changeProductCategory('AI & Writing'); }}
+                                className="px-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-400 hover:text-gray-700 text-xs font-semibold transition-all">x</button>
                             </div>
                           )}
                         </div>
                         <div>
                           <label className="block text-[11px] font-semibold text-gray-500 mb-1.5 ml-0.5">Subcategory</label>
-                          <div className="space-y-1.5">
+                          <div className="space-y-2">
                             <select value={formData.subcategory}
                               onChange={e => setFormData({ ...formData, subcategory: e.target.value })}
+                              disabled={!formData.category}
                               className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer">
-                              <option value="">None (No Subcategory)</option>
-                              {subcategories.filter(s => s.parent_category === formData.category).map(sub => (
+                              <option value="">No subcategory</option>
+                              {subcategoriesForCategory(formData.category).map(sub => (
                                 <option key={sub.id} value={sub.name}>{sub.name}</option>
                               ))}
                             </select>
                             
                             {/* Quick Add Inline */}
-                            <div className="flex gap-1">
+                            <div className="flex gap-2">
                               <input 
                                 type="text"
-                                placeholder="New subcategory..."
-                                value={newSubcategoryName}
-                                onChange={e => setNewSubcategoryName(e.target.value)}
-                                className="flex-1 bg-white border border-gray-200 rounded-xl px-2.5 py-1.5 text-xs text-gray-900 placeholder:text-gray-300 focus:outline-none focus:border-blue-500 transition-all"
+                                placeholder={formData.category ? 'Add one for this category' : 'Choose category first'}
+                                value={modalSubcategoryName}
+                                onChange={e => setModalSubcategoryName(e.target.value)}
+                                disabled={!formData.category}
+                                className="flex-1 bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-900 placeholder:text-gray-300 focus:outline-none focus:border-blue-500 transition-all disabled:bg-gray-50"
                               />
                               <button
                                 type="button"
-                                onClick={() => handleCreateSubcategory(formData.category)}
-                                disabled={isCreatingSubcategory || !newSubcategoryName.trim()}
-                                className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold uppercase transition-all disabled:opacity-50 flex items-center justify-center"
+                                onClick={() => handleCreateSubcategory(formData.category, modalSubcategoryName, true)}
+                                disabled={isCreatingSubcategory || !modalSubcategoryName.trim() || !formData.category}
+                                className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold uppercase transition-all disabled:opacity-50 flex items-center justify-center gap-1"
                               >
-                                {isCreatingSubcategory ? '...' : '+'}
+                                {isCreatingSubcategory ? <Loader2 size={12} className="animate-spin" /> : <Plus size={12} />}
+                                Add
                               </button>
                             </div>
                           </div>
@@ -872,9 +941,9 @@ export const AdminPage = () => {
                     <p className="text-[11px] text-gray-400 mb-5 ml-[34px]">Set INR for Indian customers, USD for international. Leave blank to hide a plan.</p>
 
                     {/* Base price row */}
-                    <div className="grid grid-cols-2 gap-4 mb-5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
                       <div>
-                        <label className="block text-[11px] font-semibold text-gray-500 mb-1.5 ml-0.5">Base Price — 🇮🇳 INR *</label>
+                        <label className="block text-[11px] font-semibold text-gray-500 mb-1.5 ml-0.5">Base Price - INR *</label>
                         <div className="relative">
                           <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-semibold">₹</span>
                           <input type="number" required value={formData.price} onChange={e => setFormData({ ...formData, price: e.target.value })} placeholder="999"
@@ -882,7 +951,7 @@ export const AdminPage = () => {
                         </div>
                       </div>
                       <div>
-                        <label className="block text-[11px] font-semibold text-gray-500 mb-1.5 ml-0.5">Base Price — 🌍 USD</label>
+                        <label className="block text-[11px] font-semibold text-gray-500 mb-1.5 ml-0.5">Base Price - USD</label>
                         <div className="relative">
                           <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-semibold">$</span>
                           <input type="number" value={formData.price_usd} onChange={e => setFormData({ ...formData, price_usd: e.target.value })} placeholder="9.99"
@@ -892,12 +961,13 @@ export const AdminPage = () => {
                     </div>
 
                     {/* Validity pricing table */}
-                    <div className="rounded-2xl border border-gray-200 overflow-hidden">
+                    <div className="rounded-2xl border border-gray-200 overflow-x-auto">
+                      <div className="min-w-[560px]">
                       {/* Header */}
                       <div className="grid grid-cols-[1.2fr_1fr_1fr] bg-gray-50 border-b border-gray-200">
                         <div className="px-4 py-2.5 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Validity Plan</div>
-                        <div className="px-4 py-2.5 text-[10px] font-bold text-gray-500 uppercase tracking-wider">🇮🇳 INR (₹)</div>
-                        <div className="px-4 py-2.5 text-[10px] font-bold text-gray-500 uppercase tracking-wider">🌍 USD ($)</div>
+                        <div className="px-4 py-2.5 text-[10px] font-bold text-gray-500 uppercase tracking-wider">INR (₹)</div>
+                        <div className="px-4 py-2.5 text-[10px] font-bold text-gray-500 uppercase tracking-wider">USD ($)</div>
                       </div>
                       {/* Rows */}
                       {[
@@ -925,6 +995,7 @@ export const AdminPage = () => {
                           </div>
                         </div>
                       ))}
+                      </div>
                     </div>
 
                     {/* Trending toggle */}

@@ -36,6 +36,23 @@ async function startServer() {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
   });
 
+  app.get('/api/geo', async (_req, res) => {
+    try {
+      const response = await fetch('https://ipapi.co/json/', {
+        headers: { accept: 'application/json' },
+      });
+      if (!response.ok) throw new Error(`Geo lookup failed with ${response.status}`);
+      const data = await response.json();
+      res.json({
+        isIndia: data.country_code === 'IN',
+        countryCode: data.country_code || 'IN',
+        loading: false,
+      });
+    } catch {
+      res.json({ isIndia: true, countryCode: 'IN', loading: false });
+    }
+  });
+
   // ── Secure Admin API routes ───────────────────────────────────────────────
   // All routes under /api/admin/* use supabaseAdmin (service role).
   // Add authentication middleware here before adding real routes.
@@ -70,4 +87,3 @@ async function startServer() {
 startServer().catch((err) => {
   console.error('Failed to start server:', err);
 });
-
