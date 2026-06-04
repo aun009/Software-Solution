@@ -228,7 +228,7 @@ export const ProductDetails = () => {
             {/* Icon + title */}
             <div className="flex items-start gap-4 md:gap-5 mb-5 md:mb-7">
               <img
-                src={getLogoUrl(product.url, product.title)}
+                src={product.image || getLogoUrl(product.url, product.title)}
                 alt={`${product.title} icon`}
                 className="w-14 h-14 md:w-[72px] md:h-[72px] rounded-2xl object-contain shadow-md border border-gray-100 bg-white shrink-0"
                 onError={e => {

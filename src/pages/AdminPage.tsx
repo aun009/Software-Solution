@@ -425,8 +425,12 @@ export const AdminPage = () => {
       payload.image = payload.image.trim();
       payload.videoUrl = payload.videoUrl.trim() || null;
       payload.url = payload.url.trim();
-      payload.features = payload.features.map((item: string) => item.trim()).filter(Boolean);
-      payload.benefits = payload.benefits.map((item: string) => item.trim()).filter(Boolean);
+      payload.features = (Array.isArray(payload.features) ? payload.features : [])
+        .map((item: any) => String(item || '').trim())
+        .filter(Boolean);
+      payload.benefits = (Array.isArray(payload.benefits) ? payload.benefits : [])
+        .map((item: any) => String(item || '').trim())
+        .filter(Boolean);
 
       if (!payload.category) {
         throw new Error('Please choose or enter a category.');
