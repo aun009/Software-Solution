@@ -21,6 +21,7 @@ import {
   Box,
   Rocket,
   Sparkles,
+  MessageCircle,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -391,7 +392,7 @@ export const FloatingIconsHero = ({ onExplore }: FloatingIconsHeroProps) => {
         </motion.p>
 
         <motion.div
-          className="hero-text mt-5 md:mt-8 flex flex-col sm:flex-row gap-4 justify-center items-center w-full"
+          className="hero-text mt-5 md:mt-8 flex flex-col gap-4 justify-center items-center w-full"
           variants={reduceMotion ? reducedHeroItemVariants : heroItemVariants}
         >
           <button
@@ -402,6 +403,17 @@ export const FloatingIconsHero = ({ onExplore }: FloatingIconsHeroProps) => {
             <span className="relative z-10 block transition-transform duration-300 group-hover:-translate-x-1">Explore Softwares</span>
             <ArrowRight size={18} className="relative z-10 transition-transform duration-300 group-hover:translate-x-1 group-hover:scale-110" />
           </button>
+          
+          <a
+            href="https://chat.whatsapp.com/G6bFpFkxDBv5aAlHsHA8J1"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group overflow-hidden relative px-6 py-3 md:px-10 md:py-4 bg-white border border-slate-200 text-slate-800 rounded-xl font-black text-xs md:text-sm uppercase tracking-widest flex items-center gap-3 hover:bg-slate-50 transition-all duration-300 hover:scale-[1.03] active:scale-95 shadow-[0_4px_18px_rgba(0,0,0,0.05)] cursor-pointer no-underline"
+          >
+            <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-[#25D366]/10 to-transparent group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out" />
+            <span className="relative z-10 block transition-transform duration-300">Join Community</span>
+            <MessageCircle size={18} className="relative z-10 text-[#25D366] transition-transform duration-300 group-hover:scale-110" />
+          </a>
         </motion.div>
       </motion.div>
 

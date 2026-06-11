@@ -202,13 +202,16 @@ export const AboutPage = () => {
               >
                 Become part of the most trusted software network. Start your journey with SP Tech Solutions today.
               </motion.p>
-              <motion.button
+              <motion.a
+                href="https://chat.whatsapp.com/G6bFpFkxDBv5aAlHsHA8J1"
+                target="_blank"
+                rel="noopener noreferrer"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.96 }}
-                className="inline-flex items-center gap-2 px-10 py-5 bg-white text-blue-700 rounded-2xl font-black text-base shadow-xl hover:shadow-2xl transition-shadow"
+                className="inline-flex items-center gap-2 px-10 py-5 bg-white text-blue-700 rounded-2xl font-black text-base shadow-xl hover:shadow-2xl transition-shadow no-underline"
               >
-                Get Started <ArrowRight size={18} />
-              </motion.button>
+                Join Community <ArrowRight size={18} />
+              </motion.a>
             </div>
           </div>
         </FadeUp>
