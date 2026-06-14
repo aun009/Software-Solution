@@ -234,7 +234,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
                <div>
                  <p className="text-white font-bold tracking-[0.1em] text-[13px] uppercase mb-6 md:mb-8 bg-transparent">Explore</p>
                  <ul className="space-y-4 text-[15px] text-gray-300 font-medium">
-                   <li><a href="/#store" onClick={scrollToStore} className="hover:text-white hover:underline decoration-white/30 transition-all cursor-pointer">All AI Tools</a></li>
+                   <li><a href="/#store" onClick={scrollToStore} className="hover:text-white hover:underline decoration-white/30 transition-all cursor-pointer">All Softwares</a></li>
                    <li><a href="/#store" onClick={scrollToStore} className="hover:text-white hover:underline decoration-white/30 transition-all cursor-pointer">Store</a></li>
                  </ul>
                </div>
@@ -256,16 +256,23 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
             </div>
           </div>
           
-          <div className="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center md:items-start gap-6 relative">
-            <p className="text-[14px] text-gray-400 font-medium text-center md:text-left pt-2">
-              © 2026 SP Tech Solutions
+          <div className="pt-8 border-t border-gray-800 flex flex-col gap-6 relative">
+            {/* Affiliate Disclosure */}
+            <p className="text-[12px] text-gray-500 font-medium leading-relaxed border border-gray-700/50 bg-white/[0.03] rounded-xl px-4 py-3">
+              <span className="text-gray-400 font-bold">Affiliate Disclosure:</span> This page contains affiliate links. If you purchase through our links, we may earn a small commission at no additional cost to you. Your support helps us continue providing valuable resources and offers.
             </p>
-            
-            <div className="flex flex-wrap justify-center md:justify-end gap-3">
-               <span className="px-4 py-2 border border-white/10 bg-white/5 rounded-[10px] text-[13px] text-gray-300 font-medium shadow-sm hover:bg-white/10 cursor-pointer transition-colors">AI Tools</span>
-               <span className="px-4 py-2 border border-white/10 bg-white/5 rounded-[10px] text-[13px] text-gray-300 font-medium shadow-sm hover:bg-white/10 cursor-pointer transition-colors">Directory</span>
-               <span className="px-4 py-2 border border-white/10 bg-white/5 rounded-[10px] text-[13px] text-gray-300 font-medium shadow-sm hover:bg-white/10 cursor-pointer transition-colors">AI Tools 2026</span>
-               <span className="px-4 py-2 border border-white/10 bg-white/5 rounded-[10px] text-[13px] text-gray-300 font-medium shadow-sm hover:bg-white/10 cursor-pointer transition-colors">Free & Paid</span>
+
+            <div className="flex flex-col md:flex-row justify-between items-center md:items-start gap-6">
+              <p className="text-[14px] text-gray-400 font-medium text-center md:text-left pt-1">
+                © 2026 SP Tech Solutions
+              </p>
+              
+              <div className="flex flex-wrap justify-center md:justify-end gap-3">
+                 <span className="px-4 py-2 border border-white/10 bg-white/5 rounded-[10px] text-[13px] text-gray-300 font-medium shadow-sm hover:bg-white/10 cursor-pointer transition-colors">Softwares</span>
+                 <span className="px-4 py-2 border border-white/10 bg-white/5 rounded-[10px] text-[13px] text-gray-300 font-medium shadow-sm hover:bg-white/10 cursor-pointer transition-colors">Directory</span>
+                 <span className="px-4 py-2 border border-white/10 bg-white/5 rounded-[10px] text-[13px] text-gray-300 font-medium shadow-sm hover:bg-white/10 cursor-pointer transition-colors">Softwares 2026</span>
+                 <span className="px-4 py-2 border border-white/10 bg-white/5 rounded-[10px] text-[13px] text-gray-300 font-medium shadow-sm hover:bg-white/10 cursor-pointer transition-colors">Free & Paid</span>
+              </div>
             </div>
           </div>
         </div>

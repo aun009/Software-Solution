@@ -82,7 +82,7 @@ export const StorePage = () => {
   return (
     <div className="pb-24 font-sans bg-[#0b162c] bg-[radial-gradient(ellipse_at_center,rgba(30,58,138,0.25)_0%,rgba(11,22,44,1)_80%)] text-white selection:bg-blue-500/30">
       {/* Light Theme Top Section */}
-      <div className="pt-32 md:pt-48 pb-16 md:pb-24 bg-gray-50 text-gray-900 relative z-20 border-b border-gray-200 bg-[radial-gradient(ellipse_at_top,rgba(59,130,246,0.08)_0%,rgba(249,250,251,1)_70%)]">
+      <div className="pt-32 md:pt-48 pb-10 bg-gray-50 text-gray-900 relative z-20">
         {/* Search Section */}
         <section className="max-w-7xl mx-auto px-4 md:px-6 relative z-20">
           <motion.div
@@ -182,13 +182,14 @@ export const StorePage = () => {
         />
         </section>
         
-        {/* Blur Transition to Dark Bottom Section */}
-        <div className="absolute bottom-[-100px] left-1/2 -translate-x-1/2 w-[120%] max-w-[1500px] h-[200px] bg-[#1e40af] mix-blend-screen blur-[120px] opacity-60 pointer-events-none z-0" />
       </div>
+
+      {/* Seamless fade: sits on top of the white section's bottom edge */}
+      <div className="h-20 bg-gradient-to-b from-gray-50/0 via-[#0b162c]/60 to-[#0b162c] -mt-20 relative z-10 pointer-events-none" />
 
       {/* Trending Section */}
       {!loading && searchTerm === '' && selectedCategory === 'All' && allProducts.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 md:px-6 mb-24 pt-16 relative z-10">
+        <section className="max-w-7xl mx-auto px-4 md:px-8 mb-24 pt-10 md:pt-16 relative z-10">
           <div className="flex items-center gap-4 mb-10">
             <div className="w-12 h-12 rounded-2xl bg-blue-600/20 flex items-center justify-center text-blue-400">
               <TrendingUp size={24} />

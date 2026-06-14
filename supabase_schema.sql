@@ -15,6 +15,10 @@ ADD COLUMN IF NOT EXISTS subcategory TEXT;
 ALTER TABLE public.products
 ADD COLUMN IF NOT EXISTS sort_order INTEGER;
 
+-- 2c. Add 'cta_link' column for custom affiliate/partner buy links per product
+ALTER TABLE public.products
+ADD COLUMN IF NOT EXISTS cta_link TEXT;
+
 -- 3. Create the 'subcategories' table to store dynamic subcategory listings
 CREATE TABLE IF NOT EXISTS public.subcategories (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

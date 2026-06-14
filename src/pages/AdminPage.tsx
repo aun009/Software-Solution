@@ -45,6 +45,7 @@ const DEFAULT_FORM_DATA = {
   image: '',
   videoUrl: '',
   url: '',
+  cta_link: '',
   is_trending: false,
   ctaText: 'Deploy Now',
   features: ['Infinite scaling', 'Real-time sync', 'Multi-tenant'],
@@ -425,6 +426,7 @@ export const AdminPage = () => {
       payload.image = payload.image.trim();
       payload.videoUrl = payload.videoUrl.trim() || null;
       payload.url = payload.url.trim();
+      payload.cta_link = payload.cta_link?.trim() || null;
       payload.features = (Array.isArray(payload.features) ? payload.features : [])
         .map((item: any) => String(item || '').trim())
         .filter(Boolean);
@@ -532,6 +534,7 @@ export const AdminPage = () => {
       image: product.image || '',
       videoUrl: product.videoUrl || product.video_url || '',
       url: product.url || '',
+      cta_link: product.cta_link || '',
       ctaText: product.ctaText || product.cta_text || 'Deploy Now',
       is_trending: !!product.is_trending,
       features: product.features || ['Infinite scaling', 'Real-time sync', 'Multi-tenant'],
@@ -1128,6 +1131,24 @@ export const AdminPage = () => {
                             className="w-full bg-white border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-sm text-gray-900 font-mono placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
                         </div>
                       </div>
+                    </div>
+
+                    {/* CTA Link */}
+                    <div className="mt-4">
+                      <label className="block text-[11px] font-semibold text-gray-500 mb-1.5 ml-0.5">
+                        CTA / Buy Link <span className="text-gray-400">(optional — overrides WhatsApp button)</span>
+                      </label>
+                      <div className="relative">
+                        <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                        <input
+                          type="url"
+                          value={(formData as any).cta_link}
+                          onChange={e => setFormData({ ...formData, cta_link: e.target.value } as any)}
+                          placeholder="https://affiliate-link.com/..."
+                          className="w-full bg-white border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-sm text-gray-900 font-mono placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                        />
+                      </div>
+                      <p className="text-[10px] text-gray-400 mt-1.5 ml-0.5">If filled, a custom button replaces the WhatsApp button on the product page.</p>
                     </div>
                   </div>
 

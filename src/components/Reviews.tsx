@@ -93,10 +93,10 @@ interface ReviewCardProps {
 
 const ReviewCard: React.FC<ReviewCardProps> = ({ review, idx }) => (
   <motion.div
-    initial={{ opacity: 0, y: 20 }}
+    initial={{ opacity: 0, y: 16 }}
     whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    transition={{ duration: 0.5, delay: idx * 0.08, ease: 'easeOut' }}
+    viewport={{ once: true, amount: 0.05, margin: "0px 0px -20px 0px" }}
+    transition={{ duration: 0.4, delay: idx * 0.06, ease: 'easeOut' }}
     className="bg-white border border-gray-100 rounded-3xl p-7 flex flex-col gap-5 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
   >
     {/* Stars */}
@@ -139,9 +139,10 @@ export const Reviews = () => {
 
       <div className="max-w-6xl mx-auto px-4 md:px-6 relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+          viewport={{ once: true, amount: 0.1, margin: "0px 0px -30px 0px" }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
           className="text-center mb-14"
         >
           {/* Overall rating pill */}

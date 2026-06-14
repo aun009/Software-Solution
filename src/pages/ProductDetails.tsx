@@ -404,29 +404,52 @@ export const ProductDetails = () => {
           transition={{ duration: 0.6, delay: 0.5 }}
           className="mt-8 md:mt-10 flex justify-center md:justify-start"
         >
-          <button
-            onClick={() =>
-              window.open(
-                `https://wa.me/919552530324?text=${encodeURIComponent(
-                  hasValidityPricing && selectedPlanData
-                    ? `Hello, I would like to buy the "${product.title}" Software/Tool — ${selectedPlanData.label} plan (${currencySymbol}${selectedPrice.toLocaleString(locale)}). Could you please provide details?`
-                    : `Hello, I would like to buy the "${product.title}" Software/Tool. Could you provide details?`
-                )}`,
-                '_blank'
-              )
-            }
-            className="group relative overflow-hidden inline-flex items-center gap-3 px-10 py-4 bg-[#25D366] text-white rounded-2xl font-black text-base shadow-xl shadow-[#25D366]/25 hover:shadow-2xl hover:shadow-[#25D366]/40 hover:scale-[1.02] hover:-translate-y-0.5 active:scale-95 transition-all duration-300"
-          >
-            <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent group-hover:translate-x-[150%] transition-transform duration-700" />
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 relative z-10 group-hover:rotate-12 transition-transform duration-300">
-              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
-            </svg>
-            <span className="relative z-10">
-              {hasValidityPricing && selectedPlanData
-                ? `Get ${selectedPlanData.label} Access — ${currencySymbol}${selectedPrice.toLocaleString(locale)}`
-                : 'Get Access'}
-            </span>
-          </button>
+          {product.cta_link ? (
+            /* Custom affiliate / partner link set by admin */
+            <a
+              href={product.cta_link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative overflow-hidden inline-flex items-center gap-3 px-10 py-4 bg-blue-600 text-white rounded-2xl font-black text-base shadow-xl shadow-blue-600/25 hover:shadow-2xl hover:shadow-blue-600/40 hover:scale-[1.02] hover:-translate-y-0.5 active:scale-95 transition-all duration-300"
+            >
+              <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent group-hover:translate-x-[150%] transition-transform duration-700" />
+              <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 relative z-10 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                <polyline points="15 3 21 3 21 9" />
+                <line x1="10" y1="14" x2="21" y2="3" />
+              </svg>
+              <span className="relative z-10">
+                {hasValidityPricing && selectedPlanData
+                  ? `Get ${selectedPlanData.label} Access — ${currencySymbol}${selectedPrice.toLocaleString(locale)}`
+                  : 'Get Access'}
+              </span>
+            </a>
+          ) : (
+            /* Default WhatsApp button */
+            <button
+              onClick={() =>
+                window.open(
+                  `https://wa.me/919552530324?text=${encodeURIComponent(
+                    hasValidityPricing && selectedPlanData
+                      ? `Hello, I would like to buy the "${product.title}" Software/Tool — ${selectedPlanData.label} plan (${currencySymbol}${selectedPrice.toLocaleString(locale)}). Could you please provide details?`
+                      : `Hello, I would like to buy the "${product.title}" Software/Tool. Could you provide details?`
+                  )}`,
+                  '_blank'
+                )
+              }
+              className="group relative overflow-hidden inline-flex items-center gap-3 px-10 py-4 bg-[#25D366] text-white rounded-2xl font-black text-base shadow-xl shadow-[#25D366]/25 hover:shadow-2xl hover:shadow-[#25D366]/40 hover:scale-[1.02] hover:-translate-y-0.5 active:scale-95 transition-all duration-300"
+            >
+              <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent group-hover:translate-x-[150%] transition-transform duration-700" />
+              <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 relative z-10 group-hover:rotate-12 transition-transform duration-300">
+                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+              </svg>
+              <span className="relative z-10">
+                {hasValidityPricing && selectedPlanData
+                  ? `Get ${selectedPlanData.label} Access — ${currencySymbol}${selectedPrice.toLocaleString(locale)}`
+                  : 'Get Access'}
+              </span>
+            </button>
+          )}
         </motion.div>
 
       </div>
