@@ -9,6 +9,7 @@ export interface Product {
   features: string[];
   benefits: string[];
   ctaText: string;
+  cta_link?: string | null;
 }
 
 export type Category = 'All' | 'AI & Writing' | 'Graphic Design' | 'Video Editing' | 'Marketing' | 'Learning' | 'Entertainment' | 'Productivity';

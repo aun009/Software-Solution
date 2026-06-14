@@ -3,9 +3,9 @@ import { persist } from 'zustand/middleware';
 import { supabase } from '../lib/supabase';
 import { products as fallbackStatic } from '../data/products';
 
-const PRODUCT_COLUMNS_WITH_ORDER = 'id, title, description, price, price_usd, image, category, subcategory, url, features, benefits, videoUrl, is_trending, created_at, price_1m, price_3m, price_6m, price_1y, price_lifetime, price_1m_usd, price_3m_usd, price_6m_usd, price_1y_usd, price_lifetime_usd, sort_order';
-const PRODUCT_COLUMNS = 'id, title, description, price, price_usd, image, category, subcategory, url, features, benefits, videoUrl, is_trending, created_at, price_1m, price_3m, price_6m, price_1y, price_lifetime, price_1m_usd, price_3m_usd, price_6m_usd, price_1y_usd, price_lifetime_usd';
-const PRODUCT_COLUMNS_LEGACY = 'id, title, description, price, price_usd, image, category, url, features, benefits, videoUrl, is_trending, created_at, price_1m, price_3m, price_6m, price_1y, price_lifetime, price_1m_usd, price_3m_usd, price_6m_usd, price_1y_usd, price_lifetime_usd';
+const PRODUCT_COLUMNS_WITH_ORDER = 'id, title, description, price, price_usd, image, category, subcategory, url, cta_link, features, benefits, videoUrl, is_trending, created_at, price_1m, price_3m, price_6m, price_1y, price_lifetime, price_1m_usd, price_3m_usd, price_6m_usd, price_1y_usd, price_lifetime_usd, sort_order';
+const PRODUCT_COLUMNS = 'id, title, description, price, price_usd, image, category, subcategory, url, cta_link, features, benefits, videoUrl, is_trending, created_at, price_1m, price_3m, price_6m, price_1y, price_lifetime, price_1m_usd, price_3m_usd, price_6m_usd, price_1y_usd, price_lifetime_usd';
+const PRODUCT_COLUMNS_LEGACY = 'id, title, description, price, price_usd, image, category, url, cta_link, features, benefits, videoUrl, is_trending, created_at, price_1m, price_3m, price_6m, price_1y, price_lifetime, price_1m_usd, price_3m_usd, price_6m_usd, price_1y_usd, price_lifetime_usd';
 
 interface ProductState {
   products: any[];
