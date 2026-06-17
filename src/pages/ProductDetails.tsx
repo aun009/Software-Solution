@@ -106,7 +106,7 @@ export const ProductDetails = () => {
   if (!product) return (
     <div className="h-[70vh] flex flex-col items-center justify-center gap-6 bg-[#F8FAFC]">
       <h1 className="text-4xl font-bold text-gray-900">Product not found</h1>
-      <Link to="/#store" className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold shadow-lg">Return to Store</Link>
+      <Link to="/#software-hub" className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold shadow-lg">Return to Store</Link>
     </div>
   );
 
@@ -209,7 +209,7 @@ export const ProductDetails = () => {
 
         {/* Back link */}
         <Link
-          to="/#store"
+          to="/#software-hub"
           className="inline-flex items-center gap-2 text-gray-400 hover:text-gray-800 transition-colors mb-10 md:mb-14 group"
         >
           <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />

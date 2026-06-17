@@ -1,16 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
+  Search,
+  CheckCircle2,
   LayoutGrid,
   WandSparkles,
   Brush,
   Clapperboard,
   Megaphone,
   BookOpenCheck,
-  Image,
   Gamepad2,
-  Search,
-  CheckCircle2,
-  Camera,
   MoreHorizontal,
   type LucideIcon,
 } from 'lucide-react';
@@ -24,6 +22,7 @@ interface SearchPanelProps {
   selectedCategory: Category;
   setSelectedCategory: (val: Category) => void;
 }
+
 
 const CATEGORIES: Category[] = ['All', 'AI & Writing', 'Graphic Design', 'Video Editing', 'Marketing', 'Learning', 'Entertainment', 'Productivity'];
 
@@ -79,14 +78,14 @@ const CATEGORY_META: Record<Category, { Icon: LucideIcon; color: string; backgro
 };
 
 const GRID_ITEMS = [
-  { label: 'All', category: 'All' as Category, Icon: LayoutGrid, color: '#0f172a', background: 'rgba(15, 23, 42, 0.08)' },
-  { label: 'AI & Writing', category: 'AI & Writing' as Category, Icon: WandSparkles, color: '#8b5cf6', background: 'rgba(139, 92, 246, 0.08)' },
-  { label: 'Graphic Design', category: 'Graphic Design' as Category, Icon: Brush, color: '#2563eb', background: 'rgba(37, 99, 235, 0.08)' },
-  { label: 'Video Editing', category: 'Video Editing' as Category, Icon: Clapperboard, color: '#f43f5e', background: 'rgba(244, 63, 94, 0.08)' },
-  { label: 'Marketing', category: 'Marketing' as Category, Icon: Megaphone, color: '#ea580c', background: 'rgba(234, 88, 12, 0.08)' },
-  { label: 'Learning', category: 'Learning' as Category, Icon: BookOpenCheck, color: '#6366f1', background: 'rgba(99, 102, 241, 0.08)' },
-  { label: 'Entertainment', category: 'Entertainment' as Category, Icon: Gamepad2, color: '#d946ef', background: 'rgba(217, 70, 239, 0.08)' },
-  { label: 'More', category: 'More' as Category, Icon: MoreHorizontal, color: '#64748b', background: 'rgba(100, 116, 139, 0.08)' }
+  { label: 'All',           category: 'All' as Category,           Icon: LayoutGrid,     color: '#2563eb', background: 'rgba(37, 99, 235, 0.13)'   },
+  { label: 'AI & Writing',  category: 'AI & Writing' as Category,  Icon: WandSparkles,   color: '#7c3aed', background: 'rgba(124, 58, 237, 0.13)'  },
+  { label: 'Graphic Design',category: 'Graphic Design' as Category,Icon: Brush,          color: '#0284c7', background: 'rgba(2, 132, 199, 0.13)'   },
+  { label: 'Video Editing', category: 'Video Editing' as Category, Icon: Clapperboard,   color: '#e11d48', background: 'rgba(225, 29, 72, 0.13)'  },
+  { label: 'Marketing',     category: 'Marketing' as Category,     Icon: Megaphone,      color: '#ea580c', background: 'rgba(234, 88, 12, 0.13)'  },
+  { label: 'Learning',      category: 'Learning' as Category,      Icon: BookOpenCheck,  color: '#4f46e5', background: 'rgba(79, 70, 229, 0.13)'  },
+  { label: 'Entertainment', category: 'Entertainment' as Category, Icon: Gamepad2,       color: '#c026d3', background: 'rgba(192, 38, 211, 0.13)' },
+  { label: 'More',          category: 'More' as Category,          Icon: MoreHorizontal, color: '#475569', background: 'rgba(71, 85, 105, 0.11)'  }
 ];
 
 const DROPDOWN_ITEMS = [
@@ -318,7 +317,7 @@ export const SearchPanel = ({
                   }
                 }}
                 className={cn(
-                  "relative group overflow-hidden flex flex-col items-center justify-center p-1 rounded-xl border transition-all duration-300 w-full h-[76px] cursor-pointer select-none",
+                  "relative group overflow-hidden flex flex-col items-center justify-center p-2 rounded-[18px] border transition-all duration-300 w-full h-[110px] cursor-pointer select-none",
                   isSelected
                     ? "bg-white border-slate-900 shadow-[0_8px_20px_rgba(15,23,42,0.06)] scale-[1.03] z-10"
                     : "bg-white border-slate-100 hover:border-slate-200 active:scale-95 shadow-[0_2px_8px_rgba(15,23,42,0.02)]"
@@ -326,21 +325,21 @@ export const SearchPanel = ({
               >
                 {/* Icon Container with soft background circle */}
                 <div
-                  className="grid place-items-center w-8 h-8 rounded-full mb-1 transition-all duration-300"
+                  className="grid place-items-center w-12 h-12 rounded-full mb-2 transition-all duration-300"
                   style={{
                     background: isSelected ? `${item.color}15` : item.background,
                     color: item.color,
                     boxShadow: isSelected ? `0 0 12px -2px ${item.color}25` : 'none'
                   }}
                 >
-                  <Icon size={15} strokeWidth={isSelected ? 2.8 : 2.4} />
+                  <Icon className="w-6 h-6 relative z-10" />
                 </div>
 
                 {/* Title text */}
                 <span 
                   className={cn(
-                    "text-[9px] font-medium tracking-tight leading-tight text-center transition-colors duration-300",
-                    isSelected ? "text-slate-900 font-semibold" : "text-slate-600"
+                    "text-[10px] font-semibold tracking-tight leading-tight text-center transition-colors duration-300",
+                    isSelected ? "text-slate-900 font-bold" : "text-slate-600"
                   )}
                 >
                   {item.label}
@@ -413,7 +412,7 @@ export const SearchPanel = ({
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ staggerChildren: 0.04 }}
-          className="grid grid-cols-4 gap-4 w-full max-w-3xl mx-auto p-5 bg-white border border-slate-100/90 rounded-[32px] shadow-[0_20px_50px_rgba(15,23,42,0.04)] px-5"
+          className="grid grid-cols-4 gap-4 w-full max-w-3xl mx-auto p-6 bg-white border border-slate-100/90 rounded-[32px] shadow-[0_20px_50px_rgba(15,23,42,0.04)] px-6"
         >
           {GRID_ITEMS.map((item, idx) => {
             const isActiveCategory = selectedCategory === item.category;
@@ -437,7 +436,7 @@ export const SearchPanel = ({
                   }
                 }}
                 className={cn(
-                  "relative group overflow-hidden flex flex-col items-center justify-center p-4 rounded-[24px] border-2 transition-all duration-300 w-full h-28 cursor-pointer select-none",
+                  "relative group overflow-hidden flex flex-col items-center justify-center p-4 rounded-[24px] border-2 transition-all duration-300 w-full h-36 cursor-pointer select-none",
                   isSelected
                     ? "bg-white border-slate-950 shadow-[0_12px_30px_rgba(15,23,42,0.08)] scale-[1.03] z-10"
                     : "bg-white border-slate-100 hover:border-slate-200 hover:shadow-[0_10px_25px_rgba(15,23,42,0.04)] hover:-translate-y-0.5 hover:scale-[1.01]"
@@ -454,26 +453,28 @@ export const SearchPanel = ({
                   }}
                 />
 
-                {/* Icon Container with glowing background */}
+                {/* Icon Container — square rounded box */}
                 <div
-                  className="relative grid place-items-center w-11 h-11 rounded-2xl mb-2.5 transition-all duration-300 group-hover:scale-110"
+                  className="relative grid place-items-center w-[72px] h-[72px] rounded-[20px] mb-3 transition-all duration-300 group-hover:scale-110"
                   style={{
-                    background: isSelected ? `${item.color}25` : item.background,
+                    background: isSelected ? `${item.color}30` : item.background,
                     color: item.color,
-                    boxShadow: isSelected ? `0 0 20px -2px ${item.color}25` : 'none'
+                    boxShadow: isSelected
+                      ? `0 6px 20px -4px ${item.color}50, 0 0 0 3px ${item.color}20`
+                      : `0 4px 12px -4px ${item.color}30`
                   }}
                 >
-                  <Icon size={20} strokeWidth={isSelected ? 2.8 : 2.4} className="relative z-10" />
+                  <Icon size={32} strokeWidth={isSelected ? 2.8 : 2.5} className="relative z-10" />
                 </div>
 
                 {/* Title Text */}
                 <span 
                   className={cn(
-                    "text-[11px] sm:text-xs font-medium tracking-[0.08em] uppercase transition-colors duration-300 leading-tight text-center px-1",
-                    isSelected ? "text-slate-900 font-semibold" : "text-slate-500 group-hover:text-slate-800"
+                    "text-[11px] sm:text-xs font-semibold tracking-[0.07em] uppercase transition-colors duration-300 leading-tight text-center px-1",
+                    isSelected ? "text-slate-900 font-bold" : "text-slate-500 group-hover:text-slate-800"
                   )}
                 >
-                  {item.label === 'More' ? 'MORE' : item.label.toUpperCase()}
+                  {item.label}
                 </span>
               </motion.button>
             );
