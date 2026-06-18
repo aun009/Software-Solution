@@ -30,10 +30,10 @@ export const ProductDetails = () => {
   const [loading, setLoading] = useState(true);
   const [selectedPlan, setSelectedPlan] = useState<PlanKey | null>(null);
   const { products } = useProductStore();
-  const { isIndia } = useGeoLocation();
+  const { isIndia, loading: geoLoading } = useGeoLocation();
 
-  // Currency config based on geo
-  const currencySymbol = isIndia ? '₹' : '$';
+  // Currency config based on geo — falls back to INR while geo is still loading (safe default)
+  const currencySymbol = geoLoading ? '…' : (isIndia ? '₹' : '$');
   const locale = isIndia ? 'en-IN' : 'en-US';
 
   // Get price for a plan — currency-aware (INR for India, USD for international)

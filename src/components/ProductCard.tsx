@@ -53,7 +53,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const glowRef = useRef<HTMLDivElement>(null);
   const rating = useMemo(() => getRating(product.id), [product.id]);
-  const { isIndia } = useGeoLocation();
+  const { isIndia, loading: geoLoading } = useGeoLocation();
 
   // Geo-aware price: show USD for international, INR for India
   // Priority: 1. Monthly price (price_1m / price_1m_usd), 2. Admin base price (price / price_usd)
@@ -259,11 +259,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
           {/* Price + CTA — stacked */}
           <div className="mt-auto pt-3 md:pt-4 border-t border-gray-100 flex flex-col gap-2 md:gap-3">
             <div className="flex items-baseline gap-1">
-              <span className="text-lg md:text-[28px] font-extrabold text-gray-900 tracking-tight leading-none">
-                {displayPrice.symbol}{displayPrice.value.toLocaleString(displayPrice.locale)}
-              </span>
-              {displayPrice.suffix && (
-                <span className="text-xs md:text-sm font-bold text-gray-400">{displayPrice.suffix}</span>
+              {geoLoading ? (
+                /* Skeleton shimmer while geo is resolving — prevents INR→USD flash */
+                <div className="h-7 w-20 rounded-lg bg-gray-100 animate-pulse" />
+              ) : (
+                <>
+                  <span className="text-lg md:text-[28px] font-extrabold text-gray-900 tracking-tight leading-none">
+                    {displayPrice.symbol}{displayPrice.value.toLocaleString(displayPrice.locale)}
+                  </span>
+                  {displayPrice.suffix && (
+                    <span className="text-xs md:text-sm font-bold text-gray-400">{displayPrice.suffix}</span>
+                  )}
+                </>
               )}
             </div>
             <Link
