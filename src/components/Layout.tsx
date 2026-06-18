@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Store, LucideIcon, LogIn, LogOut, Settings, Info, MessageCircle, Sun, Moon, Home, User as UserIcon } from 'lucide-react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useNavigationType } from 'react-router-dom';
 import { motion, useScroll, useSpring, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 import gsap from 'gsap';
@@ -38,21 +38,32 @@ const NavLink = ({ to, icon: Icon, label, active, onClick }: NavLinkProps) => (
 export const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const navType = useNavigationType();
   const navRef = useRef<HTMLDivElement>(null);
   const brandTextRef = useRef<HTMLSpanElement>(null);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const { user, isAdmin, logout } = useAuth();
   const { scrollYProgress } = useScroll();
 
+  const clearStoreSession = useCallback(() => {
+    try {
+      sessionStorage.removeItem('store_scroll_y');
+      sessionStorage.removeItem('store_search_term');
+      sessionStorage.removeItem('store_selected_category');
+      sessionStorage.removeItem('store_show_all');
+    } catch {}
+  }, []);
+
   const scrollToStore = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
+    clearStoreSession();
     if (location.pathname === '/') {
       const el = document.getElementById('store');
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } else {
       navigate('/#store');
     }
-  }, [location.pathname, navigate]);
+  }, [location.pathname, navigate, clearStoreSession]);
   
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 100,
@@ -82,6 +93,11 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   useEffect(() => {
+    if (navType === 'POP') {
+      // Let scroll restoration handle it, do not force scroll to top
+      return;
+    }
+
     if (location.hash) {
       setTimeout(() => {
         const id = location.hash.replace('#', '');
@@ -91,7 +107,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
     } else {
       window.scrollTo(0, 0);
     }
-  }, [location.pathname, location.hash]);
+  }, [location.pathname, location.hash, navType]);
 
   return (
     <div className="min-h-screen flex flex-col font-sans selection:bg-blue-500/20 antialiased overflow-x-hidden">
@@ -113,7 +129,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
           ref={navRef}
           className="pointer-events-auto w-full md:w-max max-w-full bg-white border border-gray-200 shadow-sm rounded-2xl md:rounded-full px-2 md:px-3 py-2 md:py-2.5 flex items-center justify-between gap-2 md:gap-6 lg:gap-10 transition-all"
         >
-          <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center gap-2.5 pl-2 group shrink-0">
+          <Link to="/" onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); clearStoreSession(); }} className="flex items-center gap-2.5 pl-2 group shrink-0">
             <div className="relative w-10 h-10 rounded-full overflow-hidden shrink-0 group-hover:scale-[1.15] transition-transform duration-300 shadow-lg shadow-blue-600/20 ring-2 ring-blue-500/20 group-hover:ring-blue-500/40">
               <img src="/logo.jpeg" alt="SP Tech Solutions" className="w-full h-full object-cover" />
             </div>
@@ -131,8 +147,8 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
             {/* Scrollable nav pills on mobile */}
             <div className="overflow-x-auto scrollbar-none flex-1 md:flex-none">
               <div className="flex items-center p-1 bg-gray-100 rounded-full gap-0.5 w-max">
-                <NavLink to="/" icon={Home} label="Home" active={location.pathname === '/' && !location.hash} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} />
-                <NavLink to="/about" icon={Info} label="About" active={location.pathname === '/about'} />
+                <NavLink to="/" icon={Home} label="Home" active={location.pathname === '/' && !location.hash} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); clearStoreSession(); }} />
+                <NavLink to="/about" icon={Info} label="About" active={location.pathname === '/about'} onClick={clearStoreSession} />
                 <Link 
                   to="/#store" 
                   onClick={scrollToStore}
@@ -147,7 +163,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
                   <span className="text-[11px] md:text-[13px] font-bold tracking-tight">Store</span>
                 </Link>
                 {isAdmin && (
-                  <NavLink to="/admin" icon={Settings} label="Admin" active={location.pathname === '/admin'} />
+                  <NavLink to="/admin" icon={Settings} label="Admin" active={location.pathname === '/admin'} onClick={clearStoreSession} />
                 )}
               </div>
             </div>
@@ -158,6 +174,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
               {user ? (
                 <Link 
                   to="/profile"
+                  onClick={clearStoreSession}
                   className="flex items-center gap-2 pl-2 pr-3 md:pr-4 py-1.5 bg-white border border-gray-200 rounded-full hover:border-gray-300 hover:bg-gray-50 transition-all group shadow-sm"
                 >
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-[11px] font-black text-white shadow-inner shrink-0">

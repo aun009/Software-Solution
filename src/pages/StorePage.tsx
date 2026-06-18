@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useMemo, useEffect, useLayoutEffect, useRef, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import { SearchPanel } from '../components/SearchPanel';
 import { ProductCard } from '../components/ProductCard';
@@ -9,6 +9,21 @@ import { useProductStore } from '../store/useProductStore';
 import { motion, AnimatePresence } from 'motion/react';
 import { Loader2, PackageSearch, TrendingUp, ArrowRight, ShieldCheck, Star, Headset, Zap } from 'lucide-react';
 import gsap from 'gsap';
+
+// ─── Scroll Restoration ──────────────────────────────────────────────────────
+// We manage this ourselves because BrowserRouter has no built-in scroll
+// restoration, and the browser's native attempt races with React + Framer Motion
+// (cards animate in from opacity:0, page height is unstable) → lands at footer.
+const SCROLL_KEY = 'store_scroll_y';
+
+const saveScroll = () => {
+  try { sessionStorage.setItem(SCROLL_KEY, String(Math.round(window.scrollY))); } catch { /* quota */ }
+};
+
+const clearScroll = () => {
+  try { sessionStorage.removeItem(SCROLL_KEY); } catch { /* quota */ }
+};
+// ─────────────────────────────────────────────────────────────────────────────
 
 const TypewriterLabel = ({ text, delay }: { text: string, delay: number }) => {
   return (
@@ -34,22 +49,101 @@ const TypewriterLabel = ({ text, delay }: { text: string, delay: number }) => {
 
 export const StorePage = () => {
   const location = useLocation();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<Category | 'All'>('All');
-  const [showAll, setShowAll] = useState(false);
+  
+  const [searchTerm, setSearchTerm] = useState(() => {
+    try {
+      return sessionStorage.getItem('store_search_term') || '';
+    } catch {
+      return '';
+    }
+  });
+  
+  const [selectedCategory, setSelectedCategory] = useState<Category | 'All'>(() => {
+    try {
+      return (sessionStorage.getItem('store_selected_category') as Category) || 'All';
+    } catch {
+      return 'All';
+    }
+  });
+
+  const [showAll, setShowAll] = useState(() => {
+    try {
+      return sessionStorage.getItem('store_show_all') === 'true';
+    } catch {
+      return false;
+    }
+  });
   
   const { products: allProducts, fetchProducts, loading } = useProductStore();
 
-  // Populate search query on URL match
+  useEffect(() => {
+    try {
+      sessionStorage.setItem('store_search_term', searchTerm);
+    } catch {}
+  }, [searchTerm]);
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem('store_selected_category', selectedCategory);
+    } catch {}
+  }, [selectedCategory]);
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem('store_show_all', String(showAll));
+    } catch {}
+  }, [showAll]);
+
+  // ── Scroll restoration: save position on every scroll (throttled with rAF) ──
+  const rafRef = useRef<number | null>(null);
+  useEffect(() => {
+    const onScroll = () => {
+      if (rafRef.current !== null) return;
+      rafRef.current = requestAnimationFrame(() => {
+        saveScroll();
+        rafRef.current = null;
+      });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
+
+  // ── Scroll restoration: restore saved position on mount ─────────────────────
+  // useLayoutEffect fires synchronously after DOM paint, before browser can
+  // attempt its own (broken) restoration. Double rAF ensures the page has had
+  // at least one layout+paint cycle before we jump, avoiding the footer trap.
+  const restoredRef = useRef(false);
+  useLayoutEffect(() => {
+    if (loading) return;
+    if (restoredRef.current) return;
+
+    const savedY = sessionStorage.getItem(SCROLL_KEY);
+    if (!savedY) return;
+
+    const target = parseInt(savedY, 10);
+    if (!target || target <= 0) return;
+
+    restoredRef.current = true;
+
+    // Double rAF: first fires post-layout, second fires post-paint
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: target, behavior: 'instant' as ScrollBehavior });
+      });
+    });
+  }, [loading]);
+
+  // ── Populate search query from URL ──────────────────────────────────────────
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const searchParam = params.get('search');
-    if (searchParam) {
-      setSearchTerm(searchParam);
-    }
+    if (searchParam) setSearchTerm(searchParam);
   }, [location.search]);
 
-  // RAF guard: prevents getBoundingClientRect + GSAP tween being created > 60x/sec
+  // ── RAF guard for GSAP tilt: prevents > 60 tweens/sec ──────────────────────
   const statsRafRef = useRef<number | null>(null);
 
   const handleStatsTilt = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
