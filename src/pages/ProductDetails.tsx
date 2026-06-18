@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { motion } from 'motion/react';
 import { CheckCircle2, Play, ArrowLeft, Zap, ShieldCheck, Loader2, Clock, Infinity, Check } from 'lucide-react';
@@ -26,9 +26,11 @@ const colorMap: Record<string, { pill: string; active: string; badge: string }> 
 
 export const ProductDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [selectedPlan, setSelectedPlan] = useState<PlanKey | null>(null);
+
 
 
   const { isIndia, loading: geoLoading } = useGeoLocation();
@@ -123,7 +125,7 @@ export const ProductDetails = () => {
   if (!product) return (
     <div className="h-[70vh] flex flex-col items-center justify-center gap-6 bg-[#F8FAFC]">
       <h1 className="text-4xl font-bold text-gray-900">Product not found</h1>
-      <Link to="/#software-hub" className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold shadow-lg">Return to Store</Link>
+      <button onClick={() => navigate(-1)} className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold shadow-lg">Return to Store</button>
     </div>
   );
 
@@ -224,14 +226,14 @@ export const ProductDetails = () => {
     <div className="min-h-screen bg-[#F8FAFC]">
       <div className="max-w-7xl mx-auto px-5 md:px-10 pt-28 md:pt-40 pb-20 md:pb-28">
 
-        {/* Back link */}
-        <Link
-          to="/#software-hub"
+        {/* Back button — uses browser back so navigation is instant with no scroll animation */}
+        <button
+          onClick={() => navigate(-1)}
           className="inline-flex items-center gap-2 text-gray-400 hover:text-gray-800 transition-colors mb-10 md:mb-14 group"
         >
           <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
           <span className="text-[11px] font-bold uppercase tracking-[0.2em]">Back to Store</span>
-        </Link>
+        </button>
 
         {/* ── HERO: 50/50 grid ── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 lg:items-start mb-14 md:mb-20">

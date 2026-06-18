@@ -9,7 +9,9 @@
 
 @layer base {
   html {
-    scroll-behavior: smooth;
+    /* scroll-behavior is intentionally NOT set globally — hash-link navigation
+       should be instant. Smooth scrolling for within-page UI actions is done
+       explicitly via JS scrollIntoView({ behavior: 'smooth' }) where needed. */
   }
 
   body {
