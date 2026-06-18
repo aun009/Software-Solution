@@ -73,6 +73,8 @@ export const StorePage = () => {
       return false;
     }
   });
+
+  const [isRestored, setIsRestored] = useState(false);
   
   const { products: allProducts, fetchProducts, loading } = useProductStore();
 
@@ -121,19 +123,33 @@ export const StorePage = () => {
     if (restoredRef.current) return;
 
     const savedY = sessionStorage.getItem(SCROLL_KEY);
-    if (!savedY) return;
+    if (!savedY) {
+      setIsRestored(true);
+      return;
+    }
 
     const target = parseInt(savedY, 10);
-    if (!target || target <= 0) return;
+    if (!target || target <= 0) {
+      setIsRestored(true);
+      return;
+    }
 
     restoredRef.current = true;
 
-    // Double rAF: first fires post-layout, second fires post-paint
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        window.scrollTo({ top: target, behavior: 'instant' as ScrollBehavior });
-      });
-    });
+    // Retry loop to ensure scroll lands on the target position as layout settles
+    let attempts = 0;
+    const tryScroll = () => {
+      window.scrollTo({ top: target, behavior: 'instant' as ScrollBehavior });
+      const currentScroll = window.scrollY;
+      if (Math.abs(currentScroll - target) < 10 || attempts >= 10) {
+        setIsRestored(true);
+      } else {
+        attempts++;
+        requestAnimationFrame(tryScroll);
+      }
+    };
+
+    requestAnimationFrame(tryScroll);
   }, [loading]);
 
   // ── Populate search query from URL ──────────────────────────────────────────
@@ -342,7 +358,7 @@ export const StorePage = () => {
             {filteredProducts.length > 6 && (
               <>
                 <div
-                  className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-8 lg:gap-10 overflow-hidden transition-all duration-500 ease-in-out"
+                  className={`grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-8 lg:gap-10 overflow-hidden ${isRestored ? 'transition-all duration-500 ease-in-out' : ''}`}
                   style={{
                     maxHeight: showAll ? `${Math.ceil((filteredProducts.length - 6) / 3) * 700}px` : '0px',
                     opacity: showAll ? 1 : 0,
