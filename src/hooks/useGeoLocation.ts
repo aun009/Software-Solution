@@ -7,48 +7,91 @@ interface GeoData {
 }
 
 const GEO_CACHE_KEY = 'sp_geo';
-// Safe fallback: default to India so prices don't flash to USD on error
-const GEO_FALLBACK: GeoData = { isIndia: true, countryCode: 'IN', loading: false };
-// Module-level singleton — all hook instances share one in-flight request
+// NOTE: fallback is intentionally NOT stored in sessionStorage on failure
+// so the next page load retries the lookup instead of being permanently wrong.
 let geoRequest: Promise<GeoData> | null = null;
 
+// Call the geo service directly from the browser — this is the correct approach.
+// The browser sends its own real IP; no server proxy needed and no IP masking issues.
+// ipapi.co supports CORS on /json/ for free (no API key needed, 1k req/day free tier).
+// We try two services: ipapi.co first, cloudflare trace as a reliable fallback.
+const detectCountry = async (): Promise<string> => {
+  // --- Primary: ipapi.co ---
+  try {
+    const r = await fetch('https://ipapi.co/json/', {
+      headers: { accept: 'application/json' },
+      signal: AbortSignal.timeout(4000),
+    });
+    if (r.ok) {
+      const d = await r.json();
+      const cc = (d.country_code || d.country || '').toUpperCase();
+      if (cc.length === 2) return cc;
+    }
+  } catch { /* fall through to backup */ }
+
+  // --- Backup: Cloudflare trace (plain text, always free, no rate limits) ---
+  try {
+    const r = await fetch('https://cloudflare.com/cdn-cgi/trace', {
+      signal: AbortSignal.timeout(4000),
+    });
+    if (r.ok) {
+      const text = await r.text();
+      const match = text.match(/^loc=([A-Z]{2})/m);
+      if (match) return match[1];
+    }
+  } catch { /* fall through */ }
+
+  // --- Last resort: our own server endpoint (may use server IP but better than nothing) ---
+  try {
+    const r = await fetch('/api/geo', {
+      headers: { accept: 'application/json' },
+      signal: AbortSignal.timeout(4000),
+    });
+    if (r.ok) {
+      const ct = r.headers.get('content-type') ?? '';
+      if (ct.includes('application/json')) {
+        const d = await r.json();
+        const cc = (d.countryCode || d.country_code || '').toUpperCase();
+        if (cc.length === 2) return cc;
+      }
+    }
+  } catch { /* give up */ }
+
+  // All lookups failed — return empty string so the caller defaults to India
+  return '';
+};
+
 export const useGeoLocation = (): GeoData => {
-  // Start with loading:true — prevents any price flash before geo is resolved
+  // loading: true until geo resolves — prevents any price flash
   const [geo, setGeo] = useState<GeoData>({ isIndia: true, countryCode: '', loading: true });
 
   useEffect(() => {
-    // 1. Hit sessionStorage cache first (avoids a network round-trip on re-renders / SPA nav)
+    // 1. sessionStorage cache — avoids repeated lookups within the same browser session
     const cached = sessionStorage.getItem(GEO_CACHE_KEY);
     if (cached) {
       try {
         const parsed = JSON.parse(cached);
-        setGeo({ ...parsed, loading: false });
-        return;
-      } catch { /* corrupted cache — fall through to fetch */ }
+        if (parsed && typeof parsed.countryCode === 'string' && parsed.countryCode.length === 2) {
+          setGeo({ ...parsed, loading: false });
+          return;
+        }
+      } catch { /* corrupted — fall through */ }
     }
 
-    // 2. Reuse an in-flight request if one is already running
+    // 2. Module-level singleton — all hook instances share one in-flight request
     if (!geoRequest) {
-      geoRequest = fetch('/api/geo', { headers: { accept: 'application/json' } })
-        .then(r => {
-          if (!r.ok) throw new Error(`Geo lookup failed: ${r.status}`);
-          const ct = r.headers.get('content-type') ?? '';
-          if (!ct.includes('application/json')) throw new Error('Geo endpoint returned non-JSON');
-          return r.json();
-        })
-        .then((data: any) => {
-          // Accept both { countryCode } and { country_code } shapes
-          const countryCode: string = (data.countryCode || data.country_code || 'IN').toUpperCase();
-          const result: GeoData = { isIndia: countryCode === 'IN', countryCode, loading: false };
+      geoRequest = detectCountry().then(countryCode => {
+        const isIndia = countryCode === 'IN' || countryCode === '';
+        const result: GeoData = { isIndia, countryCode: countryCode || 'IN', loading: false };
+        // Only cache a successful (non-empty) result so failures are retried next session
+        if (countryCode) {
           sessionStorage.setItem(GEO_CACHE_KEY, JSON.stringify(result));
-          return result;
-        })
-        .catch(() => {
-          // On any error, default to India (safe for pricing — avoids showing USD to Indians)
-          sessionStorage.setItem(GEO_CACHE_KEY, JSON.stringify(GEO_FALLBACK));
-          geoRequest = null; // Allow retry on next mount after failure
-          return GEO_FALLBACK;
-        });
+        }
+        return result;
+      }).catch(() => {
+        geoRequest = null; // allow retry
+        return { isIndia: true, countryCode: 'IN', loading: false } as GeoData;
+      });
     }
 
     // 3. Attach to the shared promise

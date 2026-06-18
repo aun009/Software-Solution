@@ -29,57 +29,74 @@ export const ProductDetails = () => {
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [selectedPlan, setSelectedPlan] = useState<PlanKey | null>(null);
-  const { products } = useProductStore();
+
+
   const { isIndia, loading: geoLoading } = useGeoLocation();
 
   // Currency config based on geo — falls back to INR while geo is still loading (safe default)
   const currencySymbol = geoLoading ? '…' : (isIndia ? '₹' : '$');
   const locale = isIndia ? 'en-IN' : 'en-US';
 
-  // Get price for a plan — currency-aware (INR for India, USD for international)
+  // Get price for a plan — uses dedicated USD/INR fields only, no conversion
   const getPlanPrice = (planKey: PlanKey): number | null => {
     if (!product) return null;
     const key = isIndia ? planKey : `${planKey}_usd`;
     const val = product[key];
     if (val !== undefined && val !== null && val !== '') return Number(val);
-    
-    // Fallback for USD: if USD field is empty/null, but INR is filled, convert it!
+    return null; // No price set for this plan in this currency
+  };
+
+  // Get base price — uses dedicated USD/INR fields only, no conversion
+  const getBasePrice = (): number | null => {
+    if (!product) return null;
     if (!isIndia) {
-      const inrVal = product[planKey];
-      if (inrVal !== undefined && inrVal !== null && inrVal !== '') {
-        return Math.round((Number(inrVal) / 83) * 100) / 100;
-      }
+      const usd = product.price_usd;
+      if (usd !== undefined && usd !== null && usd !== '') return Number(usd);
+      return null; // No USD price set — don't show a made-up value
     }
+    const inr = product.price;
+    if (inr !== undefined && inr !== null && inr !== '') return Number(inr);
     return null;
   };
 
-  // Get base price based on currency
-  const getBasePrice = (): number => {
-    if (!product) return 999;
-    if (!isIndia) {
-      if (product.price_usd !== undefined && product.price_usd !== null && product.price_usd !== '') {
-        return Number(product.price_usd);
-      }
-      // Fallback: convert base INR price
-      const inrVal = product.price || 999;
-      return Math.round((Number(inrVal) / 83) * 100) / 100;
-    }
-    return Number(product.price || 999);
-  };
 
   useEffect(() => { window.scrollTo(0, 0); }, [id]);
 
   useEffect(() => {
-    const cached = products.find(p => p.id === id);
-    if (cached) { setProduct(cached); setLoading(false); return; }
-    if (id) {
-      (async () => {
-        const { data } = await supabase.from('products').select('*').eq('id', id).single();
-        if (data) setProduct(data);
-        setLoading(false);
-      })();
+    if (!id) return;
+
+    // ── Layer 1: Zustand store (instant, in-memory) ──────────────────────────
+    // Read fresh from store directly to avoid stale-closure from the products dep.
+    const storeProduct = useProductStore.getState().products.find((p: any) => p.id === id);
+    if (storeProduct) {
+      setProduct(storeProduct);
+      setLoading(false);
+      return;
     }
-  }, [id, products]);
+
+    // ── Layer 2: sessionStorage per-product cache ────────────────────────────
+    // Populated after first Supabase fetch; survives SPA back-navigation.
+    const cacheKey = `sp_product_${id}`;
+    const cached = sessionStorage.getItem(cacheKey);
+    if (cached) {
+      try {
+        setProduct(JSON.parse(cached));
+        setLoading(false);
+        return;
+      } catch { /* corrupted — fall through to network */ }
+    }
+
+    // ── Layer 3: Supabase network fetch (only on direct URL visit or cache miss) ──
+    (async () => {
+      const { data } = await supabase.from('products').select('*').eq('id', id).single();
+      if (data) {
+        setProduct(data);
+        // Cache for this session so back-navigation is instant
+        try { sessionStorage.setItem(cacheKey, JSON.stringify(data)); } catch { /* quota */ }
+      }
+      setLoading(false);
+    })();
+  }, [id]); // Only re-run when the product ID changes, not on every store update
 
   // Auto-select the monthly plan (price_1m) by default if it has plans, else the first available, else null
   useEffect(() => {
@@ -158,7 +175,7 @@ export const ProductDetails = () => {
 
   // Safely resolve selected plan data
   const selectedPlanData = selectedPlan ? VALIDITY_PLANS.find(p => p.key === selectedPlan) ?? null : null;
-  const selectedPrice = selectedPlan ? (getPlanPrice(selectedPlan) ?? getBasePrice()) : getBasePrice();
+  const selectedPrice: number | null = selectedPlan ? (getPlanPrice(selectedPlan) ?? getBasePrice()) : getBasePrice();
 
   /* ── Video / image player ── */
   const VideoPlayer = () => (
@@ -320,21 +337,21 @@ export const ProductDetails = () => {
                       <p className="text-[11px] text-gray-400 mt-0.5">One-time payment · Instant delivery via WhatsApp</p>
                     </div>
                     <div className="shrink-0 text-right">
-                      <p className="text-[18px] font-black text-gray-900 leading-none">{currencySymbol}{selectedPrice.toLocaleString(locale)}</p>
+                      <p className="text-[18px] font-black text-gray-900 leading-none">{selectedPrice !== null ? `${currencySymbol}${selectedPrice.toLocaleString(locale)}` : ''}</p>
                       <p className="text-[10px] text-gray-400 font-semibold mt-0.5">incl. all taxes</p>
                     </div>
                   </div>
                 )}
               </motion.div>
-            ) : (
+            ) : getBasePrice() !== null ? (
               /* Fallback: simple price display when no validity plans configured */
               <div className="mb-8 flex items-center gap-2.5">
                 <span className="text-[11px] font-black text-emerald-600 tracking-[0.15em] uppercase">Price</span>
                 <span className="text-base font-black text-emerald-600">
-                  {currencySymbol}{getBasePrice().toLocaleString(locale)}
+                  {currencySymbol}{getBasePrice()!.toLocaleString(locale)}
                 </span>
               </div>
-            )}
+            ) : null}
 
           </motion.div>
 
@@ -420,7 +437,7 @@ export const ProductDetails = () => {
               </svg>
               <span className="relative z-10">
                 {hasValidityPricing && selectedPlanData
-                  ? `Get ${selectedPlanData.label} Access — ${currencySymbol}${selectedPrice.toLocaleString(locale)}`
+                  ? `Get ${selectedPlanData.label} Access${selectedPrice !== null ? ` — ${currencySymbol}${selectedPrice.toLocaleString(locale)}` : ""}`
                   : 'Get Access'}
               </span>
             </a>
@@ -430,9 +447,9 @@ export const ProductDetails = () => {
               onClick={() =>
                 window.open(
                   `https://wa.me/919552530324?text=${encodeURIComponent(
-                    hasValidityPricing && selectedPlanData
-                      ? `Hello, I would like to buy the "${product.title}" Software/Tool — ${selectedPlanData.label} plan (${currencySymbol}${selectedPrice.toLocaleString(locale)}). Could you please provide details?`
-                      : `Hello, I would like to buy the "${product.title}" Software/Tool. Could you provide details?`
+                      hasValidityPricing && selectedPlanData
+                        ? `Hello, I would like to buy the "${product.title}" Software/Tool — ${selectedPlanData.label} plan${selectedPrice !== null ? ` (${currencySymbol}${selectedPrice.toLocaleString(locale)})` : ''}. Could you please provide details?`
+                        : `Hello, I would like to buy the "${product.title}" Software/Tool. Could you provide details?`
                   )}`,
                   '_blank'
                 )
@@ -445,7 +462,7 @@ export const ProductDetails = () => {
               </svg>
               <span className="relative z-10">
                 {hasValidityPricing && selectedPlanData
-                  ? `Get ${selectedPlanData.label} Access — ${currencySymbol}${selectedPrice.toLocaleString(locale)}`
+                  ? `Get ${selectedPlanData.label} Access${selectedPrice !== null ? ` — ${currencySymbol}${selectedPrice.toLocaleString(locale)}` : ""}`
                   : 'Get Access'}
               </span>
             </button>

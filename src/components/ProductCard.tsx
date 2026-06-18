@@ -55,38 +55,32 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
   const rating = useMemo(() => getRating(product.id), [product.id]);
   const { isIndia, loading: geoLoading } = useGeoLocation();
 
-  // Geo-aware price: show USD for international, INR for India
-  // Priority: 1. Monthly price (price_1m / price_1m_usd), 2. Admin base price (price / price_usd)
+  // Geo-aware price: show USD for international, INR for India.
+  // Only uses the dedicated price fields — no INR→USD conversion.
   const displayPrice = useMemo(() => {
-    const anyProduct = product as any;
+    const p = product as any;
     if (!isIndia) {
-      // Users outside India - use prices in $
-      // 1. Monthly price in USD
-      if (anyProduct.price_1m_usd !== undefined && anyProduct.price_1m_usd !== null && anyProduct.price_1m_usd !== '') {
-        return { symbol: '$', value: Number(anyProduct.price_1m_usd), locale: 'en-US', suffix: '/mo' };
+      // International users: use dedicated USD fields only
+      const usdMonthly = p.price_1m_usd;
+      if (usdMonthly !== undefined && usdMonthly !== null && usdMonthly !== '') {
+        return { symbol: '$', value: Number(usdMonthly), locale: 'en-US', suffix: '/mo' };
       }
-      // 2. Monthly price in INR converted to USD (fallback)
-      if (anyProduct.price_1m !== undefined && anyProduct.price_1m !== null && anyProduct.price_1m !== '') {
-        const converted = Math.round((Number(anyProduct.price_1m) / 83) * 100) / 100;
-        return { symbol: '$', value: converted, locale: 'en-US', suffix: '/mo' };
+      const usdBase = p.price_usd;
+      if (usdBase !== undefined && usdBase !== null && usdBase !== '') {
+        return { symbol: '$', value: Number(usdBase), locale: 'en-US', suffix: '' };
       }
-      // 3. Base price in USD
-      if (anyProduct.price_usd !== undefined && anyProduct.price_usd !== null && anyProduct.price_usd !== '') {
-        return { symbol: '$', value: Number(anyProduct.price_usd), locale: 'en-US', suffix: '' };
-      }
-      // 4. Base price in INR converted to USD (fallback)
-      const baseVal = anyProduct.price !== undefined && anyProduct.price !== null && anyProduct.price !== '' ? Number(anyProduct.price) : 999;
-      const converted = Math.round((baseVal / 83) * 100) / 100;
-      return { symbol: '$', value: converted, locale: 'en-US', suffix: '' };
+      return null; // No USD price set by admin — hide price rather than show a wrong value
     } else {
-      // Users in India - use prices in ₹
-      // 1. Monthly price in INR
-      if (anyProduct.price_1m !== undefined && anyProduct.price_1m !== null && anyProduct.price_1m !== '') {
-        return { symbol: '₹', value: Number(anyProduct.price_1m), locale: 'en-IN', suffix: '/mo' };
+      // India: use INR fields
+      const inrMonthly = p.price_1m;
+      if (inrMonthly !== undefined && inrMonthly !== null && inrMonthly !== '') {
+        return { symbol: '₹', value: Number(inrMonthly), locale: 'en-IN', suffix: '/mo' };
       }
-      // 2. Base price in INR
-      const baseVal = anyProduct.price !== undefined && anyProduct.price !== null && anyProduct.price !== '' ? Number(anyProduct.price) : 999;
-      return { symbol: '₹', value: baseVal, locale: 'en-IN', suffix: '' };
+      const inrBase = p.price;
+      if (inrBase !== undefined && inrBase !== null && inrBase !== '') {
+        return { symbol: '₹', value: Number(inrBase), locale: 'en-IN', suffix: '' };
+      }
+      return null;
     }
   }, [isIndia, product]);
 
@@ -260,9 +254,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
           <div className="mt-auto pt-3 md:pt-4 border-t border-gray-100 flex flex-col gap-2 md:gap-3">
             <div className="flex items-baseline gap-1">
               {geoLoading ? (
-                /* Skeleton shimmer while geo is resolving — prevents INR→USD flash */
+                /* Skeleton shimmer while geo is resolving — prevents price flash */
                 <div className="h-7 w-20 rounded-lg bg-gray-100 animate-pulse" />
-              ) : (
+              ) : displayPrice ? (
                 <>
                   <span className="text-lg md:text-[28px] font-extrabold text-gray-900 tracking-tight leading-none">
                     {displayPrice.symbol}{displayPrice.value.toLocaleString(displayPrice.locale)}
@@ -271,8 +265,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
                     <span className="text-xs md:text-sm font-bold text-gray-400">{displayPrice.suffix}</span>
                   )}
                 </>
-              )}
+              ) : null}
             </div>
+
             <Link
               to={`/product/${product.id}`}
               className="relative w-full overflow-hidden flex items-center justify-center gap-1.5 min-h-[44px] py-2 md:py-3 bg-blue-600 text-white rounded-lg text-[10px] md:text-xs font-bold uppercase tracking-wider hover:bg-blue-700 hover:scale-[1.03] hover:shadow-lg hover:shadow-blue-600/30 transition-all duration-200 active:scale-95 group/checkout"
