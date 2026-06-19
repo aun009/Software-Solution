@@ -16,6 +16,10 @@ import gsap from 'gsap';
 // (cards animate in from opacity:0, page height is unstable) → lands at footer.
 const SCROLL_KEY = 'store_scroll_y';
 
+if (typeof window !== 'undefined' && 'scrollRestoration' in window.history) {
+  window.history.scrollRestoration = 'manual';
+}
+
 const saveScroll = () => {
   try { sessionStorage.setItem(SCROLL_KEY, String(Math.round(window.scrollY))); } catch { /* quota */ }
 };
@@ -75,6 +79,19 @@ export const StorePage = () => {
   });
 
   const [isRestored, setIsRestored] = useState(false);
+  const [columns, setColumns] = useState(() => {
+    if (typeof window === 'undefined') return 3;
+    return window.innerWidth < 1024 ? 2 : 3;
+  });
+
+  useEffect(() => {
+    const updateColumns = () => {
+      setColumns(window.innerWidth < 1024 ? 2 : 3);
+    };
+    updateColumns();
+    window.addEventListener('resize', updateColumns);
+    return () => window.removeEventListener('resize', updateColumns);
+  }, []);
   
   const { products: allProducts, fetchProducts, loading } = useProductStore();
 
@@ -119,7 +136,11 @@ export const StorePage = () => {
   // at least one layout+paint cycle before we jump, avoiding the footer trap.
   const restoredRef = useRef(false);
   useLayoutEffect(() => {
-    if (loading) return;
+    if (typeof window !== 'undefined' && 'scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+
+    if (allProducts.length === 0) return;
     if (restoredRef.current) return;
 
     const savedY = sessionStorage.getItem(SCROLL_KEY);
@@ -136,7 +157,10 @@ export const StorePage = () => {
 
     restoredRef.current = true;
 
-    // Retry loop to ensure scroll lands on the target position as layout settles
+    // Scroll instantly before paint to prevent flashing
+    window.scrollTo({ top: target, behavior: 'instant' as ScrollBehavior });
+
+    // Fallback animation frame to verify position matches target after render completes
     let attempts = 0;
     const tryScroll = () => {
       window.scrollTo({ top: target, behavior: 'instant' as ScrollBehavior });
@@ -150,7 +174,7 @@ export const StorePage = () => {
     };
 
     requestAnimationFrame(tryScroll);
-  }, [loading]);
+  }, [allProducts.length]);
 
   // ── Populate search query from URL ──────────────────────────────────────────
   useEffect(() => {
@@ -336,11 +360,11 @@ export const StorePage = () => {
           </h2>
         </motion.div>
 
-        {loading ? (
-           <div className="py-48 flex flex-col items-center justify-center gap-4">
-             <Loader2 className="animate-spin text-blue-500" size={40} />
-             <p className="text-gray-400 font-mono text-xs uppercase tracking-widest">Querying Global Matrix...</p>
-           </div>
+        {loading && filteredProducts.length === 0 ? (
+          <div className="py-48 flex flex-col items-center justify-center gap-4">
+            <Loader2 className="animate-spin text-blue-500" size={40} />
+            <p className="text-gray-400 font-mono text-xs uppercase tracking-widest">Querying Global Matrix...</p>
+          </div>
         ) : filteredProducts.length > 0 ? (
           <>
             {/* Always-visible first 6 products */}
@@ -360,7 +384,7 @@ export const StorePage = () => {
                 <div
                   className={`grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-8 lg:gap-10 overflow-hidden ${isRestored ? 'transition-all duration-500 ease-in-out' : ''}`}
                   style={{
-                    maxHeight: showAll ? `${Math.ceil((filteredProducts.length - 6) / 3) * 700}px` : '0px',
+                    maxHeight: showAll ? `${Math.ceil((filteredProducts.length - 6) / columns) * 900}px` : '0px',
                     opacity: showAll ? 1 : 0,
                     marginTop: showAll ? '32px' : '0px',
                   }}
@@ -393,6 +417,8 @@ export const StorePage = () => {
                 </div>
               </>
             )}
+
+            
           </>
         ) : (
           <div className="py-32 text-center border border-dashed border-white/10 rounded-[40px] flex flex-col items-center bg-white/5 backdrop-blur-sm">
