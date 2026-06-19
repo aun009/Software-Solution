@@ -222,7 +222,7 @@ export const HomePage = () => {
       </section>
 
       {/* Embedded Store Panel */}
-      <div id="store" className="scroll-mt-24 relative z-20 w-full" style={{ contentVisibility: 'auto', containIntrinsicSize: '600px' }}>
+      <div id="store" className="scroll-mt-24 relative z-20 w-full">
         <StorePage />
       </div>
 

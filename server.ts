@@ -36,19 +36,32 @@ async function startServer() {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
   });
 
-  app.get('/api/geo', async (_req, res) => {
+  app.get('/api/geo', async (req, res) => {
     try {
-      const response = await fetch('https://ipapi.co/json/', {
+      // Resolve the real client IP — Vercel / nginx set X-Forwarded-For
+      const forwarded = req.headers['x-forwarded-for'];
+      const clientIp =
+        (Array.isArray(forwarded) ? forwarded[0] : forwarded?.split(',')[0]?.trim()) ||
+        req.socket.remoteAddress ||
+        '';
+
+      const geoUrl = clientIp
+        ? `https://ipapi.co/${encodeURIComponent(clientIp)}/json/`
+        : 'https://ipapi.co/json/';
+
+      const response = await fetch(geoUrl, {
         headers: { accept: 'application/json' },
       });
       if (!response.ok) throw new Error(`Geo lookup failed with ${response.status}`);
-      const data = await response.json();
+      const data = await response.json() as any;
+      const countryCode: string = (data.country_code || 'IN').toUpperCase();
       res.json({
-        isIndia: data.country_code === 'IN',
-        countryCode: data.country_code || 'IN',
+        isIndia: countryCode === 'IN',
+        countryCode,
         loading: false,
       });
     } catch {
+      // Fallback: assume India — safe default (never incorrectly shows USD to an Indian user)
       res.json({ isIndia: true, countryCode: 'IN', loading: false });
     }
   });

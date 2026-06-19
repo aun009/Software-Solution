@@ -8,6 +8,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { LoginModal } from './LoginModal';
+import { clearStoreReturnState, disableNativeScrollRestoration } from '../lib/scrollRestoration';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -46,14 +47,12 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
   const { scrollYProgress } = useScroll();
 
   useLayoutEffect(() => {
-    if (typeof window !== 'undefined' && 'scrollRestoration' in window.history) {
-      window.history.scrollRestoration = 'manual';
-    }
+    disableNativeScrollRestoration();
   });
 
   const clearStoreSession = useCallback(() => {
+    clearStoreReturnState();
     try {
-      sessionStorage.removeItem('store_scroll_y');
       sessionStorage.removeItem('store_search_term');
       sessionStorage.removeItem('store_selected_category');
       sessionStorage.removeItem('store_show_all');
@@ -306,6 +305,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
           </div>
         </div>
       </footer>
+      <div className="mobile-viewport-sentinel" aria-hidden="true" />
     </div>
   );
 };

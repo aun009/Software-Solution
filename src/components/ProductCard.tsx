@@ -1,14 +1,17 @@
-import React, { useRef, useEffect, useMemo } from 'react';
+import React, { useRef, useEffect, useMemo, useCallback } from 'react';
 import { motion } from 'motion/react';
 import { ArrowRight, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Product } from '../types';
 import gsap from 'gsap';
 import { useGeoLocation } from '../hooks/useGeoLocation';
+import { markStoreReturnPending } from '../lib/scrollRestoration';
 
 interface ProductCardProps {
   product: Product;
   index: number;
+  returnContext?: string;
+  suppressEntryAnimation?: boolean;
 }
 
 // Deterministic rating from product id — gives 4.5–4.9 range
@@ -49,11 +52,23 @@ const resolveProductImage = (product: any) => {
   return image;
 };
 
-export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
+export const ProductCard: React.FC<ProductCardProps> = ({
+  product,
+  index,
+  returnContext = 'store-grid',
+  suppressEntryAnimation = false
+}) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const glowRef = useRef<HTMLDivElement>(null);
   const rating = useMemo(() => getRating(product.id), [product.id]);
   const { isIndia, loading: geoLoading } = useGeoLocation();
+  const returnTargetId = useMemo(
+    () => `${returnContext}:${index}:${product.id}`,
+    [returnContext, index, product.id]
+  );
+  const handleProductClick = useCallback(() => {
+    markStoreReturnPending(product.id, returnTargetId);
+  }, [product.id, returnTargetId]);
 
   // Geo-aware price: show USD for international, INR for India.
   // Only uses the dedicated price fields — no INR→USD conversion.
@@ -151,14 +166,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 24 }}
+      data-product-card-id={product.id}
+      data-product-card-target={returnTargetId}
+      initial={suppressEntryAnimation ? false : { opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
-      transition={{
-        duration: 0.6,
-        delay: (index % 3) * 0.08,
-        ease: [0.16, 1, 0.3, 1]
-      }}
+      transition={suppressEntryAnimation
+        ? { duration: 0 }
+        : {
+            duration: 0.6,
+            delay: (index % 3) * 0.08,
+            ease: [0.16, 1, 0.3, 1]
+          }}
       style={{ perspective: 800 }}
     >
       {/* Cursor glow — outside card so overflow-hidden doesn't clip it */}
@@ -183,7 +202,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
       >
 
         {/* Image — centered logo on white background */}
-        <Link to={`/product/${product.id}`} className="block overflow-hidden relative border-b border-gray-200">
+        <Link to={`/product/${product.id}`} onClick={handleProductClick} className="block overflow-hidden relative border-b border-gray-200">
           <div className="w-full h-[130px] md:h-[200px] relative flex items-center justify-center bg-white overflow-hidden">
             {/* Main centered logo */}
             <img
@@ -222,7 +241,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
           </div>
 
           {/* Title */}
-          <Link to={`/product/${product.id}`}>
+          <Link to={`/product/${product.id}`} onClick={handleProductClick}>
             <h3 className="text-base md:text-xl font-bold text-gray-900 leading-snug tracking-tight mb-1 md:mb-2 hover:text-blue-600 transition-colors duration-200 truncate">
               {product.title}
             </h3>
@@ -270,6 +289,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
 
             <Link
               to={`/product/${product.id}`}
+              onClick={handleProductClick}
               className="relative w-full overflow-hidden flex items-center justify-center gap-1.5 min-h-[44px] py-2 md:py-3 bg-blue-600 text-white rounded-lg text-[10px] md:text-xs font-bold uppercase tracking-wider hover:bg-blue-700 hover:scale-[1.03] hover:shadow-lg hover:shadow-blue-600/30 transition-all duration-200 active:scale-95 group/checkout"
             >
               {/* Shimmer sweep */}

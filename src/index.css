@@ -25,9 +25,37 @@
       #FAFAFC;
   }
 
+  html,
+  body {
+    min-height: 100vh;
+  }
+
+  @supports (-webkit-touch-callout: none) {
+    html,
+    body {
+      min-height: -webkit-fill-available;
+    }
+  }
+
   .dot-grid {
     background-image: radial-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px);
     background-size: 24px 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  footer {
+    position: relative;
+  }
+
+  .mobile-viewport-sentinel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    z-index: -1;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
   }
 }
 
